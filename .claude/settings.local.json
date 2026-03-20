@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(git init:*)",
+      "Bash(git remote:*)",
+      "Skill(update-config)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(git push)"
+    ]
+  }
+}
