@@ -17,6 +17,7 @@ interface GameStore {
   addBlock: (block: QueuedBlock, content: string) => void
   addPenalties: (count: number) => void
   applyDailyBonus: (todayStr: string) => void
+  syncScore: (score: number) => void
   resetGame: () => void
 }
 
@@ -60,6 +61,10 @@ export const useGameStore = create<GameStore>((set) => ({
       widgetBridge.updateScore(newState.score)
       return { gameState: newState }
     }),
+
+  // 위젯 score를 앱에 동기화 (위젯에서 줄 클리어 시 점수가 올라가므로)
+  syncScore: (score) =>
+    set((s) => ({ gameState: { ...s.gameState, score } })),
 
   resetGame: () => {
     widgetBridge.resetGame()

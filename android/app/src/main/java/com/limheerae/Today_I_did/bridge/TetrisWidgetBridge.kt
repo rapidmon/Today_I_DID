@@ -108,6 +108,18 @@ class TetrisWidgetBridge(reactContext: ReactApplicationContext) :
         }
     }
 
+    // 위젯의 현재 점수 조회
+    @ReactMethod
+    fun getScore(promise: Promise) {
+        try {
+            val context = reactApplicationContext
+            val prefs = context.getSharedPreferences("tetris_widget", Context.MODE_PRIVATE)
+            promise.resolve(prefs.getInt("score", 0))
+        } catch (e: Exception) {
+            promise.reject("ERROR", e.message)
+        }
+    }
+
     // 게임 오버 여부 확인
     @ReactMethod
     fun isGameOver(promise: Promise) {

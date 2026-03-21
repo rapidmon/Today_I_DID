@@ -58,54 +58,69 @@ class TetrisWidgetProvider : AppWidgetProvider() {
                 updateWidget(context)
                 return
             }
-            ACTION_MOVE_LEFT -> TetrisGameEngine.processAction(context, "move_left")
-            ACTION_MOVE_RIGHT -> TetrisGameEngine.processAction(context, "move_right")
-            ACTION_ROTATE -> TetrisGameEngine.processAction(context, "rotate")
+            ACTION_MOVE_LEFT -> {
+                val state = TetrisGameEngine.processAction(context, "move_left")
+                updateWidget(context, state)
+                return
+            }
+            ACTION_MOVE_RIGHT -> {
+                val state = TetrisGameEngine.processAction(context, "move_right")
+                updateWidget(context, state)
+                return
+            }
+            ACTION_ROTATE -> {
+                val state = TetrisGameEngine.processAction(context, "rotate")
+                updateWidget(context, state)
+                return
+            }
             ACTION_MOVE_DOWN -> {
-                TetrisGameEngine.processAction(context, "move_down")
-
-                val state = TetrisGameEngine.loadState(context)
+                // processAction이 저장된 상태를 반환 → 재로드 불필요
+                val state = TetrisGameEngine.processAction(context, "move_down")
                 if (state.animationState == "highlight") {
+                    updateWidget(context, state)
                     startLineClearAnimation(context)
+                } else {
+                    updateWidget(context, state)
                 }
+                return
             }
             else -> return
         }
-
-        updateWidget(context)
     }
 
-    private fun updateWidget(context: Context) {
-        val views = RemoteViews(context.packageName, R.layout.widget_tetris)
-        val state = TetrisGameEngine.loadState(context)
+    // 상태를 직접 받아서 재로드 없이 렌더링 (오버로드)
+    private fun updateWidget(context: Context, state: GameState) {
+        renderAndPush(context, state)
+    }
 
-        // 비트맵 렌더링
+    // 상태 없이 호출 시 로드 (리프레시/초기화 등)
+    private fun updateWidget(context: Context) {
+        val state = TetrisGameEngine.loadState(context)
+        renderAndPush(context, state)
+    }
+
+    private fun renderAndPush(context: Context, state: GameState) {
+        val views = RemoteViews(context.packageName, R.layout.widget_tetris)
+
         val bitmap = WidgetRenderer.renderGrid(state, BOARD_WIDTH, BOARD_HEIGHT)
         views.setImageViewBitmap(R.id.game_board, bitmap)
 
-        // 텍스트 업데이트
         views.setTextViewText(R.id.score_text, "SCORE: ${state.score}")
         views.setTextViewText(R.id.stock_text, "STOCK: ${state.blockQueue.size}")
 
         // GAME OVER 상태에 따른 버튼 색상 변경
         if (state.gameOver) {
-            // 새로고침 → 초록색 (리셋 버튼)
             views.setInt(R.id.btn_refresh, "setBackgroundColor", Color.parseColor("#00CC00"))
-            // [+] 버튼 비활성화 (회색으로 변경, 빈 PendingIntent)
             views.setInt(R.id.btn_add, "setBackgroundColor", Color.parseColor("#222233"))
             views.setTextColor(R.id.btn_add, Color.parseColor("#444466"))
-            // GAME OVER 시 [+] 버튼 클릭해도 아무 동작 안 함
             views.setOnClickPendingIntent(R.id.btn_add, createPendingIntent(context, "NOOP"))
         } else {
-            // 새로고침 → 기본 회색
             views.setInt(R.id.btn_refresh, "setBackgroundColor", Color.parseColor("#333366"))
-            // [+] 버튼 활성화
             views.setInt(R.id.btn_add, "setBackgroundColor", Color.parseColor("#0088FF"))
             views.setTextColor(R.id.btn_add, Color.parseColor("#FFFFFF"))
             views.setOnClickPendingIntent(R.id.btn_add, createOpenAppPendingIntent(context))
         }
 
-        // 게임 조작 버튼
         views.setOnClickPendingIntent(R.id.btn_left, createPendingIntent(context, ACTION_MOVE_LEFT))
         views.setOnClickPendingIntent(R.id.btn_right, createPendingIntent(context, ACTION_MOVE_RIGHT))
         views.setOnClickPendingIntent(R.id.btn_rotate, createPendingIntent(context, ACTION_ROTATE))
@@ -143,7 +158,6 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         )
     }
 
-    // 앱 열기용 PendingIntent (Activity)
     private fun createOpenAppPendingIntent(context: Context): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK

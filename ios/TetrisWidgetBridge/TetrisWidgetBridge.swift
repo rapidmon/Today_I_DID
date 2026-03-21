@@ -106,6 +106,15 @@ class TetrisWidgetBridge: NSObject {
         resolve(true)
     }
 
+    // 위젯의 현재 점수 조회
+    @objc func getScore(
+        _ resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        let score = defaults?.integer(forKey: "score") ?? 0
+        resolve(score)
+    }
+
     // 게임 오버 여부
     @objc func isGameOver(
         _ resolve: @escaping RCTPromiseResolveBlock,

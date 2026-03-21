@@ -8,6 +8,7 @@ interface WidgetBridge {
   updateScore: (score: number) => Promise<boolean>
   resetGame: () => Promise<boolean>
   refreshWidget: () => Promise<boolean>
+  getScore: () => Promise<number>
   isGameOver: () => Promise<boolean>
   getAchievements: () => Promise<string>
 }
@@ -28,6 +29,8 @@ const bridge: WidgetBridge = (Platform.OS === 'android' || Platform.OS === 'ios'
         TetrisWidgetBridge.resetGame(),
       refreshWidget: () =>
         TetrisWidgetBridge.refreshWidget(),
+      getScore: () =>
+        TetrisWidgetBridge.getScore(),
       isGameOver: () =>
         TetrisWidgetBridge.isGameOver(),
       getAchievements: () =>
@@ -39,6 +42,7 @@ const bridge: WidgetBridge = (Platform.OS === 'android' || Platform.OS === 'ios'
       updateScore: noop,
       resetGame: noop,
       refreshWidget: noop,
+      getScore: async () => 0,
       isGameOver: async () => false,
       getAchievements: noopString,
     }

@@ -23,6 +23,9 @@ RCT_EXTERN_METHOD(resetGame:(RCTPromiseResolveBlock)resolve
 RCT_EXTERN_METHOD(refreshWidget:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(getScore:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(isGameOver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 

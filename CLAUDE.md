@@ -260,3 +260,10 @@ npm run android
 - [NativeWind](https://nativewind.dev)
 - [Zustand](https://github.com/pmndrs/zustand)
 - [TanStack Query](https://tanstack.com/query/latest)
+
+---
+
+## Latest Session
+- Date: 2026-03-21
+- Summary: .claude/context/session-2026-03-21.md
+- Status: Android 위젯 거의 완성 (브릿지/성취/GAME OVER/score 동기화), iOS Swift 코드 작성 완료 (빌드 전), 최적화+리팩토링 적용됨, 미커밋 변경사항 있음

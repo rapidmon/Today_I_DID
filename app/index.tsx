@@ -1,11 +1,10 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import {
   View,
   Text,
   TextInput,
   Pressable,
   FlatList,
-  StyleSheet,
   Modal,
   KeyboardAvoidingView,
   Platform,
@@ -19,6 +18,7 @@ import { BLOCK_TYPES } from '@/constants/tetris'
 import widgetBridge from '@/lib/widgetBridge'
 import type { Task, Routine } from '@/types/record'
 import type { QueuedBlock } from '@/types/game'
+import { homeStyles as styles } from '@/constants/homeStyles'
 
 interface AchievementRecord {
   id: string
@@ -52,6 +52,7 @@ export default function HomeScreen() {
   const addPenalties = useGameStore((s) => s.addPenalties)
   const applyDailyBonusStore = useGameStore((s) => s.applyDailyBonus)
   const resetGame = useGameStore((s) => s.resetGame)
+  const syncScore = useGameStore((s) => s.syncScore)
   const gameScore = useGameStore((s) => s.gameState.score)
 
   // 위젯 게임 오버 상태 + 성취 데이터 동기화
@@ -64,6 +65,10 @@ export default function HomeScreen() {
         resetGame()
       }
       setIsGameOver(gameOver)
+
+      // 위젯의 실제 score를 앱에 동기화 (줄 클리어 점수 반영)
+      const widgetScore = await widgetBridge.getScore()
+      syncScore(widgetScore)
 
       const achJson = await widgetBridge.getAchievements()
       const parsed = JSON.parse(achJson) as WidgetAchievement[]
@@ -81,56 +86,51 @@ export default function HomeScreen() {
   }, [])
 
   // 매일 루틴에서 오늘의 할 일 자동 생성 + 전날 미완료 페널티 체크
+  // 하나의 setTasks로 배치 처리하여 리렌더링 1회로 줄임
   useEffect(() => {
     const todayStr = today()
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayStr = yesterday.toISOString().slice(0, 10)
 
-    // 루틴에서 오늘 할 일 생성 (이미 있으면 스킵)
     setTasks(prev => {
-      const todayRoutineTasks = prev.filter(t => t.date === todayStr && t.isRoutine)
+      let result = prev
+
+      // 1) 루틴에서 오늘 할 일 생성
+      const todayRoutineTasks = result.filter(t => t.date === todayStr && t.isRoutine)
       const missingRoutines = routines.filter(
         r => r.active && !todayRoutineTasks.some(t => t.routineId === r.id)
       )
+      if (missingRoutines.length > 0) {
+        const newTasks = missingRoutines.map(r => ({
+          id: genId('task'),
+          content: r.content,
+          date: todayStr,
+          status: 'pending' as const,
+          isRoutine: true,
+          routineId: r.id,
+          blockType: null,
+          colorId: null,
+          createdAt: Date.now(),
+          completedAt: null,
+        }))
+        result = [...newTasks, ...result]
+      }
 
-      if (missingRoutines.length === 0) return prev
-
-      const newTasks = missingRoutines.map(r => ({
-        id: genId('task'),
-        content: r.content,
-        date: todayStr,
-        status: 'pending' as const,
-        isRoutine: true,
-        routineId: r.id,
-        blockType: null,
-        colorId: null,
-        createdAt: Date.now(),
-        completedAt: null,
-      }))
-
-      return [...newTasks, ...prev]
-    })
-
-    // 전날 미완료 할 일 → 페널티 (간소화: 앱 실행 시 체크)
-    setTasks(prev => {
-      const yesterday = new Date()
-      yesterday.setDate(yesterday.getDate() - 1)
-      const yesterdayStr = yesterday.toISOString().slice(0, 10)
-
-      const pendingYesterday = prev.filter(
+      // 2) 전날 미완료 → 페널티
+      const pendingYesterday = result.filter(
         t => t.date === yesterdayStr && t.status === 'pending'
       )
-
       if (pendingYesterday.length > 0) {
-        // 미완료 처리
-        const updated = prev.map(t =>
+        result = result.map(t =>
           t.date === yesterdayStr && t.status === 'pending'
             ? { ...t, status: 'failed' as const }
             : t
         )
-        // 페널티 적용
         addPenalties(pendingYesterday.length)
-        return updated
       }
-      return prev
+
+      return result
     })
   }, [routines, addPenalties])
 
@@ -139,6 +139,7 @@ export default function HomeScreen() {
     const trimmed = inputText.trim()
     if (!trimmed) return
 
+    let routineId: string | null = null
     if (inputMode === 'routine') {
       const newRoutine: Routine = {
         id: genId('routine'),
@@ -147,67 +148,49 @@ export default function HomeScreen() {
         createdAt: Date.now(),
       }
       setRoutines(prev => [...prev, newRoutine])
-
-      // 오늘 할 일도 바로 생성
-      const todayStr = today()
-      const newTask: Task = {
-        id: genId('task'),
-        content: trimmed,
-        date: todayStr,
-        status: 'pending',
-        isRoutine: true,
-        routineId: newRoutine.id,
-        blockType: null,
-        colorId: null,
-        createdAt: Date.now(),
-        completedAt: null,
-      }
-      setTasks(prev => [newTask, ...prev])
-    } else {
-      const newTask: Task = {
-        id: genId('task'),
-        content: trimmed,
-        date: today(),
-        status: 'pending',
-        isRoutine: false,
-        routineId: null,
-        blockType: null,
-        colorId: null,
-        createdAt: Date.now(),
-        completedAt: null,
-      }
-      setTasks(prev => [newTask, ...prev])
+      routineId = newRoutine.id
     }
 
+    const newTask: Task = {
+      id: genId('task'),
+      content: trimmed,
+      date: today(),
+      status: 'pending',
+      isRoutine: inputMode === 'routine',
+      routineId,
+      blockType: null,
+      colorId: null,
+      createdAt: Date.now(),
+      completedAt: null,
+    }
+    setTasks(prev => [newTask, ...prev])
     setInputText('')
   }, [inputText, inputMode])
 
-  // 할 일 완료
+  // 할 일 완료 — setTasks의 콜백에서 content를 가져와 tasks 의존성 제거
   const handleComplete = useCallback((taskId: string) => {
-    const todayStr = today()
     const randomBlock = BLOCK_TYPES[Math.floor(Math.random() * BLOCK_TYPES.length)]
     const colorId = getRandomColorId()
 
-    // task content를 먼저 찾기
-    const task = tasks.find(t => t.id === taskId)
-    const taskContent = task?.content ?? ''
+    setTasks(prev => {
+      const task = prev.find(t => t.id === taskId)
+      if (task) {
+        const queuedBlock: QueuedBlock = {
+          type: randomBlock,
+          colorId,
+          sourceRecordId: taskId,
+        }
+        addBlock(queuedBlock, task.content)
+      }
+      return prev.map(t =>
+        t.id === taskId
+          ? { ...t, status: 'completed' as const, blockType: randomBlock, colorId, completedAt: Date.now() }
+          : t
+      )
+    })
 
-    setTasks(prev => prev.map(t =>
-      t.id === taskId
-        ? { ...t, status: 'completed' as const, blockType: randomBlock, colorId, completedAt: Date.now() }
-        : t
-    ))
-
-    const queuedBlock: QueuedBlock = {
-      type: randomBlock,
-      colorId,
-      sourceRecordId: taskId,
-    }
-    addBlock(queuedBlock, taskContent)
-
-    // 일일 활동 보너스 (+1점, 하루 1회)
     applyDailyBonusStore(todayStr)
-  }, [addBlock, applyDailyBonusStore, tasks])
+  }, [addBlock, applyDailyBonusStore, todayStr])
 
   // 루틴 삭제
   const handleDeleteRoutine = useCallback((routineId: string) => {
@@ -221,7 +204,9 @@ export default function HomeScreen() {
     ])
   }, [])
 
-  const todayTasks = tasks.filter(t => t.date === today())
+  // 오늘 할 일 필터링 메모이제이션 — tasks 변경 시에만 재계산
+  const todayStr = useMemo(() => today(), [])
+  const todayTasks = useMemo(() => tasks.filter(t => t.date === todayStr), [tasks, todayStr])
   const formatDate = (dateStr: string) => dateStr.slice(5).replace('-', '.')
 
   return (
@@ -313,6 +298,9 @@ export default function HomeScreen() {
           data={todayTasks}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          windowSize={5}
           renderItem={({ item, index }) => (
             <Pressable
               style={styles.recordItem}
@@ -434,107 +422,3 @@ export default function HomeScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F0F23' },
-  header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 12,
-  },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#FFDD00', letterSpacing: 2 },
-  headerRight: { flexDirection: 'row' as const, gap: 8 },
-  scoreBadge: {
-    backgroundColor: '#1A1A2E', borderWidth: 2, borderColor: '#FFDD00',
-    borderRadius: 6, paddingHorizontal: 10, paddingVertical: 4,
-  },
-  scoreText: { color: '#FFDD00', fontSize: 12, fontWeight: 'bold', letterSpacing: 1 },
-  gameOverBadge: {
-    backgroundColor: '#FF000030', borderWidth: 2, borderColor: '#FF0000',
-    borderRadius: 6, paddingHorizontal: 10, paddingVertical: 4,
-  },
-  gameOverText: { color: '#FF4444', fontSize: 11, fontWeight: 'bold', letterSpacing: 1 },
-  modeRow: {
-    flexDirection: 'row', paddingHorizontal: 16, gap: 8, marginBottom: 4,
-  },
-  modeButton: {
-    paddingHorizontal: 16, paddingVertical: 6, borderRadius: 6,
-    borderWidth: 2, borderColor: '#333366',
-  },
-  modeButtonActive: { backgroundColor: '#FFDD00', borderColor: '#CCAA00' },
-  modeText: { color: '#666688', fontSize: 13, fontWeight: 'bold' },
-  modeTextActive: { color: '#0F0F23' },
-  inputRow: { flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 8, gap: 8 },
-  input: {
-    flex: 1, backgroundColor: '#1A1A2E', borderWidth: 2, borderColor: '#333366',
-    borderRadius: 8, paddingHorizontal: 14, paddingVertical: 10, color: '#FFFFFF', fontSize: 15,
-  },
-  addButton: {
-    backgroundColor: '#FFDD00', borderRadius: 8, paddingHorizontal: 16,
-    justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#CCAA00',
-  },
-  addButtonDisabled: { backgroundColor: '#333366', borderColor: '#222244' },
-  addButtonText: { color: '#0F0F23', fontWeight: 'bold', fontSize: 13, letterSpacing: 1 },
-  routineSection: { paddingHorizontal: 16, marginBottom: 8 },
-  sectionLabel: { color: '#666688', fontSize: 11, fontWeight: 'bold', letterSpacing: 2, marginBottom: 6 },
-  routineList: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  routineChip: {
-    backgroundColor: '#1A1A2E', borderWidth: 1, borderColor: '#333366',
-    borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4,
-  },
-  routineChipText: { color: '#AAAACC', fontSize: 12 },
-  listContent: { paddingBottom: 100 },
-  recordItem: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 16, paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: '#1A1A2E',
-  },
-  numberBadge: {
-    width: 32, height: 32, borderRadius: 16, backgroundColor: '#1A1A2E',
-    borderWidth: 2, borderColor: '#333366', alignItems: 'center', justifyContent: 'center', marginRight: 12,
-  },
-  numberBadgeCompleted: { backgroundColor: '#00CC00', borderColor: '#009900' },
-  numberText: { color: '#FFDD00', fontSize: 13, fontWeight: 'bold' },
-  recordContent: { flex: 1 },
-  recordText: { color: '#FFFFFF', fontSize: 15, fontWeight: '500' },
-  recordTextCompleted: { color: '#666688', textDecorationLine: 'line-through' },
-  recordDate: { color: '#666688', fontSize: 11, marginTop: 2, letterSpacing: 1 },
-  blockBadge: { width: 36, height: 36, borderRadius: 6, alignItems: 'center', justifyContent: 'center', marginLeft: 12 },
-  blockText: { fontSize: 14, fontWeight: 'bold' },
-  emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  emptyIcon: { fontSize: 40, marginBottom: 12 },
-  emptyText: { color: '#666688', fontSize: 16, fontWeight: 'bold' },
-  emptySubText: { color: '#444466', fontSize: 13, marginTop: 4 },
-  fab: {
-    position: 'absolute', bottom: 24, right: 20, width: 56, height: 56, borderRadius: 28,
-    backgroundColor: '#FFDD00', alignItems: 'center', justifyContent: 'center',
-    borderWidth: 3, borderColor: '#CCAA00', elevation: 8,
-    shadowColor: '#FFDD00', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 4,
-  },
-  fabText: { fontSize: 24 },
-  modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' },
-  modalContent: {
-    backgroundColor: '#0F0F23', borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    maxHeight: '70%', borderTopWidth: 3, borderLeftWidth: 2, borderRightWidth: 2,
-    borderColor: '#333366', paddingBottom: 30,
-  },
-  modalHeader: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 2, borderBottomColor: '#1A1A2E',
-  },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#FFDD00', letterSpacing: 2 },
-  modalClose: { color: '#666688', fontSize: 22, fontWeight: 'bold' },
-  modalEmpty: { alignItems: 'center', paddingVertical: 40 },
-  achievementItem: { paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#1A1A2E' },
-  achievementHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  achievementLeft: { flex: 1 },
-  achievementTitle: { color: '#FFDD00', fontSize: 14, fontWeight: 'bold', letterSpacing: 1 },
-  achievementMeta: { color: '#666688', fontSize: 11, marginTop: 2 },
-  achievementArrow: { color: '#666688', fontSize: 12, marginLeft: 8 },
-  achievementBody: { marginTop: 10, paddingLeft: 4, borderLeftWidth: 2, borderLeftColor: '#333366', marginLeft: 2 },
-  achievementRecordRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, paddingLeft: 8 },
-  blockTypeBadge: {
-    width: 28, height: 22, borderRadius: 4, backgroundColor: '#333366',
-    alignItems: 'center', justifyContent: 'center', marginRight: 8,
-  },
-  blockTypeText: { color: '#FFDD00', fontSize: 11, fontWeight: 'bold' },
-  achievementRecord: { color: '#AAAACC', fontSize: 13, flex: 1 },
-})

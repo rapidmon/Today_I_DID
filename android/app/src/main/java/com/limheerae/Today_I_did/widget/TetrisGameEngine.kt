@@ -99,7 +99,8 @@ object TetrisGameEngine {
         }
     }
 
-    fun processAction(context: Context, action: String) {
+    // 상태를 반환하여 호출부에서 재로드 불필요
+    fun processAction(context: Context, action: String): GameState {
         val state = loadState(context)
         val newState = when (action) {
             "move_left" -> moveLeft(state)
@@ -109,9 +110,10 @@ object TetrisGameEngine {
             else -> state
         }
         saveState(context, newState)
+        return newState
     }
 
-    fun advanceAnimation(context: Context) {
+    fun advanceAnimation(context: Context): GameState {
         val state = loadState(context)
         val newState = when (state.animationState) {
             "highlight" -> state.copy(animationState = "fade")
@@ -126,6 +128,7 @@ object TetrisGameEngine {
             else -> state
         }
         saveState(context, newState)
+        return newState
     }
 
     private fun moveLeft(state: GameState): GameState {

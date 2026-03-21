@@ -31,21 +31,16 @@ export function canPlace(
   )
 }
 
-export function moveLeft(state: GameState): GameState {
+function moveHorizontal(state: GameState, dx: number): GameState {
   if (!state.activePiece) return state
-  const newPos = { ...state.activePiece.position, x: state.activePiece.position.x - 1 }
+  const newPos = { ...state.activePiece.position, x: state.activePiece.position.x + dx }
   const cells = getAbsoluteCells(state.activePiece.type, state.activePiece.rotation, newPos)
   if (!canPlace(state.grid, cells)) return state
   return { ...state, activePiece: { ...state.activePiece, position: newPos } }
 }
 
-export function moveRight(state: GameState): GameState {
-  if (!state.activePiece) return state
-  const newPos = { ...state.activePiece.position, x: state.activePiece.position.x + 1 }
-  const cells = getAbsoluteCells(state.activePiece.type, state.activePiece.rotation, newPos)
-  if (!canPlace(state.grid, cells)) return state
-  return { ...state, activePiece: { ...state.activePiece, position: newPos } }
-}
+export const moveLeft = (state: GameState) => moveHorizontal(state, -1)
+export const moveRight = (state: GameState) => moveHorizontal(state, 1)
 
 export function moveDown(state: GameState): GameState {
   if (!state.activePiece) return state
@@ -119,8 +114,10 @@ export function checkLines(grid: number[][]): number[] {
 
 export function clearLines(state: GameState): GameState {
   const { clearingRows } = state
-  const newGrid = state.grid.filter((_, i) => !clearingRows.includes(i))
-  const newGridRecordIds = state.gridRecordIds.filter((_, i) => !clearingRows.includes(i))
+  // Set으로 변환하여 includes() O(n) → has() O(1) 최적화
+  const clearSet = new Set(clearingRows)
+  const newGrid = state.grid.filter((_, i) => !clearSet.has(i))
+  const newGridRecordIds = state.gridRecordIds.filter((_, i) => !clearSet.has(i))
 
   while (newGrid.length < ROWS) {
     newGrid.unshift(Array(COLS).fill(0))
@@ -177,8 +174,7 @@ export function processAction(state: GameState, action: GameAction): GameState {
 export function advanceAnimation(state: GameState): GameState {
   switch (state.animationState) {
     case 'highlight': return { ...state, animationState: 'fade' }
-    case 'fade': return { ...state, animationState: 'done' }
-    case 'done': return spawnPiece(clearLines(state))
+    case 'fade': return spawnPiece(clearLines(state))
     default: return state
   }
 }
