@@ -1,14 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch",
-      "Bash(git init:*)",
-      "Bash(git remote:*)",
-      "Skill(update-config)"
-    ],
-    "deny": [
-      "Bash(git push:*)",
-      "Bash(git push)"
+      "Bash(/c/Users/Foryoucom/Desktop/coding/Today_I_did/android/gradlew -p /c/Users/Foryoucom/Desktop/coding/Today_I_did/android assembleDebug --stacktrace)",
+      "Bash(tee /tmp/build_log.txt)",
+      "Bash(/c/Users/Foryoucom/Desktop/coding/Today_I_did/android/gradlew -p /c/Users/Foryoucom/Desktop/coding/Today_I_did/android assembleDebug)",
+      "Bash(find /c/Users/Foryoucom/Desktop/coding/Today_I_did/android -name *.kt -o -name *.xml)",
+      "Bash(npx expo:*)",
+      "Bash(./gradlew :app:compileDebugKotlin)",
+      "Bash(./gradlew :app:compileDebugKotlin --rerun-tasks)"
     ]
   }
 }
