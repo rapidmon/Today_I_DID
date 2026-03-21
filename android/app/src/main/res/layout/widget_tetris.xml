@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0F0F23"
+    android:padding="4dp">
+
+    <!-- 상단: 점수 + 재고 + [+] + [↻] -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:paddingBottom="4dp">
+
+        <TextView
+            android:id="@+id/score_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="SCORE: 0"
+            android:textColor="#FFDD00"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/stock_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="STOCK: 0"
+            android:textColor="#00CC00"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:paddingEnd="8dp" />
+
+        <Button
+            android:id="@+id/btn_add"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:text="+"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:background="#0088FF"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btn_refresh"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:text="↻"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:background="#333366"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp" />
+    </LinearLayout>
+
+    <!-- 게임 보드 (비트맵) -->
+    <ImageView
+        android:id="@+id/game_board"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true" />
+
+    <!-- 조작 버튼 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="4dp">
+
+        <Button
+            android:id="@+id/btn_left"
+            android:layout_width="56dp"
+            android:layout_height="48dp"
+            android:text="◀"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="#1A1A2E"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btn_rotate"
+            android:layout_width="56dp"
+            android:layout_height="48dp"
+            android:text="↻"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="#1A1A2E"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btn_right"
+            android:layout_width="56dp"
+            android:layout_height="48dp"
+            android:text="▶"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="#1A1A2E"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/btn_down"
+            android:layout_width="56dp"
+            android:layout_height="48dp"
+            android:text="▼"
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:background="#0088FF" />
+    </LinearLayout>
+</LinearLayout>
