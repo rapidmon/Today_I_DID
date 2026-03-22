@@ -264,6 +264,6 @@ npm run android
 ---
 
 ## Latest Session
-- Date: 2026-03-21
-- Summary: .claude/context/session-2026-03-21.md
-- Status: Android 위젯 거의 완성 (브릿지/성취/GAME OVER/score 동기화), iOS Swift 코드 작성 완료 (빌드 전), 최적화+리팩토링 적용됨, 미커밋 변경사항 있음
+- Date: 2026-03-23
+- Summary: .claude/context/session-2026-03-23.md
+- Status: EAS Build 설정 완료, Android 위젯 git 복원 완료, SafeArea 하단 겹침 수정, iOS 위젯 Xcode 설정 미완료, 미커밋 변경사항 있음

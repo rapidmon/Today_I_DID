@@ -7,7 +7,12 @@
       "Bash(find /c/Users/Foryoucom/Desktop/coding/Today_I_did/android -name *.kt -o -name *.xml)",
       "Bash(npx expo:*)",
       "Bash(./gradlew :app:compileDebugKotlin)",
-      "Bash(./gradlew :app:compileDebugKotlin --rerun-tasks)"
+      "Bash(./gradlew :app:compileDebugKotlin --rerun-tasks)",
+      "Bash(find /c/Users/Foryoucom/Desktop/coding/Today_I_did/ios -type f \\\\\\(-name *.swift -o -name *Widget* \\\\\\))",
+      "Bash(mkdir -p \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/src/main/java/com/limheerae/Today_I_did/widget\")",
+      "Bash(mkdir -p \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/src/main/java/com/limheerae/Today_I_did/bridge\")",
+      "Bash(mkdir -p \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/src/main/res/xml\")",
+      "Bash(mkdir -p \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/src/main/res/layout\")"
     ]
   }
 }
