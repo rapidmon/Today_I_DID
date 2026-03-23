@@ -13,12 +13,14 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useGameStore } from '@/stores/gameStore'
+import { useTaskStore } from '@/stores/taskStore'
 import { getColorHex, getRandomColorId } from '@/lib/colorMapper'
 import { BLOCK_TYPES } from '@/constants/tetris'
 import widgetBridge from '@/lib/widgetBridge'
 import type { Task, Routine } from '@/types/record'
 import type { QueuedBlock } from '@/types/game'
 import { homeStyles as styles } from '@/constants/homeStyles'
+import { MiniBlock } from '@/components/ui/MiniBlock'
 
 interface AchievementRecord {
   id: string
@@ -35,19 +37,30 @@ interface WidgetAchievement {
   clearedAt: number
 }
 
-let idCounter = 0
-const genId = (prefix: string) => `${prefix}_${++idCounter}_${Date.now()}`
 const today = () => new Date().toISOString().slice(0, 10)
 
+const BLOCK_TYPE_COLORS: Record<string, string> = {
+  I: '#0088FF', O: '#FFDD00', T: '#CC00FF',
+  S: '#00CC00', Z: '#FF0000', J: '#FF8800', L: '#FF00AA',
+}
+
 export default function HomeScreen() {
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [routines, setRoutines] = useState<Routine[]>([])
+  const tasks = useTaskStore((s) => s.tasks)
+  const routines = useTaskStore((s) => s.routines)
+  const addTask = useTaskStore((s) => s.addTask)
+  const updateTask = useTaskStore((s) => s.updateTask)
+  const setTasks = useTaskStore((s) => s.setTasks)
+  const addRoutine = useTaskStore((s) => s.addRoutine)
+  const removeRoutine = useTaskStore((s) => s.removeRoutine)
+  const genId = useTaskStore((s) => s.genId)
+
   const [achievements, setAchievements] = useState<WidgetAchievement[]>([])
   const [inputText, setInputText] = useState('')
   const [inputMode, setInputMode] = useState<'task' | 'routine'>('task')
   const [popupVisible, setPopupVisible] = useState(false)
   const [expandedAchId, setExpandedAchId] = useState<string | null>(null)
   const [isGameOver, setIsGameOver] = useState(false)
+  const [recentlyCompleted, setRecentlyCompleted] = useState<Set<string>>(new Set())
   const addBlock = useGameStore((s) => s.addBlock)
   const addPenalties = useGameStore((s) => s.addPenalties)
   const applyDailyBonusStore = useGameStore((s) => s.applyDailyBonus)
@@ -147,7 +160,7 @@ export default function HomeScreen() {
         active: true,
         createdAt: Date.now(),
       }
-      setRoutines(prev => [...prev, newRoutine])
+      addRoutine(newRoutine)
       routineId = newRoutine.id
     }
 
@@ -163,34 +176,44 @@ export default function HomeScreen() {
       createdAt: Date.now(),
       completedAt: null,
     }
-    setTasks(prev => [newTask, ...prev])
+    addTask(newTask)
     setInputText('')
-  }, [inputText, inputMode])
+  }, [inputText, inputMode, genId, addRoutine, addTask])
 
-  // 할 일 완료 — setTasks의 콜백에서 content를 가져와 tasks 의존성 제거
+  // 할 일 완료
   const handleComplete = useCallback((taskId: string) => {
+    const task = tasks.find(t => t.id === taskId)
+    if (!task) return
+
     const randomBlock = BLOCK_TYPES[Math.floor(Math.random() * BLOCK_TYPES.length)]
     const colorId = getRandomColorId()
 
-    setTasks(prev => {
-      const task = prev.find(t => t.id === taskId)
-      if (task) {
-        const queuedBlock: QueuedBlock = {
-          type: randomBlock,
-          colorId,
-          sourceRecordId: taskId,
-        }
-        addBlock(queuedBlock, task.content)
-      }
-      return prev.map(t =>
-        t.id === taskId
-          ? { ...t, status: 'completed' as const, blockType: randomBlock, colorId, completedAt: Date.now() }
-          : t
-      )
+    const queuedBlock: QueuedBlock = {
+      type: randomBlock,
+      colorId,
+      sourceRecordId: taskId,
+    }
+    addBlock(queuedBlock, task.content)
+
+    updateTask(taskId, {
+      status: 'completed',
+      blockType: randomBlock,
+      colorId,
+      completedAt: Date.now(),
     })
 
+    // 체크 표시 → 1초 후 미니블록으로 전환
+    setRecentlyCompleted(prev => new Set(prev).add(taskId))
+    setTimeout(() => {
+      setRecentlyCompleted(prev => {
+        const next = new Set(prev)
+        next.delete(taskId)
+        return next
+      })
+    }, 1000)
+
     applyDailyBonusStore(todayStr)
-  }, [addBlock, applyDailyBonusStore, todayStr])
+  }, [tasks, addBlock, updateTask, applyDailyBonusStore, todayStr])
 
   // 루틴 삭제
   const handleDeleteRoutine = useCallback((routineId: string) => {
@@ -199,10 +222,10 @@ export default function HomeScreen() {
       {
         text: '삭제',
         style: 'destructive',
-        onPress: () => setRoutines(prev => prev.filter(r => r.id !== routineId)),
+        onPress: () => removeRoutine(routineId),
       },
     ])
-  }, [])
+  }, [removeRoutine])
 
   // 오늘 할 일 필터링 메모이제이션 — tasks 변경 시에만 재계산
   const todayStr = useMemo(() => today(), [])
@@ -262,7 +285,7 @@ export default function HomeScreen() {
             disabled={!inputText.trim() || isGameOver}
             accessibilityLabel="추가"
           >
-            <Text style={styles.addButtonText}>{isGameOver ? 'OVER' : inputMode === 'task' ? 'ADD' : '+루틴'}</Text>
+            <Text style={styles.addButtonText}>{isGameOver ? 'OVER' : 'ADD'}</Text>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -273,14 +296,16 @@ export default function HomeScreen() {
           <Text style={styles.sectionLabel}>ROUTINES</Text>
           <View style={styles.routineList}>
             {routines.map(r => (
-              <Pressable
-                key={r.id}
-                style={styles.routineChip}
-                onLongPress={() => handleDeleteRoutine(r.id)}
-                accessibilityLabel={`루틴: ${r.content}`}
-              >
+              <View key={r.id} style={styles.routineChip}>
                 <Text style={styles.routineChipText}>🔄 {r.content}</Text>
-              </Pressable>
+                <Pressable
+                  onPress={() => handleDeleteRoutine(r.id)}
+                  accessibilityLabel={`루틴 삭제: ${r.content}`}
+                  style={styles.routineDeleteButton}
+                >
+                  <Text style={styles.routineDeleteText}>✕</Text>
+                </Pressable>
+              </View>
             ))}
           </View>
         </View>
@@ -309,38 +334,41 @@ export default function HomeScreen() {
               accessibilityLabel={item.status === 'pending' ? `완료: ${item.content}` : item.content}
             >
               {/* 번호 */}
-              <View style={[styles.numberBadge, item.status === 'completed' && styles.numberBadgeCompleted]}>
-                <Text style={styles.numberText}>
-                  {item.status === 'completed' ? '✓' : item.status === 'failed' ? '✕' : index + 1}
-                </Text>
-              </View>
+              <Text style={[styles.numberText, item.status === 'completed' && styles.numberTextCompleted]}>
+                {index + 1}
+              </Text>
 
               {/* 내용 + 날짜 + 루틴 표시 */}
               <View style={styles.recordContent}>
-                <Text
-                  style={[styles.recordText, item.status === 'completed' && styles.recordTextCompleted]}
-                  numberOfLines={1}
-                >
-                  {item.isRoutine ? '🔄 ' : ''}{item.content}
-                </Text>
+                <View style={styles.recordTextRow}>
+                  <Text
+                    style={[styles.recordText, item.status === 'completed' && styles.recordTextCompleted]}
+                    numberOfLines={1}
+                  >
+                    {item.content}
+                  </Text>
+                  {item.isRoutine && <Text style={styles.routineIcon}>🔄</Text>}
+                </View>
                 <Text style={styles.recordDate}>{formatDate(item.date)}</Text>
               </View>
 
-              {/* 블록 종류 또는 대기 */}
+              {/* 블록 종류 또는 체크박스 */}
               {item.status === 'completed' && item.blockType && item.colorId ? (
-                <View style={[styles.blockBadge, { backgroundColor: getColorHex(item.colorId) + '30' }]}>
-                  <Text style={[styles.blockText, { color: getColorHex(item.colorId) }]}>
-                    {item.blockType}
-                  </Text>
-                </View>
+                recentlyCompleted.has(item.id) ? (
+                  <View style={[styles.blockBadge, styles.checkBadge]}>
+                    <Text style={styles.checkText}>✓</Text>
+                  </View>
+                ) : (
+                  <View style={[styles.blockBadge, { backgroundColor: getColorHex(item.colorId) + '15' }]}>
+                    <MiniBlock type={item.blockType} color={getColorHex(item.colorId)} />
+                  </View>
+                )
               ) : item.status === 'failed' ? (
-                <View style={[styles.blockBadge, { backgroundColor: '#FF000020' }]}>
+                <View style={[styles.blockBadge, { backgroundColor: '#FFE0E0' }]}>
                   <Text style={[styles.blockText, { color: '#FF4444' }]}>💀</Text>
                 </View>
               ) : (
-                <View style={[styles.blockBadge, { backgroundColor: '#333366' }]}>
-                  <Text style={[styles.blockText, { color: '#666688' }]}>TAP</Text>
-                </View>
+                <View style={styles.pendingCheckbox} />
               )}
             </Pressable>
           )}
@@ -397,9 +425,7 @@ export default function HomeScreen() {
                           {(item.records ?? []).length > 0 ? (
                             item.records.map((rec, i) => (
                               <View key={i} style={styles.achievementRecordRow}>
-                                <View style={styles.blockTypeBadge}>
-                                  <Text style={styles.blockTypeText}>{rec.blockType}</Text>
-                                </View>
+                                <View style={[styles.blockColorDot, { backgroundColor: BLOCK_TYPE_COLORS[rec.blockType] || '#666688' }]} />
                                 <Text style={styles.achievementRecord}>
                                   {rec.content || `기록 #${i + 1}`}
                                 </Text>
