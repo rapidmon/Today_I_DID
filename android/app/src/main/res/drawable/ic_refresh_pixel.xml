@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <!-- 픽셀아트 새로고침 (양방향 화살표) -->
+    <!-- 위쪽 반원 -->
+    <path android:pathData="M6,2h2v2h-2z" android:fillColor="#AAAACC" />
+    <path android:pathData="M8,2h2v2h-2z" android:fillColor="#AAAACC" />
+    <path android:pathData="M10,2h2v2h-2z" android:fillColor="#AAAACC" />
+    <path android:pathData="M12,4h2v2h-2z" android:fillColor="#AAAACC" />
+    <!-- 위쪽 화살표 머리 -->
+    <path android:pathData="M10,0h2v2h-2z" android:fillColor="#AAAACC" />
+    <path android:pathData="M12,2h2v2h-2z" android:fillColor="#AAAACC" />
+    <!-- 좌측 -->
+    <path android:pathData="M4,4h2v2h-2z" android:fillColor="#AAAACC" />
+    <!-- 아래쪽 반원 -->
+    <path android:pathData="M2,8h2v2h-2z" android:fillColor="#AAAACC" />
+    <path android:pathData="M4,10h2v2h-2z" android:fillColor="#AAAACC" />
+    <path android:pathData="M6,12h2v2h-2z" android:fillColor="#AAAACC" />
+    <path android:pathData="M8,12h2v2h-2z" android:fillColor="#AAAACC" />
+    <!-- 아래쪽 화살표 머리 -->
+    <path android:pathData="M2,12h2v2h-2z" android:fillColor="#AAAACC" />
+    <path android:pathData="M4,14h2v2h-2z" android:fillColor="#AAAACC" />
+    <!-- 우측 -->
+    <path android:pathData="M10,10h2v2h-2z" android:fillColor="#AAAACC" />
+    <path android:pathData="M12,8h2v2h-2z" android:fillColor="#AAAACC" />
+</vector>

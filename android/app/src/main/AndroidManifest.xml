@@ -40,6 +40,7 @@
         <action android:name="com.limheerae.Today_I_did.MOVE_DOWN"/>
         <action android:name="com.limheerae.Today_I_did.REFRESH"/>
         <action android:name="com.limheerae.Today_I_did.OPEN_APP"/>
+        <action android:name="com.limheerae.Today_I_did.TOGGLE_OPACITY"/>
       </intent-filter>
       <meta-data
           android:name="android.appwidget.provider"

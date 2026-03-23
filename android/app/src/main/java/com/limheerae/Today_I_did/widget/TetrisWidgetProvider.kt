@@ -22,9 +22,16 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         const val ACTION_MOVE_DOWN = "com.limheerae.Today_I_did.MOVE_DOWN"
         const val ACTION_REFRESH = "com.limheerae.Today_I_did.REFRESH"
         const val ACTION_OPEN_APP = "com.limheerae.Today_I_did.OPEN_APP"
+        const val ACTION_TOGGLE_OPACITY = "com.limheerae.Today_I_did.TOGGLE_OPACITY"
 
         private const val BOARD_WIDTH = 240
         private const val BOARD_HEIGHT = 288
+        private const val NEXT_BLOCK_SIZE = 80
+        private const val PREFS_NAME = "tetris_widget"
+
+        // 투명도 단계: 0%(255) → 20%(204) → 40%(153) → 60%(102) → 80%(51)
+        private val OPACITY_LEVELS = intArrayOf(255, 204, 153, 102, 51)
+        private val OPACITY_LABELS = arrayOf("0%", "20%", "40%", "60%", "80%")
     }
 
     override fun onUpdate(
@@ -46,6 +53,11 @@ class TetrisWidgetProvider : AppWidgetProvider() {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
                 context.startActivity(launchIntent)
+                return
+            }
+            ACTION_TOGGLE_OPACITY -> {
+                cycleOpacity(context)
+                updateWidget(context)
                 return
             }
             ACTION_REFRESH -> {
@@ -74,7 +86,6 @@ class TetrisWidgetProvider : AppWidgetProvider() {
                 return
             }
             ACTION_MOVE_DOWN -> {
-                // processAction이 저장된 상태를 반환 → 재로드 불필요
                 val state = TetrisGameEngine.processAction(context, "move_down")
                 if (state.animationState == "highlight") {
                     updateWidget(context, state)
@@ -88,44 +99,73 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    // 상태를 직접 받아서 재로드 없이 렌더링 (오버로드)
     private fun updateWidget(context: Context, state: GameState) {
         renderAndPush(context, state)
     }
 
-    // 상태 없이 호출 시 로드 (리프레시/초기화 등)
     private fun updateWidget(context: Context) {
         val state = TetrisGameEngine.loadState(context)
         renderAndPush(context, state)
     }
 
+    private fun getOpacityLevel(context: Context): Int {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getInt("bgAlpha", OPACITY_LEVELS[0])
+    }
+
+    private fun cycleOpacity(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val current = prefs.getInt("bgAlpha", OPACITY_LEVELS[0])
+        val currentIdx = OPACITY_LEVELS.indexOf(current)
+        val nextIdx = if (currentIdx < 0) 1 else (currentIdx + 1) % OPACITY_LEVELS.size
+        prefs.edit().putInt("bgAlpha", OPACITY_LEVELS[nextIdx]).apply()
+    }
+
     private fun renderAndPush(context: Context, state: GameState) {
         val views = RemoteViews(context.packageName, R.layout.widget_tetris)
+        val bgAlpha = getOpacityLevel(context)
 
-        val bitmap = WidgetRenderer.renderGrid(state, BOARD_WIDTH, BOARD_HEIGHT)
+        // 위젯 루트 배경 투명도 반영
+        val rootBgColor = Color.argb(bgAlpha, 15, 15, 35)
+        views.setInt(R.id.widget_root, "setBackgroundColor", rootBgColor)
+
+        // 투명도 % 텍스트 표시
+        val opacityIdx = OPACITY_LEVELS.indexOf(bgAlpha).let { if (it < 0) 0 else it }
+        views.setTextViewText(R.id.btn_opacity, OPACITY_LABELS[opacityIdx])
+
+        // 게임 보드 렌더링
+        val bitmap = WidgetRenderer.renderGrid(state, BOARD_WIDTH, BOARD_HEIGHT, bgAlpha)
         views.setImageViewBitmap(R.id.game_board, bitmap)
 
-        views.setTextViewText(R.id.score_text, "SCORE: ${state.score}")
-        views.setTextViewText(R.id.stock_text, "STOCK: ${state.blockQueue.size}")
+        // NEXT 블록 렌더링 (블록 없으면 + 아이콘 표시)
+        val nextBlock = if (state.blockQueue.isNotEmpty()) state.blockQueue[0] else null
+        val nextBitmap = WidgetRenderer.renderNextBlock(
+            nextBlock?.type, nextBlock?.colorId ?: 0, NEXT_BLOCK_SIZE, bgAlpha
+        )
+        views.setImageViewBitmap(R.id.next_block, nextBitmap)
 
-        // GAME OVER 상태에 따른 버튼 색상 변경
+        // NEXT 박스 탭 → 항상 앱 열기
+        views.setOnClickPendingIntent(R.id.next_block, createOpenAppPendingIntent(context))
+
+        // 점수
+        views.setTextViewText(R.id.score_text, "${state.score}")
+
+        // 새로고침 버튼: 비활성화(회색) / GAME OVER 시 활성화(녹색)
         if (state.gameOver) {
-            views.setInt(R.id.btn_refresh, "setBackgroundColor", Color.parseColor("#00CC00"))
-            views.setInt(R.id.btn_add, "setBackgroundColor", Color.parseColor("#222233"))
-            views.setTextColor(R.id.btn_add, Color.parseColor("#444466"))
-            views.setOnClickPendingIntent(R.id.btn_add, createPendingIntent(context, "NOOP"))
+            views.setImageViewResource(R.id.btn_refresh, R.drawable.ic_refresh_pixel_active)
+            views.setOnClickPendingIntent(R.id.btn_refresh, createPendingIntent(context, ACTION_REFRESH))
         } else {
-            views.setInt(R.id.btn_refresh, "setBackgroundColor", Color.parseColor("#333366"))
-            views.setInt(R.id.btn_add, "setBackgroundColor", Color.parseColor("#0088FF"))
-            views.setTextColor(R.id.btn_add, Color.parseColor("#FFFFFF"))
-            views.setOnClickPendingIntent(R.id.btn_add, createOpenAppPendingIntent(context))
+            views.setImageViewResource(R.id.btn_refresh, R.drawable.ic_refresh_pixel)
+            // 비활성화: 아무 동작 안 함
+            views.setOnClickPendingIntent(R.id.btn_refresh, createPendingIntent(context, "NOOP"))
         }
 
+        // 버튼 바인딩
         views.setOnClickPendingIntent(R.id.btn_left, createPendingIntent(context, ACTION_MOVE_LEFT))
         views.setOnClickPendingIntent(R.id.btn_right, createPendingIntent(context, ACTION_MOVE_RIGHT))
         views.setOnClickPendingIntent(R.id.btn_rotate, createPendingIntent(context, ACTION_ROTATE))
         views.setOnClickPendingIntent(R.id.btn_down, createPendingIntent(context, ACTION_MOVE_DOWN))
-        views.setOnClickPendingIntent(R.id.btn_refresh, createPendingIntent(context, ACTION_REFRESH))
+        views.setOnClickPendingIntent(R.id.btn_opacity, createPendingIntent(context, ACTION_TOGGLE_OPACITY))
 
         val manager = AppWidgetManager.getInstance(context)
         val component = ComponentName(context, TetrisWidgetProvider::class.java)

@@ -1,0 +1,65 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="16dp"
+    android:viewportWidth="40"
+    android:viewportHeight="16">
+
+    <!-- GAME OVER pixel art (8-bit style) -->
+    <!-- Each letter ~8 wide, 7 tall, 1-unit pixels -->
+    <!-- Line 1: G A M E  (y=0..7) -->
+    <!-- Line 2: O V E R  (y=9..16) -->
+
+    <path
+        android:fillColor="#FF0000"
+        android:pathData="
+            M1,0 h5 v1 h-5 z
+            M0,1 h1 v5 h-1 z
+            M6,1 h1 v1 h-1 z
+            M1,6 h5 v1 h-5 z
+            M6,4 h1 v3 h-1 z
+            M3,4 h4 v1 h-4 z
+
+            M11,0 h5 v1 h-5 z
+            M10,1 h1 v6 h-1 z
+            M16,1 h1 v6 h-1 z
+            M11,3 h5 v1 h-5 z
+
+            M20,0 h1 v7 h-1 z
+            M27,0 h1 v7 h-1 z
+            M21,1 h1 v1 h-1 z
+            M26,1 h1 v1 h-1 z
+            M22,2 h1 v1 h-1 z
+            M25,2 h1 v1 h-1 z
+            M23,3 h2 v1 h-2 z
+
+            M30,0 h7 v1 h-7 z
+            M30,0 h1 v7 h-1 z
+            M30,3 h5 v1 h-5 z
+            M30,6 h7 v1 h-7 z
+
+            M1,9 h5 v1 h-5 z
+            M0,10 h1 v5 h-1 z
+            M6,10 h1 v5 h-1 z
+            M1,15 h5 v1 h-5 z
+
+            M10,9 h1 v5 h-1 z
+            M17,9 h1 v5 h-1 z
+            M11,14 h1 v1 h-1 z
+            M16,14 h1 v1 h-1 z
+            M12,15 h4 v1 h-4 z
+
+            M20,9 h7 v1 h-7 z
+            M20,9 h1 v7 h-1 z
+            M20,12 h5 v1 h-5 z
+            M20,15 h7 v1 h-7 z
+
+            M30,9 h5 v1 h-5 z
+            M30,9 h1 v7 h-1 z
+            M35,10 h1 v3 h-1 z
+            M30,12 h5 v1 h-5 z
+            M33,13 h1 v1 h-1 z
+            M34,14 h1 v1 h-1 z
+            M35,15 h1 v1 h-1 z
+        " />
+
+</vector>

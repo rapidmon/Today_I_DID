@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <!-- 픽셀아트 아래쪽 화살표 -->
+    <path android:pathData="M4,8h2v2h-2z" android:fillColor="#FFFFFF" />
+    <path android:pathData="M6,10h2v2h-2z" android:fillColor="#FFFFFF" />
+    <path android:pathData="M8,12h2v2h-2z" android:fillColor="#FFFFFF" />
+    <path android:pathData="M10,10h2v2h-2z" android:fillColor="#FFFFFF" />
+    <path android:pathData="M12,8h2v2h-2z" android:fillColor="#FFFFFF" />
+    <!-- 줄기 -->
+    <path android:pathData="M6,4h2v6h-2z" android:fillColor="#FFFFFF" />
+    <path android:pathData="M8,4h2v6h-2z" android:fillColor="#FFFFFF" />
+    <path android:pathData="M10,4h2v6h-2z" android:fillColor="#FFFFFF" />
+</vector>
