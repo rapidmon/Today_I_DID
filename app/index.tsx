@@ -37,7 +37,10 @@ interface WidgetAchievement {
   clearedAt: number
 }
 
-const today = () => new Date().toISOString().slice(0, 10)
+const today = () => {
+  const kr = new Date(new Date().getTime() + 9 * 60 * 60 * 1000)
+  return kr.toISOString().slice(0, 10)
+}
 
 const BLOCK_TYPE_COLORS: Record<string, string> = {
   I: '#0088FF', O: '#FFDD00', T: '#CC00FF',
@@ -230,7 +233,10 @@ export default function HomeScreen() {
   // 오늘 할 일 필터링 메모이제이션 — tasks 변경 시에만 재계산
   const todayStr = useMemo(() => today(), [])
   const todayTasks = useMemo(() => tasks.filter(t => t.date === todayStr), [tasks, todayStr])
-  const formatDate = (dateStr: string) => dateStr.slice(5).replace('-', '.')
+  const formatDateHeader = (dateStr: string) => {
+    const [y, m, d] = dateStr.split('-')
+    return `${Number(m)}월 ${Number(d)}일`
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -297,7 +303,7 @@ export default function HomeScreen() {
           <View style={styles.routineList}>
             {routines.map(r => (
               <View key={r.id} style={styles.routineChip}>
-                <Text style={styles.routineChipText}>🔄 {r.content}</Text>
+                <Text style={styles.routineChipText}>{r.content} 🔄</Text>
                 <Pressable
                   onPress={() => handleDeleteRoutine(r.id)}
                   accessibilityLabel={`루틴 삭제: ${r.content}`}
@@ -326,6 +332,13 @@ export default function HomeScreen() {
           removeClippedSubviews={true}
           maxToRenderPerBatch={10}
           windowSize={5}
+          ListHeaderComponent={
+            <View style={styles.dateHeader}>
+              <View style={styles.dateLine} />
+              <Text style={styles.dateText}>{formatDateHeader(todayStr)}</Text>
+              <View style={styles.dateLine} />
+            </View>
+          }
           renderItem={({ item, index }) => (
             <Pressable
               style={styles.recordItem}
@@ -338,7 +351,7 @@ export default function HomeScreen() {
                 {index + 1}
               </Text>
 
-              {/* 내용 + 날짜 + 루틴 표시 */}
+              {/* 내용 + 루틴 표시 */}
               <View style={styles.recordContent}>
                 <View style={styles.recordTextRow}>
                   <Text
@@ -349,14 +362,13 @@ export default function HomeScreen() {
                   </Text>
                   {item.isRoutine && <Text style={styles.routineIcon}>🔄</Text>}
                 </View>
-                <Text style={styles.recordDate}>{formatDate(item.date)}</Text>
               </View>
 
-              {/* 블록 종류 또는 체크박스 */}
+              {/* 체크박스 영역 */}
               {item.status === 'completed' && item.blockType && item.colorId ? (
                 recentlyCompleted.has(item.id) ? (
-                  <View style={[styles.blockBadge, styles.checkBadge]}>
-                    <Text style={styles.checkText}>✓</Text>
+                  <View style={styles.pendingCheckbox}>
+                    <Text style={styles.checkOverlay}>✓</Text>
                   </View>
                 ) : (
                   <View style={[styles.blockBadge, { backgroundColor: getColorHex(item.colorId) + '15' }]}>
