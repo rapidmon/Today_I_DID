@@ -178,6 +178,28 @@ const addAchievement = (records: Record[]) => {
 
 ---
 
+## 위젯 리디자인 계획 (2026-03-23)
+
+### 레이아웃 변경
+- 테트리스 게임판(10x12)을 **왼쪽 정렬**
+- 오른쪽에 사이드 패널 추가: **NEXT 블록 미리보기** + **SCORE** + **[+] 앱 열기**
+- 상단 좌: 🔃 **새로고침** (회전과 구분되는 아이콘)
+- 상단 우: 🔅 **투명도 조절** (탭마다 0%→30%→50%→70% 순환)
+- 하단: **[◀][▶] 좌우이동** / **[↻] 회전** / **[▼] 아래로**
+
+### 반투명 배경
+- 위젯 배경을 반투명 처리하여 기기 배경화면이 비침
+- 투명도 4단계 순환 (SharedPreferences에 저장)
+- 그리드 영역은 별도 반투명 오버레이로 블록 가독성 확보
+
+### 수정 대상 파일
+- `android/app/src/main/res/layout/widget_tetris.xml` — 레이아웃 전면 재구성
+- `android/.../widget/TetrisWidgetProvider.kt` — 투명도/NEXT 블록 로직
+- `android/.../widget/WidgetRenderer.kt` — 반투명 배경 렌더링
+- `android/.../widget/TetrisGameEngine.kt` — NEXT 블록 데이터 제공
+
+---
+
 ## 네이티브 위젯 개발 (Android/iOS)
 
 ### 사전 준비
@@ -264,6 +286,6 @@ npm run android
 ---
 
 ## Latest Session
-- Date: 2026-03-23
-- Summary: .claude/context/session-2026-03-23.md
-- Status: EAS Build 설정 완료, Android 위젯 git 복원 완료, SafeArea 하단 겹침 수정, iOS 위젯 Xcode 설정 미완료, 미커밋 변경사항 있음
+- Date: 2026-03-24
+- Summary: .claude/context/session-2026-03-24.md
+- Status: 앱 라이트 테마 전환, 할 일 영속 저장, 위젯 전면 리디자인(레트로 픽셀 UI/반투명 배경/NEXT 패널), 히스토리+랭킹 plan 작성 완료, 미커밋 변경사항 있음
