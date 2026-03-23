@@ -4,23 +4,24 @@
     android:height="24dp"
     android:viewportWidth="16"
     android:viewportHeight="16">
-    <!-- 픽셀아트 시계방향 회전 화살표 -->
-    <!-- 상단 가로줄 -->
-    <path android:pathData="M6,2h2v2h-2z" android:fillColor="#FFDD00" />
-    <path android:pathData="M8,2h2v2h-2z" android:fillColor="#FFDD00" />
-    <path android:pathData="M10,2h2v2h-2z" android:fillColor="#FFDD00" />
-    <!-- 우측 세로 -->
-    <path android:pathData="M12,4h2v2h-2z" android:fillColor="#FFDD00" />
-    <path android:pathData="M12,6h2v2h-2z" android:fillColor="#FFDD00" />
-    <!-- 화살표 머리 (아래로) -->
-    <path android:pathData="M10,6h2v2h-2z" android:fillColor="#FFDD00" />
-    <path android:pathData="M14,6h2v2h-2z" android:fillColor="#FFDD00" />
-    <path android:pathData="M12,8h2v2h-2z" android:fillColor="#FFDD00" />
-    <!-- 좌측 세로 -->
-    <path android:pathData="M4,6h2v2h-2z" android:fillColor="#FFDD00" />
-    <path android:pathData="M4,8h2v2h-2z" android:fillColor="#FFDD00" />
-    <!-- 하단 가로줄 -->
-    <path android:pathData="M6,10h2v2h-2z" android:fillColor="#FFDD00" />
-    <path android:pathData="M8,10h2v2h-2z" android:fillColor="#FFDD00" />
-    <path android:pathData="M10,10h2v2h-2z" android:fillColor="#FFDD00" />
+    <!-- 픽셀아트 시계방향 회전 화살표 — 원형 + 화살표 머리 -->
+    <!-- 원 상단 -->
+    <path android:pathData="M6,1h2v2h-2z" android:fillColor="#FFDD00" />
+    <path android:pathData="M8,1h2v2h-2z" android:fillColor="#FFDD00" />
+    <path android:pathData="M10,1h2v2h-2z" android:fillColor="#FFDD00" />
+    <!-- 원 우측 -->
+    <path android:pathData="M12,3h2v2h-2z" android:fillColor="#FFDD00" />
+    <path android:pathData="M12,5h2v2h-2z" android:fillColor="#FFDD00" />
+    <path android:pathData="M12,7h2v2h-2z" android:fillColor="#FFDD00" />
+    <!-- 원 하단 -->
+    <path android:pathData="M6,11h2v2h-2z" android:fillColor="#FFDD00" />
+    <path android:pathData="M8,11h2v2h-2z" android:fillColor="#FFDD00" />
+    <path android:pathData="M10,11h2v2h-2z" android:fillColor="#FFDD00" />
+    <!-- 원 좌측 -->
+    <path android:pathData="M2,3h2v2h-2z" android:fillColor="#FFDD00" />
+    <path android:pathData="M2,5h2v2h-2z" android:fillColor="#FFDD00" />
+    <!-- 화살표 머리 (우상단, 시계방향 표시) -->
+    <path android:pathData="M12,1h2v2h-2z" android:fillColor="#FFDD00" />
+    <path android:pathData="M14,3h2v2h-2z" android:fillColor="#FFDD00" />
+    <path android:pathData="M10,3h2v2h-2z" android:fillColor="#FFDD00" />
 </vector>

@@ -35,17 +35,17 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="배경 투명도 조절"
+            android:text="투명도"
             android:textColor="#666688"
-            android:textSize="9sp"
+            android:textSize="12sp"
             android:paddingEnd="4dp" />
 
         <Button
             android:id="@+id/btn_opacity"
             android:layout_width="wrap_content"
-            android:layout_height="26dp"
+            android:layout_height="28dp"
             android:text="0%"
-            android:textSize="10sp"
+            android:textSize="12sp"
             android:textColor="#FFDD00"
             android:background="@drawable/btn_retro_dark"
             android:minWidth="38dp"

@@ -107,14 +107,25 @@ object WidgetRenderer {
         canvas.drawColor(Color.argb(minOf(bgAlpha, 80), 26, 26, 46))
 
         if (blockType == null) {
-            // 블록 없으면 + 아이콘 표시
+            // 블록 없으면 픽셀아트 + 아이콘 표시
+            val pxSize = size / 9f
+            val cx = size / 2f
+            val cy = size / 2f
             paint.color = Color.parseColor("#0088FF")
-            paint.textSize = size * 0.5f
-            paint.textAlign = Paint.Align.CENTER
-            paint.typeface = Typeface.DEFAULT_BOLD
-            paint.isAntiAlias = true
-            val textY = size / 2f - (paint.descent() + paint.ascent()) / 2f
-            canvas.drawText("+", size / 2f, textY, paint)
+            paint.style = Paint.Style.FILL
+            // 가로줄 (5칸)
+            for (i in -2..2) {
+                canvas.drawRect(
+                    cx + i * pxSize - pxSize / 2, cy - pxSize / 2,
+                    cx + i * pxSize + pxSize / 2, cy + pxSize / 2, paint)
+            }
+            // 세로줄 (5칸, 중앙 제외 4칸)
+            for (i in -2..2) {
+                if (i == 0) continue
+                canvas.drawRect(
+                    cx - pxSize / 2, cy + i * pxSize - pxSize / 2,
+                    cx + pxSize / 2, cy + i * pxSize + pxSize / 2, paint)
+            }
             return bitmap
         }
 
