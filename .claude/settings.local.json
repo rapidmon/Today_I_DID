@@ -12,7 +12,16 @@
       "Bash(mkdir -p \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/src/main/java/com/limheerae/Today_I_did/widget\")",
       "Bash(mkdir -p \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/src/main/java/com/limheerae/Today_I_did/bridge\")",
       "Bash(mkdir -p \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/src/main/res/xml\")",
-      "Bash(mkdir -p \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/src/main/res/layout\")"
+      "Bash(mkdir -p \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/src/main/res/layout\")",
+      "Bash(cp \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/pixel_rotate.png\" \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/src/main/res/drawable/pixel_rotate.png\")",
+      "Bash(cp \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/pixel_refresh.png\" \"C:/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/src/main/res/drawable/pixel_refresh.png\")",
+      "Bash(find /c/Users/Foryoucom/Desktop/coding/Today_I_did/android -name PackageList.java -o -name *autolinking* -o -name *.gradle)",
+      "Bash(grep -r react-native-safe-area-context /c/Users/Foryoucom/Desktop/coding/Today_I_did/android --include=*.gradle --include=*.json --include=*.kt --include=*.java)",
+      "Bash(grep -r projectDirectory /c/Users/Foryoucom/Desktop/coding/Today_I_did --include=*.gradle --include=*.kt --include=*.java)",
+      "Bash(find /c/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/build -name *.json)",
+      "Bash(git check-ignore:*)",
+      "WebSearch",
+      "Bash(node:*)"
     ]
   }
 }

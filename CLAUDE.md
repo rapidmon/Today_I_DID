@@ -286,6 +286,6 @@ npm run android
 ---
 
 ## Latest Session
-- Date: 2026-03-24
-- Summary: .claude/context/session-2026-03-24.md
-- Status: 앱 라이트 테마 전환, 할 일 영속 저장, 위젯 전면 리디자인(레트로 픽셀 UI/반투명 배경/NEXT 패널), 히스토리+랭킹 plan 작성 완료, 미커밋 변경사항 있음
+- Date: 2026-03-25
+- Summary: .claude/context/session-2026-03-25.md
+- Status: 탭 네비게이션(RANKING/HOME/HISTORY) 추가, 위젯 아이콘 PNG 교체+레이아웃 개선, 성취 모달 두루마리 리디자인, 히스토리 저장 시스템 구현(실기기 테스트 필요)
