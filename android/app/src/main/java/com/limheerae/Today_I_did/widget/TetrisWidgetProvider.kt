@@ -126,7 +126,7 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         val bgAlpha = getOpacityLevel(context)
 
         // 위젯 루트 배경 투명도 반영
-        val rootBgColor = Color.argb(bgAlpha, 15, 15, 35)
+        val rootBgColor = Color.argb(bgAlpha, 0, 0, 0)
         views.setInt(R.id.widget_root, "setBackgroundColor", rootBgColor)
 
         // 투명도 % 텍스트 표시
@@ -151,14 +151,18 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.score_text, "${state.score}")
 
         // 새로고침 버튼: 비활성화(회색) / GAME OVER 시 활성화(녹색)
+        views.setImageViewResource(R.id.btn_refresh, R.drawable.pixel_refresh)
         if (state.gameOver) {
-            views.setImageViewResource(R.id.btn_refresh, R.drawable.ic_refresh_pixel_active)
+            views.setInt(R.id.btn_refresh, "setColorFilter", 0xFF00FF44.toInt())
             views.setOnClickPendingIntent(R.id.btn_refresh, createPendingIntent(context, ACTION_REFRESH))
         } else {
-            views.setImageViewResource(R.id.btn_refresh, R.drawable.ic_refresh_pixel)
+            views.setInt(R.id.btn_refresh, "setColorFilter", 0xFF666688.toInt())
             // 비활성화: 아무 동작 안 함
             views.setOnClickPendingIntent(R.id.btn_refresh, createPendingIntent(context, "NOOP"))
         }
+
+        // 회전 버튼 아이콘 검청색 적용
+        views.setInt(R.id.btn_rotate, "setColorFilter", 0xFF0D1B2A.toInt())
 
         // 버튼 바인딩
         views.setOnClickPendingIntent(R.id.btn_left, createPendingIntent(context, ACTION_MOVE_LEFT))
