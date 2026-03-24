@@ -36,3 +36,29 @@ export interface GameState {
 export const PENALTY_COLOR_ID = 99
 
 export type GameAction = 'move_left' | 'move_right' | 'move_down' | 'rotate'
+
+// 히스토리용 타입
+export interface CompletedTask {
+  content: string
+  blockType: string
+  colorId: number
+  completedAt: number
+}
+
+export interface GameHistoryAchievement {
+  id: string
+  recordIds: string[]
+  records: { id: string; content: string; blockType: string }[]
+  lineCount: number
+  score: number
+  clearedAt: number
+}
+
+export interface GameHistory {
+  id: string
+  endedAt: number
+  finalScore: number
+  totalLineClears: number
+  completedTasks: CompletedTask[]
+  achievements: GameHistoryAchievement[]
+}

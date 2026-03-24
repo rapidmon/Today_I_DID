@@ -1,0 +1,25 @@
+# .gitignore 내용 복사
+node_modules/
+.expo/
+dist/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+bash.exe.stackdump
+.env.local
+.env
+
+# android 빌드 캐시 (Windows 경로 오염 방지)
+android/build/
+android/.gradle/
+android/.cxx/
+android/app/build/
+android/app/.cxx/
+
+# iOS 빌드 캐시
+ios/build/
+ios/Pods/

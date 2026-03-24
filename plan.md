@@ -695,13 +695,20 @@ GAME OVER 시에는 **새로고침 버튼 색상이 변경**되어 리셋 버튼
 
 ### 10-2. 데이터 구조
 ```typescript
+interface CompletedTask {
+  content: string           // 할 일 내용
+  blockType: string         // 변환된 블록 종류
+  colorId: string           // 블록 색상
+  completedAt: number       // 완료 시각
+}
+
 interface GameHistory {
   id: string
   endedAt: number           // 게임 종료 시각
   finalScore: number        // 최종 점수
   totalLineClears: number   // 총 줄 클리어 수
-  blocksUsed: number        // 사용된 블록 수
-  achievements: Achievement[] // 해당 판의 성취 기록
+  completedTasks: CompletedTask[] // 해당 판에서 완료한 할 일 목록
+  achievements: Achievement[] // 해당 판의 성취 기록 (줄 클리어 내역)
   duration: string          // 플레이 기간 (시작일~종료일)
 }
 ```
@@ -712,19 +719,31 @@ interface GameHistory {
 3. AsyncStorage에 영속 저장 (Zustand persist)
 4. 보드 초기화 후 새 게임 시작
 
-### 10-4. UI
-- 앱 하단 또는 헤더에 **히스토리 아이콘** 추가
-- 탭하면 과거 판 목록 표시 (최신순)
-- 각 항목: `#N | SCORE 123 | 5줄 클리어 | 2026-03-24`
-- 펼치면 해당 판의 성취 기록(줄 클리어 내역) 확인 가능
+### 10-4. UI — HISTORY 탭 (`app/(tabs)/history.tsx`)
+- 하단 탭 네비게이션의 **HISTORY** 탭 (📊)
+- 과거 판 목록 표시 (최신순, FlatList)
+- 각 항목 카드:
+  - 상단: `GAME #N` + 종료 날짜
+  - 중단: 최종 점수 (큰 폰트) + 줄 클리어 수 + 사용 블록 수
+  - 펼치면 해당 판의 성취 기록(줄 클리어 내역) 확인 가능
+- 히스토리가 없을 때: 빈 상태 안내 메시지
 
-### 10-5. 수정 대상 파일
+### 10-5. 수정/생성 대상 파일
 | 파일 | 작업 |
 |------|------|
 | `types/game.ts` | `GameHistory` 타입 추가 |
-| `stores/gameStore.ts` 또는 신규 `stores/historyStore.ts` | 히스토리 저장/조회 |
-| `app/index.tsx` | 히스토리 버튼 + 모달/화면 |
-| `lib/widgetBridge.ts` | 리셋 시 히스토리 데이터 수집 |
+| `stores/historyStore.ts` | **신규** — Zustand + AsyncStorage persist, 히스토리 CRUD |
+| `app/(tabs)/history.tsx` | 히스토리 목록 UI (현재 플레이스홀더 → 실제 구현) |
+| `lib/widgetBridge.ts` | 리셋 시 히스토리 데이터 수집 (`getGameHistory()`) |
+| `app/(tabs)/index.tsx` | 위젯 리셋 감지 시 `historyStore.addHistory()` 호출 |
+| `constants/historyStyles.ts` | **신규** — 히스토리 탭 전용 스타일 |
+
+### 10-6. 히스토리 저장 트리거
+- **위젯에서 새로고침(리셋) 버튼** 탭 시:
+  1. 앱이 포그라운드로 돌아오면 `widgetBridge.isGameOver()` → false 감지 (이전에 true였음)
+  2. 리셋 전 게임 상태를 `widgetBridge`에서 수집
+  3. `historyStore.addHistory(gameHistory)` 호출
+  4. 앱 쪽 `gameStore.resetGame()` 실행
 
 ---
 
@@ -736,31 +755,35 @@ interface GameHistory {
 - 향후 온라인 랭킹(Firebase Leaderboard 등)으로 확장 가능
 
 ### 11-2. 랭킹 데이터
-```typescript
-interface RankEntry {
-  rank: number
-  historyId: string
-  score: number
-  lineClears: number
-  date: string
-}
-```
+- `historyStore`의 `histories` 배열을 점수순 정렬하여 랭킹 산출
+- 별도 `RankEntry` 타입 불필요 — `GameHistory[]`를 `finalScore` 기준 정렬로 충분
 
-### 11-3. UI
-- 히스토리 탭 내 상단에 **TOP 랭킹** 섹션
-- 1위~10위까지 점수순 정렬
-- 현재 진행 중인 게임 점수와 비교 표시 (예: "현재 5위 페이스!")
-- 금/은/동 메달 아이콘 (1~3위)
+### 11-3. UI — RANKING 탭 (`app/(tabs)/ranking.tsx`)
+- 하단 탭 네비게이션의 **RANKING** 탭 (🏆)
+- 상단: 현재 진행 중인 게임 점수 + 예상 순위 표시 (예: "현재 3위 페이스!")
+- 랭킹 리스트:
+  - 1위~10위까지 점수순 정렬
+  - 1위: 🥇, 2위: 🥈, 3위: 🥉 아이콘
+  - 각 항목: 순위 + 점수 + 줄 클리어 수 + 날짜
+- 랭킹이 없을 때: 빈 상태 안내 메시지
 
-### 11-4. 구현 순서
+### 11-4. 수정/생성 대상 파일
+| 파일 | 작업 |
+|------|------|
+| `app/(tabs)/ranking.tsx` | 랭킹 목록 UI (현재 플레이스홀더 → 실제 구현) |
+| `stores/historyStore.ts` | `getRanking()` 셀렉터 추가 (점수순 정렬) |
+| `constants/rankingStyles.ts` | **신규** — 랭킹 탭 전용 스타일 |
+
+### 11-5. 구현 순서 (히스토리 + 랭킹 통합)
 | 순서 | 작업 |
 |------|------|
-| 1 | `GameHistory` 타입 + `historyStore.ts` 생성 |
-| 2 | 게임 리셋 시 히스토리 저장 로직 |
-| 3 | 히스토리 목록 UI (모달 또는 별도 화면) |
-| 4 | 랭킹 정렬 + TOP 10 표시 |
-| 5 | 현재 게임 점수 vs 랭킹 비교 표시 |
-| 6 | (선택) Firebase Leaderboard 연동 |
+| 1 | `types/game.ts`에 `GameHistory` 타입 추가 |
+| 2 | `stores/historyStore.ts` 생성 (Zustand + persist) |
+| 3 | `lib/widgetBridge.ts`에 히스토리 데이터 수집 함수 추가 |
+| 4 | `app/(tabs)/index.tsx`에서 리셋 감지 → 히스토리 저장 로직 |
+| 5 | `app/(tabs)/history.tsx` UI 구현 |
+| 6 | `app/(tabs)/ranking.tsx` UI 구현 |
+| 7 | (선택) Firebase Leaderboard 연동 |
 
 ---
 
@@ -793,27 +816,7 @@ interface RankEntry {
 - **구현**: 앱 설정에서 책 선택 → 문구 DB에서 순서대로 할당
 - **레퍼런스**: Kindle 하이라이트, 밀리의 서재 명언 카드
 
-#### 방식 B: 레벨/칭호 시스템
-- 줄 클리어 수에 따라 점점 높은 칭호 부여
-- 예: 1번째 → "견습생의 첫 걸음", 5번째 → "숙련된 정리왕", 10번째 → "테트리스 마스터"
-- **레퍼런스**: 던전앤파이터 칭호, 메이플스토리 업적 칭호
-
 #### 방식 C: 날씨/계절 테마
 - 클리어한 날짜/시간대에 따라 이름 자동 생성
 - 예: 아침 클리어 → "새벽의 한 줄", 비오는 날 → "빗속의 정리"
 - **레퍼런스**: 날씨 앱 감성 문구, Forest 앱 나무 이름
-
-#### 방식 D: 랜덤 형용사 + 명사 조합
-- 미리 정의된 형용사/명사 풀에서 랜덤 조합
-- 예: "반짝이는 토요일", "고요한 집중", "작은 승리"
-- **레퍼런스**: GitHub 랜덤 레포명, 슬랙 워크스페이스 이름 생성기
-
-#### 방식 E: 포켓몬 도감 스타일
-- 줄 번호를 도감 번호처럼 사용 + 해당 줄의 블록 구성에 따른 별명
-- 예: "No.001 — 풀컬러 레인보우" (7색 모두 포함), "No.005 — 쌍둥이 블록" (같은 종류 2개)
-- **레퍼런스**: 포켓몬 도감, 동물의 숲 곤충/물고기 도감
-
-**추천: 방식 A (명언 연동) + 방식 D (랜덤 조합) 하이브리드**
-- 기본값: 랜덤 형용사+명사 조합으로 자동 생성
-- 선택: 책을 설정하면 해당 책 문구로 변경
-- 사용자가 직접 이름 편집도 가능
