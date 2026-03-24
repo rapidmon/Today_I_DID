@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#CC0F0F23"
+    android:background="#FF000000"
     android:paddingStart="6dp"
     android:paddingEnd="6dp"
     android:paddingTop="16dp"
@@ -22,10 +22,13 @@
             android:id="@+id/btn_refresh"
             android:layout_width="28dp"
             android:layout_height="28dp"
-            android:src="@drawable/ic_refresh_pixel"
+            android:src="@drawable/pixel_refresh"
             android:scaleType="centerInside"
             android:background="@drawable/btn_retro_dark"
-            android:padding="4dp" />
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
 
         <TextView
             android:layout_width="0dp"
@@ -35,9 +38,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="투명도"
+            android:text="투명도 조절 버튼"
             android:textColor="#666688"
-            android:textSize="12sp"
+            android:textSize="16sp"
             android:paddingEnd="4dp" />
 
         <Button
@@ -45,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="28dp"
             android:text="0%"
-            android:textSize="12sp"
+            android:textSize="16sp"
             android:textColor="#FFDD00"
             android:background="@drawable/btn_retro_dark"
             android:minWidth="38dp"
@@ -56,119 +59,130 @@
             android:paddingBottom="0dp" />
     </LinearLayout>
 
-    <!-- 중앙: 게임판(좌) + 사이드패널(우) -->
+    <!-- 중앙+하단을 감싸서 가운데 정렬 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
-        <!-- 게임 보드 -->
-        <ImageView
-            android:id="@+id/game_board"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="5"
-            android:scaleType="fitStart" />
-
-        <!-- 사이드 패널 -->
+        <!-- 게임판(좌) + 사이드패널(우) -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:id="@+id/game_area"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:paddingStart="6dp">
+            android:orientation="horizontal"
+            android:gravity="center">
 
-            <!-- NEXT 라벨 -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="NEXT"
-                android:textColor="#888899"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingBottom="2dp" />
-
-            <!-- NEXT 블록 미리보기 (탭하면 앱 열기) -->
+            <!-- 게임 보드 -->
             <ImageView
-                android:id="@+id/next_block"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:scaleType="center"
-                android:background="#1A1A2E" />
+                android:id="@+id/game_board"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:scaleType="fitStart" />
 
-            <!-- SCORE -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SCORE"
-                android:textColor="#888899"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingTop="8dp" />
+            <!-- 사이드 패널 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.2"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingStart="4dp">
 
-            <TextView
-                android:id="@+id/score_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textColor="#FFDD00"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingTop="2dp" />
+                <!-- NEXT 라벨 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="NEXT"
+                    android:textColor="#888899"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingBottom="2dp" />
+
+                <!-- NEXT 블록 미리보기 (탭하면 앱 열기) -->
+                <ImageView
+                    android:id="@+id/next_block"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:scaleType="center"
+                    android:background="#1A1A2E" />
+
+                <!-- SCORE -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SCORE"
+                    android:textColor="#888899"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingTop="8dp" />
+
+                <TextView
+                    android:id="@+id/score_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#FFDD00"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingTop="2dp" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 
-    <!-- 하단: 픽셀아트 버튼 ◀ ▶ ▼ ↻ -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingTop="2dp">
+        <!-- 하단: 픽셀아트 버튼 ◀ ▶ ▼ ↻ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingTop="2dp">
 
-        <ImageButton
-            android:id="@+id/btn_left"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:src="@drawable/ic_arrow_left"
-            android:scaleType="centerInside"
-            android:background="@drawable/btn_retro"
-            android:padding="8dp"
-            android:layout_marginEnd="3dp" />
+            <ImageButton
+                android:id="@+id/btn_left"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_arrow_left"
+                android:scaleType="centerInside"
+                android:background="@drawable/btn_retro"
+                android:padding="6dp"
+                android:layout_marginEnd="3dp" />
 
-        <ImageButton
-            android:id="@+id/btn_right"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:src="@drawable/ic_arrow_right"
-            android:scaleType="centerInside"
-            android:background="@drawable/btn_retro"
-            android:padding="8dp"
-            android:layout_marginEnd="3dp" />
+            <ImageButton
+                android:id="@+id/btn_right"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_arrow_right"
+                android:scaleType="centerInside"
+                android:background="@drawable/btn_retro"
+                android:padding="6dp"
+                android:layout_marginEnd="3dp" />
 
-        <ImageButton
-            android:id="@+id/btn_down"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:src="@drawable/ic_arrow_down"
-            android:scaleType="centerInside"
-            android:background="@drawable/btn_retro_blue"
-            android:padding="8dp"
-            android:layout_marginEnd="3dp" />
+            <ImageButton
+                android:id="@+id/btn_down"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:src="@drawable/ic_arrow_down"
+                android:scaleType="centerInside"
+                android:background="@drawable/btn_retro"
+                android:padding="6dp"
+                android:layout_marginEnd="3dp" />
 
-        <ImageButton
-            android:id="@+id/btn_rotate"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_weight="1"
-            android:src="@drawable/ic_rotate_pixel"
-            android:scaleType="centerInside"
-            android:background="@drawable/btn_retro_dark"
-            android:padding="8dp" />
+            <ImageButton
+                android:id="@+id/btn_rotate"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:src="@drawable/pixel_rotate"
+                android:scaleType="centerInside"
+                android:background="@drawable/btn_retro"
+                android:padding="6dp" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
