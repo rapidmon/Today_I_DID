@@ -1,6 +1,6 @@
 import type { BlockType } from './game'
 
-export type TaskStatus = 'pending' | 'completed' | 'failed'
+export type TaskStatus = 'pending' | 'completed' | 'failed' | 'archived'
 
 export interface Task {
   id: string

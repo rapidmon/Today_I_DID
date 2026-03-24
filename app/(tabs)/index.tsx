@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import {
   View,
   Text,
@@ -10,15 +10,17 @@ import {
   Platform,
   Alert,
   AppState,
+  Animated,
 } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useGameStore } from '@/stores/gameStore'
 import { useTaskStore } from '@/stores/taskStore'
 import { getColorHex, getRandomColorId } from '@/lib/colorMapper'
 import { BLOCK_TYPES } from '@/constants/tetris'
 import widgetBridge from '@/lib/widgetBridge'
 import type { Task, Routine } from '@/types/record'
-import type { QueuedBlock } from '@/types/game'
+import type { QueuedBlock, GameHistory } from '@/types/game'
+import { useHistoryStore } from '@/stores/historyStore'
 import { homeStyles as styles } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
 
@@ -48,6 +50,7 @@ const BLOCK_TYPE_COLORS: Record<string, string> = {
 }
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets()
   const tasks = useTaskStore((s) => s.tasks)
   const routines = useTaskStore((s) => s.routines)
   const addTask = useTaskStore((s) => s.addTask)
@@ -56,6 +59,7 @@ export default function HomeScreen() {
   const addRoutine = useTaskStore((s) => s.addRoutine)
   const removeRoutine = useTaskStore((s) => s.removeRoutine)
   const genId = useTaskStore((s) => s.genId)
+  const addHistory = useHistoryStore((s) => s.addHistory)
 
   const [achievements, setAchievements] = useState<WidgetAchievement[]>([])
   const [inputText, setInputText] = useState('')
@@ -64,6 +68,7 @@ export default function HomeScreen() {
   const [expandedAchId, setExpandedAchId] = useState<string | null>(null)
   const [isGameOver, setIsGameOver] = useState(false)
   const [recentlyCompleted, setRecentlyCompleted] = useState<Set<string>>(new Set())
+  const historySavedRef = useRef(false)
   const addBlock = useGameStore((s) => s.addBlock)
   const addPenalties = useGameStore((s) => s.addPenalties)
   const applyDailyBonusStore = useGameStore((s) => s.applyDailyBonus)
@@ -71,29 +76,98 @@ export default function HomeScreen() {
   const syncScore = useGameStore((s) => s.syncScore)
   const gameScore = useGameStore((s) => s.gameState.score)
 
-  // 위젯 게임 오버 상태 + 성취 데이터 동기화
+  // 모달 fade 애니메이션
+  const fadeAnim = useRef(new Animated.Value(0)).current
+  const scaleAnim = useRef(new Animated.Value(0.9)).current
+
+  const openModal = useCallback(() => {
+    setPopupVisible(true)
+    fadeAnim.setValue(0)
+    scaleAnim.setValue(0.9)
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  }, [fadeAnim, scaleAnim])
+
+  const closeModal = useCallback(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 0.9,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setPopupVisible(false))
+  }, [fadeAnim, scaleAnim])
+
+  // 위젯 상태 동기화 + 게임오버 시 히스토리 저장
   useEffect(() => {
     const checkWidgetState = async () => {
-      const gameOver = await widgetBridge.isGameOver()
+      try {
+        const gameOver = await widgetBridge.isGameOver()
+        const widgetScore = await widgetBridge.getScore()
+        const achJson = await widgetBridge.getAchievements()
+        const parsed = JSON.parse(achJson) as WidgetAchievement[]
 
-      // 위젯에서 리셋됐으면 앱 쪽 score도 리셋
-      if (isGameOver && !gameOver) {
-        resetGame()
+        // 게임 오버 최초 감지 → 히스토리 저장
+        if (gameOver && !historySavedRef.current) {
+          const currentTasks = useTaskStore.getState().tasks
+          const completedTasks = currentTasks
+            .filter(t => t.status === 'completed' && t.blockType && t.colorId !== null)
+            .map(t => ({
+              content: t.content,
+              blockType: t.blockType!,
+              colorId: t.colorId!,
+              completedAt: t.completedAt ?? Date.now(),
+            }))
+
+          const history: GameHistory = {
+            id: useTaskStore.getState().genId('history'),
+            endedAt: Date.now(),
+            finalScore: widgetScore,
+            totalLineClears: parsed.reduce((sum, a) => sum + a.lineCount, 0),
+            completedTasks,
+            achievements: parsed,
+          }
+          useHistoryStore.getState().addHistory(history)
+
+          // 완료된 태스크를 archived로 변경
+          useTaskStore.getState().setTasks(prev => prev.map(t =>
+            t.status === 'completed' ? { ...t, status: 'archived' as const } : t
+          ))
+
+          historySavedRef.current = true
+        }
+
+        // 위젯 리셋 감지 → 앱 게임 리셋
+        if (!gameOver && historySavedRef.current) {
+          resetGame()
+          historySavedRef.current = false
+        }
+
+        setIsGameOver(gameOver)
+        syncScore(widgetScore)
+        setAchievements(parsed)
+      } catch (e) {
+        // 위젯 브릿지 오류 무시
       }
-      setIsGameOver(gameOver)
-
-      // 위젯의 실제 score를 앱에 동기화 (줄 클리어 점수 반영)
-      const widgetScore = await widgetBridge.getScore()
-      syncScore(widgetScore)
-
-      const achJson = await widgetBridge.getAchievements()
-      const parsed = JSON.parse(achJson) as WidgetAchievement[]
-      setAchievements(parsed)
     }
 
     checkWidgetState()
 
-    // 앱이 포그라운드로 돌아올 때마다 체크
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active') checkWidgetState()
     })
@@ -185,6 +259,7 @@ export default function HomeScreen() {
 
   // 할 일 완료
   const handleComplete = useCallback((taskId: string) => {
+    if (isGameOver) return
     const task = tasks.find(t => t.id === taskId)
     if (!task) return
 
@@ -216,7 +291,7 @@ export default function HomeScreen() {
     }, 1000)
 
     applyDailyBonusStore(todayStr)
-  }, [tasks, addBlock, updateTask, applyDailyBonusStore, todayStr])
+  }, [tasks, addBlock, updateTask, applyDailyBonusStore, todayStr, isGameOver])
 
   // 루틴 삭제
   const handleDeleteRoutine = useCallback((routineId: string) => {
@@ -232,7 +307,7 @@ export default function HomeScreen() {
 
   // 오늘 할 일 필터링 메모이제이션 — tasks 변경 시에만 재계산
   const todayStr = useMemo(() => today(), [])
-  const todayTasks = useMemo(() => tasks.filter(t => t.date === todayStr), [tasks, todayStr])
+  const todayTasks = useMemo(() => tasks.filter(t => t.date === todayStr && t.status !== 'archived'), [tasks, todayStr])
   const formatDateHeader = (dateStr: string) => {
     const [y, m, d] = dateStr.split('-')
     return `${Number(m)}월 ${Number(d)}일`
@@ -388,24 +463,32 @@ export default function HomeScreen() {
       )}
 
       {/* 완성 라인 플로팅 버튼 */}
-      <Pressable style={styles.fab} onPress={() => setPopupVisible(true)} accessibilityLabel="완성된 라인 보기">
-        <Text style={styles.fabText}>🏆</Text>
+      <Pressable
+        style={[styles.fab, { bottom: 8 }]}
+        onPress={openModal}
+        accessibilityLabel="완성된 라인 보기"
+      >
+        <Text style={styles.fabText}>📜</Text>
       </Pressable>
 
-      {/* 완성 라인 팝업 */}
-      <Modal visible={popupVisible} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+      {/* 완성 라인 팝업 — 두루마리 스타일 */}
+      <Modal visible={popupVisible} animationType="none" transparent>
+        <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]}>
+          <Pressable style={styles.modalOverlayTouchable} onPress={closeModal} />
+          <Animated.View style={[styles.modalContent, { transform: [{ scale: scaleAnim }] }]}>
+            {/* 두루마리 상단 손잡이 */}
+            <View style={styles.scrollHandle} />
+
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>COMPLETED LINES</Text>
-              <Pressable onPress={() => setPopupVisible(false)} accessibilityLabel="닫기">
+              <Pressable onPress={closeModal} accessibilityLabel="닫기">
                 <Text style={styles.modalClose}>✕</Text>
               </Pressable>
             </View>
             {achievements.length === 0 ? (
               <View style={styles.modalEmpty}>
-                <Text style={styles.emptyText}>아직 완성된 라인이 없어요</Text>
-                <Text style={styles.emptySubText}>위젯에서 테트리스 줄을 완성해보세요!</Text>
+                <Text style={styles.emptyTextScroll}>아직 완성된 라인이 없어요</Text>
+                <Text style={styles.emptySubTextScroll}>위젯에서 테트리스 줄을 완성해보세요!</Text>
               </View>
             ) : (
               <FlatList
@@ -453,10 +536,12 @@ export default function HomeScreen() {
                 }}
               />
             )}
-          </View>
-        </View>
+
+            {/* 두루마리 하단 손잡이 */}
+            <View style={styles.scrollHandleBottom} />
+          </Animated.View>
+        </Animated.View>
       </Modal>
     </SafeAreaView>
   )
 }
-
