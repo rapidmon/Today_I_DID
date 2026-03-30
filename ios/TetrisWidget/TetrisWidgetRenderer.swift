@@ -10,7 +10,7 @@ struct BlockColors {
 
     static let background = Color(hex: "#0A0A1A")
     static let emptyCell = Color(hex: "#1A1A2E")
-    static let gridLine = Color(hex: "#222244")
+    static let gridLine = Color(hex: "#00F0FF").opacity(0.08)
     static let penaltyColor = Color(hex: "#666688")
 
     static func blockColor(for colorId: Int) -> Color {
@@ -37,10 +37,8 @@ struct TetrisGridView: View {
             let offsetY = (geo.size.height - totalH) / 2
 
             ZStack(alignment: .topLeading) {
-                // 배경
                 BlockColors.background
 
-                // 그리드 셀
                 Canvas { context, size in
                     // 빈 셀 + 배치된 블록
                     for y in 0..<TetrisGameEngine.ROWS {
@@ -66,13 +64,32 @@ struct TetrisGridView: View {
                             }
 
                             if colorValue != 0 {
+                                // 블록 + 고전 테트리스 3D 베벨
                                 context.fill(Path(rect), with: .color(BlockColors.blockColor(for: colorValue)))
-                                // 하이라이트 (상단)
-                                let highlightRect = CGRect(
+                                // 상단 하이라이트
+                                let hlRect = CGRect(
                                     x: rect.minX, y: rect.minY,
-                                    width: rect.width, height: cellSize * 0.3
+                                    width: rect.width, height: 2
                                 )
-                                context.fill(Path(highlightRect), with: .color(.white.opacity(0.15)))
+                                context.fill(Path(hlRect), with: .color(.white.opacity(0.4)))
+                                // 좌측 하이라이트
+                                let leftRect = CGRect(
+                                    x: rect.minX, y: rect.minY,
+                                    width: 2, height: rect.height
+                                )
+                                context.fill(Path(leftRect), with: .color(.white.opacity(0.3)))
+                                // 하단 그림자
+                                let btmRect = CGRect(
+                                    x: rect.minX, y: rect.maxY - 2,
+                                    width: rect.width, height: 2
+                                )
+                                context.fill(Path(btmRect), with: .color(.black.opacity(0.4)))
+                                // 우측 그림자
+                                let rightRect = CGRect(
+                                    x: rect.maxX - 2, y: rect.minY,
+                                    width: 2, height: rect.height
+                                )
+                                context.fill(Path(rightRect), with: .color(.black.opacity(0.35)))
                             } else {
                                 context.fill(Path(rect), with: .color(BlockColors.emptyCell))
                             }
@@ -95,50 +112,57 @@ struct TetrisGridView: View {
                                     height: cellSize - 1
                                 )
                                 context.fill(Path(rect), with: .color(color))
-                                // 하이라이트
-                                let hlRect = CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: cellSize * 0.3)
-                                context.fill(Path(hlRect), with: .color(.white.opacity(0.2)))
+                                // 3D 베벨
+                                let hlRect = CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: 2)
+                                context.fill(Path(hlRect), with: .color(.white.opacity(0.4)))
+                                let leftRect = CGRect(x: rect.minX, y: rect.minY, width: 2, height: rect.height)
+                                context.fill(Path(leftRect), with: .color(.white.opacity(0.3)))
+                                let btmRect = CGRect(x: rect.minX, y: rect.maxY - 2, width: rect.width, height: 2)
+                                context.fill(Path(btmRect), with: .color(.black.opacity(0.4)))
+                                let rightRect = CGRect(x: rect.maxX - 2, y: rect.minY, width: 2, height: rect.height)
+                                context.fill(Path(rightRect), with: .color(.black.opacity(0.35)))
                             }
                         }
                     }
 
-                    // 그리드 선
-                    let lineColor = BlockColors.gridLine
+                    // 그리드 선 (네온 시안 은은하게)
                     for x in 0...TetrisGameEngine.COLS {
                         let xPos = offsetX + CGFloat(x) * cellSize
                         var path = Path()
                         path.move(to: CGPoint(x: xPos, y: offsetY))
                         path.addLine(to: CGPoint(x: xPos, y: offsetY + totalH))
-                        context.stroke(path, with: .color(lineColor), lineWidth: 0.5)
+                        context.stroke(path, with: .color(Color(hex: "#00F0FF").opacity(0.06)), lineWidth: 0.5)
                     }
                     for y in 0...TetrisGameEngine.ROWS {
                         let yPos = offsetY + CGFloat(y) * cellSize
                         var path = Path()
                         path.move(to: CGPoint(x: offsetX, y: yPos))
                         path.addLine(to: CGPoint(x: offsetX + totalW, y: yPos))
-                        context.stroke(path, with: .color(lineColor), lineWidth: 0.5)
+                        context.stroke(path, with: .color(Color(hex: "#00F0FF").opacity(0.06)), lineWidth: 0.5)
                     }
                 }
 
                 // GAME OVER 오버레이
                 if state.gameOver {
                     ZStack {
-                        BlockColors.background.opacity(0.7)
+                        BlockColors.background.opacity(0.6)
 
                         VStack(spacing: 2) {
                             Text("GAME")
                                 .font(.system(size: cellSize * 1.5, weight: .bold, design: .monospaced))
-                                .foregroundColor(.red)
+                                .foregroundColor(Color(hex: "#FF3355"))
                             Text("OVER")
                                 .font(.system(size: cellSize * 1.5, weight: .bold, design: .monospaced))
-                                .foregroundColor(.red)
+                                .foregroundColor(Color(hex: "#FF3355"))
                         }
-                        .padding(8)
-                        .background(BlockColors.background)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(NeonColors.bgPrimary.opacity(0.8))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color.red, lineWidth: 2)
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color(hex: "#FF3355").opacity(0.6), lineWidth: 2)
                         )
+                        .cornerRadius(6)
                     }
                     .frame(width: totalW, height: totalH)
                     .offset(x: offsetX, y: offsetY)
