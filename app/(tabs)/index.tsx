@@ -11,42 +11,29 @@ import {
   Alert,
   AppState,
   Animated,
+  AccessibilityInfo,
 } from 'react-native'
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useGameStore } from '@/stores/gameStore'
 import { useTaskStore } from '@/stores/taskStore'
 import { getColorHex, getRandomColorId } from '@/lib/colorMapper'
-import { BLOCK_TYPES } from '@/constants/tetris'
+import { BLOCK_TYPES, BLOCK_TYPE_COLORS } from '@/constants/tetris'
 import widgetBridge from '@/lib/widgetBridge'
-import type { Task, Routine } from '@/types/record'
-import type { QueuedBlock, GameHistory } from '@/types/game'
+import type { Task, Routine, DayOfWeek } from '@/types/record'
+import type { QueuedBlock, GameHistory, GameHistoryAchievement } from '@/types/game'
 import { useHistoryStore } from '@/stores/historyStore'
 import { homeStyles as styles } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
 
-interface AchievementRecord {
-  id: string
-  content: string
-  blockType: string
-}
-
-interface WidgetAchievement {
-  id: string
-  recordIds: string[]
-  records: AchievementRecord[]
-  lineCount: number
-  score: number
-  clearedAt: number
-}
-
 const today = () => {
-  const kr = new Date(new Date().getTime() + 9 * 60 * 60 * 1000)
-  return kr.toISOString().slice(0, 10)
+  const now = new Date()
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 }
 
-const BLOCK_TYPE_COLORS: Record<string, string> = {
-  I: '#0088FF', O: '#FFDD00', T: '#CC00FF',
-  S: '#00CC00', Z: '#FF0000', J: '#FF8800', L: '#FF00AA',
+const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
+
+const getTodayDayOfWeek = (): DayOfWeek => {
+  return new Date().getDay() as DayOfWeek
 }
 
 export default function HomeScreen() {
@@ -61,9 +48,11 @@ export default function HomeScreen() {
   const genId = useTaskStore((s) => s.genId)
   const addHistory = useHistoryStore((s) => s.addHistory)
 
-  const [achievements, setAchievements] = useState<WidgetAchievement[]>([])
+  const [todayStr, setTodayStr] = useState(() => today())
+  const [achievements, setAchievements] = useState<GameHistoryAchievement[]>([])
   const [inputText, setInputText] = useState('')
   const [inputMode, setInputMode] = useState<'task' | 'routine'>('task')
+  const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>([0, 1, 2, 3, 4, 5, 6])
   const [popupVisible, setPopupVisible] = useState(false)
   const [expandedAchId, setExpandedAchId] = useState<string | null>(null)
   const [isGameOver, setIsGameOver] = useState(false)
@@ -120,7 +109,10 @@ export default function HomeScreen() {
         const gameOver = await widgetBridge.isGameOver()
         const widgetScore = await widgetBridge.getScore()
         const achJson = await widgetBridge.getAchievements()
-        const parsed = JSON.parse(achJson) as WidgetAchievement[]
+        const raw = JSON.parse(achJson)
+        const parsed: GameHistoryAchievement[] = Array.isArray(raw) ? raw : []
+
+        if (__DEV__) console.log('[위젯 동기화]', { gameOver, widgetScore, achCount: parsed.length, historySaved: historySavedRef.current })
 
         // 게임 오버 최초 감지 → 히스토리 저장
         if (gameOver && !historySavedRef.current) {
@@ -142,7 +134,9 @@ export default function HomeScreen() {
             completedTasks,
             achievements: parsed,
           }
+          if (__DEV__) console.log('[히스토리 저장]', { id: history.id, score: history.finalScore, tasks: completedTasks.length })
           useHistoryStore.getState().addHistory(history)
+          if (__DEV__) console.log('[히스토리 저장 완료] 전체 개수:', useHistoryStore.getState().histories.length)
 
           // 완료된 태스크를 archived로 변경
           useTaskStore.getState().setTasks(prev => prev.map(t =>
@@ -150,30 +144,38 @@ export default function HomeScreen() {
           ))
 
           historySavedRef.current = true
+          AccessibilityInfo.announceForAccessibility('게임 오버. 기록이 저장되었습니다.')
         }
 
-        // 위젯 리셋 감지 → 앱 게임 리셋
+        // 위젯 리셋 감지 → 앱 게임 리셋 + 성취 초기화
         if (!gameOver && historySavedRef.current) {
           resetGame()
           historySavedRef.current = false
+          setIsGameOver(false)
+          syncScore(0)
+          setAchievements([])
+          return
         }
 
         setIsGameOver(gameOver)
         syncScore(widgetScore)
         setAchievements(parsed)
       } catch (e) {
-        // 위젯 브릿지 오류 무시
+        if (__DEV__) console.warn('위젯 동기화 실패:', e)
       }
     }
 
     checkWidgetState()
 
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') checkWidgetState()
+      if (state === 'active') {
+        setTodayStr(today())
+        checkWidgetState()
+      }
     })
 
     return () => sub.remove()
-  }, [])
+  }, [resetGame, syncScore])
 
   // 매일 루틴에서 오늘의 할 일 자동 생성 + 전날 미완료 페널티 체크
   // 하나의 setTasks로 배치 처리하여 리렌더링 1회로 줄임
@@ -186,10 +188,13 @@ export default function HomeScreen() {
     setTasks(prev => {
       let result = prev
 
-      // 1) 루틴에서 오늘 할 일 생성
+      // 1) 루틴에서 오늘 할 일 생성 (요일 체크)
+      const todayDay = getTodayDayOfWeek()
       const todayRoutineTasks = result.filter(t => t.date === todayStr && t.isRoutine)
       const missingRoutines = routines.filter(
-        r => r.active && !todayRoutineTasks.some(t => t.routineId === r.id)
+        r => r.active
+          && (r.days ?? [0, 1, 2, 3, 4, 5, 6]).includes(todayDay)
+          && !todayRoutineTasks.some(t => t.routineId === r.id)
       )
       if (missingRoutines.length > 0) {
         const newTasks = missingRoutines.map(r => ({
@@ -222,7 +227,7 @@ export default function HomeScreen() {
 
       return result
     })
-  }, [routines, addPenalties])
+  }, [routines, addPenalties, setTasks, genId])
 
   // 할 일 추가
   const handleAddTask = useCallback(() => {
@@ -235,10 +240,12 @@ export default function HomeScreen() {
         id: genId('routine'),
         content: trimmed,
         active: true,
+        days: [...selectedDays],
         createdAt: Date.now(),
       }
       addRoutine(newRoutine)
       routineId = newRoutine.id
+      setSelectedDays([0, 1, 2, 3, 4, 5, 6])
     }
 
     const newTask: Task = {
@@ -255,7 +262,16 @@ export default function HomeScreen() {
     }
     addTask(newTask)
     setInputText('')
-  }, [inputText, inputMode, genId, addRoutine, addTask])
+  }, [inputText, inputMode, selectedDays, genId, addRoutine, addTask])
+
+  // setTimeout cleanup용 ref
+  const completionTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
+  useEffect(() => {
+    return () => {
+      completionTimersRef.current.forEach(timer => clearTimeout(timer))
+      completionTimersRef.current.clear()
+    }
+  }, [])
 
   // 할 일 완료
   const handleComplete = useCallback((taskId: string) => {
@@ -282,13 +298,15 @@ export default function HomeScreen() {
 
     // 체크 표시 → 1초 후 미니블록으로 전환
     setRecentlyCompleted(prev => new Set(prev).add(taskId))
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setRecentlyCompleted(prev => {
         const next = new Set(prev)
         next.delete(taskId)
         return next
       })
+      completionTimersRef.current.delete(taskId)
     }, 1000)
+    completionTimersRef.current.set(taskId, timer)
 
     applyDailyBonusStore(todayStr)
   }, [tasks, addBlock, updateTask, applyDailyBonusStore, todayStr, isGameOver])
@@ -305,19 +323,34 @@ export default function HomeScreen() {
     ])
   }, [removeRoutine])
 
-  // 오늘 할 일 필터링 메모이제이션 — tasks 변경 시에만 재계산
-  const todayStr = useMemo(() => today(), [])
-  const todayTasks = useMemo(() => tasks.filter(t => t.date === todayStr && t.status !== 'archived'), [tasks, todayStr])
+  // archived 제외한 모든 할 일을 날짜별로 그룹핑 (최신 날짜 먼저)
+  const activeTasks = useMemo(() => tasks.filter(t => t.status !== 'archived'), [tasks])
+  const groupedByDate = useMemo(() => {
+    const groups: Record<string, Task[]> = {}
+    for (const t of activeTasks) {
+      if (!groups[t.date]) groups[t.date] = []
+      groups[t.date].push(t)
+    }
+    return Object.entries(groups).sort(([a], [b]) => b.localeCompare(a))
+  }, [activeTasks])
+
   const formatDateHeader = (dateStr: string) => {
     const [y, m, d] = dateStr.split('-')
     return `${Number(m)}월 ${Number(d)}일`
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* 헤더 */}
       <View style={styles.header}>
-        <Text style={styles.title}>TODAY I DID</Text>
+        <View style={styles.headerLeft}>
+          {/* 미니 테트리스 블록 아이콘 */}
+          <View style={styles.headerBlockIcon}>
+            <View style={[styles.headerBlock, { backgroundColor: '#00F0FF' }]} />
+            <View style={[styles.headerBlock, { backgroundColor: '#FF00E5' }]} />
+          </View>
+          <Text style={styles.title}>TODAY I DID</Text>
+        </View>
         <View style={styles.headerRight}>
           {isGameOver && (
             <View style={styles.gameOverBadge}>
@@ -336,6 +369,7 @@ export default function HomeScreen() {
           style={[styles.modeButton, inputMode === 'task' && styles.modeButtonActive]}
           onPress={() => setInputMode('task')}
           accessibilityLabel="할 일 모드"
+          accessibilityRole="button"
         >
           <Text style={[styles.modeText, inputMode === 'task' && styles.modeTextActive]}>할 일</Text>
         </Pressable>
@@ -343,6 +377,7 @@ export default function HomeScreen() {
           style={[styles.modeButton, inputMode === 'routine' && styles.modeButtonActive]}
           onPress={() => setInputMode('routine')}
           accessibilityLabel="루틴 모드"
+          accessibilityRole="button"
         >
           <Text style={[styles.modeText, inputMode === 'routine' && styles.modeTextActive]}>루틴</Text>
         </Pressable>
@@ -356,7 +391,7 @@ export default function HomeScreen() {
             value={inputText}
             onChangeText={setInputText}
             placeholder={inputMode === 'task' ? '오늘 할 일을 적어주세요...' : '매일 반복할 일을 적어주세요...'}
-            placeholderTextColor="#666688"
+            placeholderTextColor="#555577"
             onSubmitEditing={handleAddTask}
             returnKeyType="done"
           />
@@ -365,11 +400,38 @@ export default function HomeScreen() {
             onPress={handleAddTask}
             disabled={!inputText.trim() || isGameOver}
             accessibilityLabel="추가"
+            accessibilityRole="button"
           >
             <Text style={styles.addButtonText}>{isGameOver ? 'OVER' : 'ADD'}</Text>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
+
+      {/* 요일 선택 (루틴 모드일 때만) */}
+      {inputMode === 'routine' && (
+        <View style={styles.dayRow}>
+          {DAY_LABELS.map((label, i) => {
+            const day = i as DayOfWeek
+            const isSelected = selectedDays.includes(day)
+            return (
+              <Pressable
+                key={day}
+                style={[styles.dayButton, isSelected && styles.dayButtonActive]}
+                onPress={() => {
+                  setSelectedDays(prev =>
+                    prev.includes(day)
+                      ? prev.filter(d => d !== day)
+                      : [...prev, day].sort()
+                  )
+                }}
+                accessibilityLabel={`${label}요일 ${isSelected ? '해제' : '선택'}`}
+              >
+                <Text style={[styles.dayText, isSelected && styles.dayTextActive]}>{label}</Text>
+              </Pressable>
+            )
+          })}
+        </View>
+      )}
 
       {/* 루틴 목록 (있을 때만) */}
       {routines.length > 0 && (
@@ -378,7 +440,11 @@ export default function HomeScreen() {
           <View style={styles.routineList}>
             {routines.map(r => (
               <View key={r.id} style={styles.routineChip}>
-                <Text style={styles.routineChipText}>{r.content} 🔄</Text>
+                <Text style={styles.routineChipText}>
+                  {r.content} {(r.days ?? [0,1,2,3,4,5,6]).length === 7
+                    ? '매일'
+                    : (r.days ?? []).map(d => DAY_LABELS[d]).join('·')}
+                </Text>
                 <Pressable
                   onPress={() => handleDeleteRoutine(r.id)}
                   accessibilityLabel={`루틴 삭제: ${r.content}`}
@@ -392,8 +458,8 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {/* 할 일 리스트 */}
-      {todayTasks.length === 0 ? (
+      {/* 할 일 리스트 — 날짜별 그룹핑 */}
+      {activeTasks.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>📝</Text>
           <Text style={styles.emptyText}>오늘 할 일이 없어요</Text>
@@ -401,63 +467,65 @@ export default function HomeScreen() {
         </View>
       ) : (
         <FlatList
-          data={todayTasks}
-          keyExtractor={(item) => item.id}
+          data={groupedByDate}
+          keyExtractor={([date]) => date}
           contentContainerStyle={styles.listContent}
-          removeClippedSubviews={true}
-          maxToRenderPerBatch={10}
-          windowSize={5}
-          ListHeaderComponent={
-            <View style={styles.dateHeader}>
-              <View style={styles.dateLine} />
-              <Text style={styles.dateText}>{formatDateHeader(todayStr)}</Text>
-              <View style={styles.dateLine} />
-            </View>
-          }
-          renderItem={({ item, index }) => (
-            <Pressable
-              style={styles.recordItem}
-              onPress={() => item.status === 'pending' ? handleComplete(item.id) : null}
-              disabled={item.status !== 'pending'}
-              accessibilityLabel={item.status === 'pending' ? `완료: ${item.content}` : item.content}
-            >
-              {/* 번호 */}
-              <Text style={[styles.numberText, item.status === 'completed' && styles.numberTextCompleted]}>
-                {index + 1}
-              </Text>
-
-              {/* 내용 + 루틴 표시 */}
-              <View style={styles.recordContent}>
-                <View style={styles.recordTextRow}>
-                  <Text
-                    style={[styles.recordText, item.status === 'completed' && styles.recordTextCompleted]}
-                    numberOfLines={1}
-                  >
-                    {item.content}
-                  </Text>
-                  {item.isRoutine && <Text style={styles.routineIcon}>🔄</Text>}
-                </View>
+          renderItem={({ item: [date, dateTasks] }) => (
+            <View>
+              {/* 날짜 헤더 */}
+              <View style={styles.dateHeader}>
+                <View style={styles.dateLine} />
+                <Text style={styles.dateText}>
+                  {date === todayStr ? `${formatDateHeader(date)} (오늘)` : formatDateHeader(date)}
+                </Text>
+                <View style={styles.dateLine} />
               </View>
 
-              {/* 체크박스 영역 */}
-              {item.status === 'completed' && item.blockType && item.colorId ? (
-                recentlyCompleted.has(item.id) ? (
-                  <View style={styles.pendingCheckbox}>
-                    <Text style={styles.checkOverlay}>✓</Text>
+              {/* 해당 날짜의 할 일들 */}
+              {dateTasks.map((item, index) => (
+                <Pressable
+                  key={item.id}
+                  style={styles.recordItem}
+                  onPress={() => item.status === 'pending' ? handleComplete(item.id) : null}
+                  disabled={item.status !== 'pending'}
+                  accessibilityLabel={item.status === 'pending' ? `완료: ${item.content}` : item.content}
+                >
+                  <Text style={[styles.numberText, item.status === 'completed' && styles.numberTextCompleted]}>
+                    {index + 1}
+                  </Text>
+
+                  <View style={styles.recordContent}>
+                    <View style={styles.recordTextRow}>
+                      <Text
+                        style={[styles.recordText, item.status === 'completed' && styles.recordTextCompleted]}
+                        numberOfLines={1}
+                      >
+                        {item.content}
+                      </Text>
+                      {item.isRoutine && <Text style={styles.routineIcon}>🔄</Text>}
+                    </View>
                   </View>
-                ) : (
-                  <View style={[styles.blockBadge, { backgroundColor: getColorHex(item.colorId) + '15' }]}>
-                    <MiniBlock type={item.blockType} color={getColorHex(item.colorId)} />
-                  </View>
-                )
-              ) : item.status === 'failed' ? (
-                <View style={[styles.blockBadge, { backgroundColor: '#FFE0E0' }]}>
-                  <Text style={[styles.blockText, { color: '#FF4444' }]}>💀</Text>
-                </View>
-              ) : (
-                <View style={styles.pendingCheckbox} />
-              )}
-            </Pressable>
+
+                  {item.status === 'completed' && item.blockType && item.colorId ? (
+                    recentlyCompleted.has(item.id) ? (
+                      <View style={styles.pendingCheckbox}>
+                        <Text style={styles.checkOverlay}>✓</Text>
+                      </View>
+                    ) : (
+                      <View style={[styles.blockBadge, { backgroundColor: getColorHex(item.colorId) + '15' }]}>
+                        <MiniBlock type={item.blockType} color={getColorHex(item.colorId)} />
+                      </View>
+                    )
+                  ) : item.status === 'failed' ? (
+                    <View style={[styles.blockBadge, { backgroundColor: '#FFE0E0' }]}>
+                      <Text style={[styles.blockText, { color: '#FF4444' }]}>💀</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.pendingCheckbox} />
+                  )}
+                </Pressable>
+              ))}
+            </View>
           )}
         />
       )}
@@ -467,12 +535,13 @@ export default function HomeScreen() {
         style={[styles.fab, { bottom: 8 }]}
         onPress={openModal}
         accessibilityLabel="완성된 라인 보기"
+        accessibilityRole="button"
       >
-        <Text style={styles.fabText}>📜</Text>
+        <Text style={styles.fabText}>★</Text>
       </Pressable>
 
       {/* 완성 라인 팝업 — 두루마리 스타일 */}
-      <Modal visible={popupVisible} animationType="none" transparent>
+      <Modal visible={popupVisible} animationType="none" transparent accessibilityViewIsModal>
         <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]}>
           <Pressable style={styles.modalOverlayTouchable} onPress={closeModal} />
           <Animated.View style={[styles.modalContent, { transform: [{ scale: scaleAnim }] }]}>
@@ -518,11 +587,11 @@ export default function HomeScreen() {
                       {isExpanded && (
                         <View style={styles.achievementBody}>
                           {(item.records ?? []).length > 0 ? (
-                            item.records.map((rec, i) => (
-                              <View key={i} style={styles.achievementRecordRow}>
+                            item.records.map((rec) => (
+                              <View key={rec.id} style={styles.achievementRecordRow}>
                                 <View style={[styles.blockColorDot, { backgroundColor: BLOCK_TYPE_COLORS[rec.blockType] || '#666688' }]} />
                                 <Text style={styles.achievementRecord}>
-                                  {rec.content || `기록 #${i + 1}`}
+                                  {rec.content || `기록`}
                                 </Text>
                               </View>
                             ))
@@ -542,6 +611,6 @@ export default function HomeScreen() {
           </Animated.View>
         </Animated.View>
       </Modal>
-    </SafeAreaView>
+    </View>
   )
 }

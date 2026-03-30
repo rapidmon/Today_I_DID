@@ -1,12 +1,8 @@
 import { useState } from 'react'
 import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useHistoryStore } from '@/stores/historyStore'
-
-const BLOCK_TYPE_COLORS: Record<string, string> = {
-  I: '#0088FF', O: '#FFDD00', T: '#CC00FF',
-  S: '#00CC00', Z: '#FF0000', J: '#FF8800', L: '#FF00AA',
-}
+import { BLOCK_TYPE_COLORS } from '@/constants/tetris'
 
 export default function HistoryScreen() {
   const histories = useHistoryStore((s) => s.histories)
@@ -15,8 +11,10 @@ export default function HistoryScreen() {
   const formatDate = (timestamp: number) =>
     new Date(timestamp).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
 
+  const insets = useSafeAreaInsets()
+
   return (
-    <SafeAreaView style={s.container}>
+    <View style={[s.container, { paddingTop: insets.top }]}>
       <View style={s.header}>
         <Text style={s.title}>HISTORY</Text>
         <Text style={s.subtitle}>{histories.length}판 플레이</Text>
@@ -38,14 +36,28 @@ export default function HistoryScreen() {
             const gameNum = histories.length - index
             return (
               <Pressable
-                style={s.card}
+                style={[
+                  s.card,
+                  index === 0
+                    ? { borderColor: 'rgba(0, 240, 255, 0.3)', shadowColor: '#00F0FF', shadowOpacity: 0.2, shadowRadius: 12, elevation: 4 }
+                    : {},
+                ]}
                 onPress={() => setExpandedId(isExpanded ? null : item.id)}
                 accessibilityLabel={`게임 ${gameNum} 상세보기`}
+                accessibilityRole="button"
               >
+                {/* GAME OVER 배너 */}
+                <View style={[s.gameOverBanner, { backgroundColor: index === 0 ? 'rgba(255, 51, 85, 0.08)' : 'rgba(255, 51, 85, 0.04)' }]}>
+                  <Text style={[s.gameOverBannerText, index > 0 && { opacity: 0.4 }]}>GAME OVER</Text>
+                </View>
                 {/* 카드 헤더 */}
                 <View style={s.cardHeader}>
                   <View style={s.cardLeft}>
-                    <Text style={s.gameNum}>GAME #{gameNum}</Text>
+                    <View style={s.gameNumRow}>
+                      <Text style={[s.gameNum, index === 0 && { color: '#00F0FF', textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 8 }]}>
+                        GAME #{gameNum}
+                      </Text>
+                    </View>
                     <Text style={s.gameDate}>{formatDate(item.endedAt)}</Text>
                   </View>
                   <View style={s.cardRight}>
@@ -79,7 +91,7 @@ export default function HistoryScreen() {
                       <Text style={s.noData}>기록 없음</Text>
                     ) : (
                       item.completedTasks.map((task, i) => (
-                        <View key={i} style={s.taskRow}>
+                        <View key={`${task.completedAt}_${i}`} style={s.taskRow}>
                           <View style={[s.blockDot, { backgroundColor: BLOCK_TYPE_COLORS[task.blockType] || '#888899' }]} />
                           <Text style={s.taskText} numberOfLines={1}>{task.content}</Text>
                         </View>
@@ -89,9 +101,9 @@ export default function HistoryScreen() {
                     {item.achievements.length > 0 && (
                       <>
                         <Text style={[s.sectionTitle, { marginTop: 12 }]}>줄 클리어 성취</Text>
-                        {item.achievements.map((ach, i) => (
-                          <View key={i} style={s.achRow}>
-                            <Text style={s.achText}>LINE #{i + 1} — {ach.lineCount}줄 · +{ach.score}</Text>
+                        {item.achievements.map((ach) => (
+                          <View key={ach.id} style={s.achRow}>
+                            <Text style={s.achText}>LINE — {ach.lineCount}줄 · +{ach.score}</Text>
                           </View>
                         ))}
                       </>
@@ -103,59 +115,85 @@ export default function HistoryScreen() {
           }}
         />
       )}
-    </SafeAreaView>
+    </View>
   )
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F8' },
+  container: { flex: 1, backgroundColor: '#0A0A1A' },
   header: {
     flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingVertical: 12,
   },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#1A1A2E', letterSpacing: 2 },
-  subtitle: { color: '#888899', fontSize: 13, fontWeight: 'bold' },
+  title: {
+    fontFamily: 'PressStart2P', fontSize: 11, color: '#E8E8FF', letterSpacing: 2,
+    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  subtitle: { fontFamily: 'InterBold', color: '#8888AA', fontSize: 13 },
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   emptyIcon: { fontSize: 40, marginBottom: 12 },
-  emptyText: { color: '#888899', fontSize: 16, fontWeight: 'bold' },
-  emptySubText: { color: '#AAAABB', fontSize: 13, marginTop: 4 },
+  emptyText: { fontFamily: 'InterBold', color: '#8888AA', fontSize: 16 },
+  emptySubText: { fontFamily: 'Inter', color: '#555577', fontSize: 13, marginTop: 4 },
   listContent: { paddingHorizontal: 16, paddingBottom: 100 },
   card: {
-    backgroundColor: '#FFFFFF', borderRadius: 12, marginBottom: 12,
-    borderWidth: 1, borderColor: '#E8E8F0',
-    overflow: 'hidden',
+    borderRadius: 16, marginBottom: 12, overflow: 'hidden',
+    borderWidth: 1, borderColor: '#2A2A50',
+    backgroundColor: '#1A1A35',
+  },
+  gameOverBanner: {
+    alignItems: 'center', justifyContent: 'center', paddingVertical: 10,
+    borderBottomWidth: 1, borderBottomColor: 'rgba(255, 51, 85, 0.15)',
+  },
+  gameOverBannerText: {
+    fontFamily: 'PressStart2P', fontSize: 11, color: '#FF3355', letterSpacing: 4,
+    textShadowColor: 'rgba(255, 51, 85, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
   },
   cardHeader: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 16, paddingTop: 14, paddingBottom: 8,
+    paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8,
   },
   cardLeft: {},
-  gameNum: { fontSize: 15, fontWeight: 'bold', color: '#1A1A2E', letterSpacing: 1 },
-  gameDate: { fontSize: 12, color: '#888899', marginTop: 2 },
+  gameNumRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  gameNum: {
+    fontFamily: 'PressStart2P', fontSize: 10, color: '#8888AA', letterSpacing: 1,
+  },
+  // gameOverBadge/gameOverText는 배너로 대체됨 — 미사용
+  gameDate: { fontFamily: 'Inter', fontSize: 12, color: '#555577', marginTop: 4 },
   cardRight: { alignItems: 'flex-end' },
-  scoreLabel: { fontSize: 10, color: '#888899', fontWeight: 'bold', letterSpacing: 1 },
-  scoreValue: { fontSize: 22, fontWeight: 'bold', color: '#CC8800' },
+  scoreLabel: { fontFamily: 'PressStart2P', fontSize: 7, color: '#555577', letterSpacing: 2 },
+  scoreValue: {
+    fontFamily: 'PressStart2P', fontSize: 18, color: '#FFE500',
+    textShadowColor: 'rgba(255, 229, 0, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
   statsRow: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 16, paddingBottom: 12, gap: 16,
   },
   stat: { alignItems: 'center' },
-  statValue: { fontSize: 16, fontWeight: 'bold', color: '#1A1A2E' },
-  statLabel: { fontSize: 10, color: '#AAAABB', marginTop: 2 },
-  expandArrow: { color: '#AAAABB', fontSize: 12, marginLeft: 'auto' },
+  statValue: { fontFamily: 'InterBold', fontSize: 16, color: '#E8E8FF' },
+  statLabel: { fontFamily: 'Inter', fontSize: 10, color: '#555577', marginTop: 2 },
+  expandArrow: { color: '#555577', fontSize: 12, marginLeft: 'auto' },
   expandedBody: {
-    borderTopWidth: 1, borderTopColor: '#E8E8F0',
+    borderTopWidth: 1, borderTopColor: 'rgba(42, 42, 80, 0.5)',
     paddingHorizontal: 16, paddingVertical: 12,
   },
-  sectionTitle: { fontSize: 12, fontWeight: 'bold', color: '#888899', letterSpacing: 1, marginBottom: 8 },
-  noData: { color: '#AAAABB', fontSize: 13 },
+  sectionTitle: {
+    fontFamily: 'PressStart2P', fontSize: 7, color: '#555577',
+    letterSpacing: 3, marginBottom: 8,
+  },
+  noData: { fontFamily: 'Inter', color: '#555577', fontSize: 13 },
   taskRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
   blockDot: {
-    width: 12, height: 12, marginRight: 8,
-    borderTopWidth: 1, borderLeftWidth: 1, borderTopColor: 'rgba(255,255,255,0.4)', borderLeftColor: 'rgba(255,255,255,0.4)',
-    borderBottomWidth: 1, borderRightWidth: 1, borderBottomColor: 'rgba(0,0,0,0.3)', borderRightColor: 'rgba(0,0,0,0.3)',
+    width: 12, height: 12, marginRight: 8, borderRadius: 2,
+    borderTopWidth: 2, borderLeftWidth: 2,
+    borderTopColor: 'rgba(255,255,255,0.55)', borderLeftColor: 'rgba(255,255,255,0.45)',
+    borderBottomWidth: 2, borderRightWidth: 2,
+    borderBottomColor: 'rgba(0,0,0,0.55)', borderRightColor: 'rgba(0,0,0,0.5)',
   },
-  taskText: { color: '#555566', fontSize: 13, flex: 1 },
+  taskText: { fontFamily: 'Inter', color: '#8888AA', fontSize: 13, flex: 1 },
   achRow: { marginBottom: 4 },
-  achText: { color: '#555566', fontSize: 12 },
+  achText: { fontFamily: 'Inter', color: '#8888AA', fontSize: 12 },
 })
