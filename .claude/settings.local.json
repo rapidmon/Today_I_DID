@@ -21,7 +21,20 @@
       "Bash(find /c/Users/Foryoucom/Desktop/coding/Today_I_did/android/app/build -name *.json)",
       "Bash(git check-ignore:*)",
       "WebSearch",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npx tsc:*)",
+      "Bash(python3:*)",
+      "Bash(find /c/Users/Foryoucom/Desktop/coding/Today_I_did/android -type f -name *widget* -o -name *Widget*)",
+      "Bash(./gradlew assembleDebug)",
+      "Bash(./gradlew clean:*)",
+      "Bash(cd:*)",
+      "Bash(adb:*)",
+      "Bash(C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe -s emulator-5554 shell df /data 2>&1)",
+      "Bash(\"C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe\" -s emulator-5554 shell \"df /data\" 2>&1)",
+      "Bash(\"C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe\" -s emulator-5554 shell \"pm list packages -3\" 2>&1)",
+      "Bash(\"C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe\" -s emulator-5554 shell \"pm uninstall host.exp.exponent\" 2>&1)",
+      "Bash(\"C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe\" -s emulator-5554 shell \"pm uninstall com.perfectcalendar.app\" 2>&1)",
+      "Bash(\"C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe\" -s emulator-5554 shell \"getprop ro.build.version.sdk\" 2>&1)"
     ]
   }
 }
