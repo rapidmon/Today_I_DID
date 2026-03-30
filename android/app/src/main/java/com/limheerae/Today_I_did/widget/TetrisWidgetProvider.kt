@@ -24,9 +24,9 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         const val ACTION_OPEN_APP = "com.limheerae.Today_I_did.OPEN_APP"
         const val ACTION_TOGGLE_OPACITY = "com.limheerae.Today_I_did.TOGGLE_OPACITY"
 
-        private const val BOARD_WIDTH = 240
-        private const val BOARD_HEIGHT = 288
-        private const val NEXT_BLOCK_SIZE = 80
+        private const val BOARD_WIDTH = 320
+        private const val BOARD_HEIGHT = 384
+        private const val NEXT_BLOCK_SIZE = 120
         private const val PREFS_NAME = "tetris_widget"
 
         // 투명도 단계: 0%(255) → 20%(204) → 40%(153) → 60%(102) → 80%(51)
@@ -121,55 +121,77 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         prefs.edit().putInt("bgAlpha", OPACITY_LEVELS[nextIdx]).apply()
     }
 
+    private fun dpToPx(context: Context, dp: Float): Float {
+        return dp * context.resources.displayMetrics.density
+    }
+
     private fun renderAndPush(context: Context, state: GameState) {
         val views = RemoteViews(context.packageName, R.layout.widget_tetris)
         val bgAlpha = getOpacityLevel(context)
+        val textSize = dpToPx(context, 16f)
+        val titleSize = dpToPx(context, 12f)
 
         // 위젯 루트 배경 투명도 반영
         val rootBgColor = Color.argb(bgAlpha, 0, 0, 0)
         views.setInt(R.id.widget_root, "setBackgroundColor", rootBgColor)
 
-        // 투명도 % 텍스트 표시
-        val opacityIdx = OPACITY_LEVELS.indexOf(bgAlpha).let { if (it < 0) 0 else it }
-        views.setTextViewText(R.id.btn_opacity, OPACITY_LABELS[opacityIdx])
+        // === 헤더 텍스트 (Bitmap 렌더링) ===
+        // NEW 버튼
+        val newColor = if (state.gameOver) 0xFF00F0FF.toInt() else 0xFF555577.toInt()
+        views.setImageViewBitmap(R.id.btn_refresh, WidgetRenderer.renderText(context, "NEW", textSize, newColor))
+        if (state.gameOver) {
+            views.setOnClickPendingIntent(R.id.btn_refresh, createPendingIntent(context, ACTION_REFRESH))
+        } else {
+            views.setOnClickPendingIntent(R.id.btn_refresh, createPendingIntent(context, "NOOP"))
+        }
 
-        // 게임 보드 렌더링
+        // TODAY I DID 타이틀
+        views.setImageViewBitmap(R.id.title_image, WidgetRenderer.renderText(context, "TODAY I DID", titleSize, 0x6600F0FF))
+
+        // 투명도 %
+        val opacityIdx = OPACITY_LEVELS.indexOf(bgAlpha).let { if (it < 0) 0 else it }
+        views.setImageViewBitmap(R.id.btn_opacity, WidgetRenderer.renderText(context, OPACITY_LABELS[opacityIdx], textSize, 0xFFFFE500.toInt()))
+        views.setOnClickPendingIntent(R.id.btn_opacity, createPendingIntent(context, ACTION_TOGGLE_OPACITY))
+
+        // === 게임 보드 ===
         val bitmap = WidgetRenderer.renderGrid(state, BOARD_WIDTH, BOARD_HEIGHT, bgAlpha)
         views.setImageViewBitmap(R.id.game_board, bitmap)
 
-        // NEXT 블록 렌더링 (블록 없으면 + 아이콘 표시)
+        // === 사이드패널 라벨+값 (Bitmap 렌더링) ===
+        views.setImageViewBitmap(R.id.next_label, WidgetRenderer.renderText(context, "NEXT", textSize, 0x7700F0FF))
+        views.setImageViewBitmap(R.id.score_label, WidgetRenderer.renderText(context, "SCORE", textSize, 0x77FFE500))
+        views.setImageViewBitmap(R.id.score_text, WidgetRenderer.renderText(context, "${state.score}", textSize, 0xFFFFE500.toInt()))
+        views.setImageViewBitmap(R.id.lines_label, WidgetRenderer.renderText(context, "LINES", textSize, 0x7700FF88))
+        views.setImageViewBitmap(R.id.lines_text, WidgetRenderer.renderText(context, "${state.totalLineClears}", textSize, 0xFF00FF88.toInt()))
+
+        // NEXT 블록 렌더링
         val nextBlock = if (state.blockQueue.isNotEmpty()) state.blockQueue[0] else null
         val nextBitmap = WidgetRenderer.renderNextBlock(
             nextBlock?.type, nextBlock?.colorId ?: 0, NEXT_BLOCK_SIZE, bgAlpha
         )
         views.setImageViewBitmap(R.id.next_block, nextBitmap)
-
-        // NEXT 박스 탭 → 항상 앱 열기
         views.setOnClickPendingIntent(R.id.next_block, createOpenAppPendingIntent(context))
 
-        // 점수
-        views.setTextViewText(R.id.score_text, "${state.score}")
-
-        // 새로고침 버튼: 비활성화(회색) / GAME OVER 시 활성화(녹색)
-        views.setImageViewResource(R.id.btn_refresh, R.drawable.pixel_refresh)
+        // === 조작 버튼 ===
         if (state.gameOver) {
-            views.setInt(R.id.btn_refresh, "setColorFilter", 0xFF00FF44.toInt())
-            views.setOnClickPendingIntent(R.id.btn_refresh, createPendingIntent(context, ACTION_REFRESH))
+            views.setTextColor(R.id.btn_left, 0xFF333355.toInt())
+            views.setTextColor(R.id.btn_right, 0xFF333355.toInt())
+            views.setTextColor(R.id.btn_down, 0xFF333355.toInt())
+            views.setTextColor(R.id.btn_rotate, 0xFF333355.toInt())
+            views.setOnClickPendingIntent(R.id.btn_left, createPendingIntent(context, "NOOP"))
+            views.setOnClickPendingIntent(R.id.btn_right, createPendingIntent(context, "NOOP"))
+            views.setOnClickPendingIntent(R.id.btn_rotate, createPendingIntent(context, "NOOP"))
+            views.setOnClickPendingIntent(R.id.btn_down, createPendingIntent(context, "NOOP"))
         } else {
-            views.setInt(R.id.btn_refresh, "setColorFilter", 0xFF666688.toInt())
-            // 비활성화: 아무 동작 안 함
-            views.setOnClickPendingIntent(R.id.btn_refresh, createPendingIntent(context, "NOOP"))
+            views.setTextColor(R.id.btn_left, 0xFF00F0FF.toInt())
+            views.setTextColor(R.id.btn_right, 0xFF00F0FF.toInt())
+            views.setTextColor(R.id.btn_down, 0xFF00FF88.toInt())
+            views.setTextColor(R.id.btn_rotate, 0xFFFFE500.toInt())
+            views.setOnClickPendingIntent(R.id.btn_left, createPendingIntent(context, ACTION_MOVE_LEFT))
+            views.setOnClickPendingIntent(R.id.btn_right, createPendingIntent(context, ACTION_MOVE_RIGHT))
+            views.setOnClickPendingIntent(R.id.btn_rotate, createPendingIntent(context, ACTION_ROTATE))
+            views.setOnClickPendingIntent(R.id.btn_down, createPendingIntent(context, ACTION_MOVE_DOWN))
         }
-
-        // 회전 버튼 아이콘 검청색 적용
-        views.setInt(R.id.btn_rotate, "setColorFilter", 0xFF0D1B2A.toInt())
-
-        // 버튼 바인딩
-        views.setOnClickPendingIntent(R.id.btn_left, createPendingIntent(context, ACTION_MOVE_LEFT))
-        views.setOnClickPendingIntent(R.id.btn_right, createPendingIntent(context, ACTION_MOVE_RIGHT))
-        views.setOnClickPendingIntent(R.id.btn_rotate, createPendingIntent(context, ACTION_ROTATE))
-        views.setOnClickPendingIntent(R.id.btn_down, createPendingIntent(context, ACTION_MOVE_DOWN))
-        views.setOnClickPendingIntent(R.id.btn_opacity, createPendingIntent(context, ACTION_TOGGLE_OPACITY))
 
         val manager = AppWidgetManager.getInstance(context)
         val component = ComponentName(context, TetrisWidgetProvider::class.java)

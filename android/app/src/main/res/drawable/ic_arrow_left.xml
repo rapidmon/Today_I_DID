@@ -5,13 +5,13 @@
     android:viewportWidth="16"
     android:viewportHeight="16">
     <!-- 픽셀아트 왼쪽 화살표 -->
-    <path android:pathData="M8,4h2v2h-2z" android:fillColor="#0D1B2A" />
-    <path android:pathData="M6,6h2v2h-2z" android:fillColor="#0D1B2A" />
-    <path android:pathData="M4,8h2v2h-2z" android:fillColor="#0D1B2A" />
-    <path android:pathData="M6,10h2v2h-2z" android:fillColor="#0D1B2A" />
-    <path android:pathData="M8,12h2v2h-2z" android:fillColor="#0D1B2A" />
+    <path android:pathData="M8,4h2v2h-2z" android:fillColor="#00F0FF" />
+    <path android:pathData="M6,6h2v2h-2z" android:fillColor="#00F0FF" />
+    <path android:pathData="M4,8h2v2h-2z" android:fillColor="#00F0FF" />
+    <path android:pathData="M6,10h2v2h-2z" android:fillColor="#00F0FF" />
+    <path android:pathData="M8,12h2v2h-2z" android:fillColor="#00F0FF" />
     <!-- 줄기 -->
-    <path android:pathData="M8,6h4v2h-4z" android:fillColor="#0D1B2A" />
-    <path android:pathData="M8,8h4v2h-4z" android:fillColor="#0D1B2A" />
-    <path android:pathData="M8,10h4v2h-4z" android:fillColor="#0D1B2A" />
+    <path android:pathData="M8,6h4v2h-4z" android:fillColor="#00F0FF" />
+    <path android:pathData="M8,8h4v2h-4z" android:fillColor="#00F0FF" />
+    <path android:pathData="M8,10h4v2h-4z" android:fillColor="#00F0FF" />
 </vector>

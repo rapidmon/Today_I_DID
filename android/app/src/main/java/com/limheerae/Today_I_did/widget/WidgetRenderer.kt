@@ -1,17 +1,50 @@
 package com.limheerae.Today_I_did.widget
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
 import android.graphics.Typeface
+import androidx.core.content.res.ResourcesCompat
+import com.limheerae.Today_I_did.R
 
 object WidgetRenderer {
     private const val GRID_COLS = 10
     private const val GRID_ROWS = 12
+
+    // 픽셀 폰트로 텍스트를 Bitmap으로 렌더링
+    fun renderText(
+        context: Context,
+        text: String,
+        textSizePx: Float,
+        textColor: Int,
+        align: Paint.Align = Paint.Align.CENTER
+    ): Bitmap {
+        val typeface = ResourcesCompat.getFont(context, R.font.press_start_2p)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.typeface = typeface
+            this.textSize = textSizePx
+            this.color = textColor
+            this.textAlign = align
+        }
+        val bounds = Rect()
+        paint.getTextBounds(text, 0, text.length, bounds)
+        val w = bounds.width() + 6
+        val h = bounds.height() + 6
+        if (w <= 0 || h <= 0) return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+
+        val bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val x = if (align == Paint.Align.CENTER) w / 2f else 3f
+        val y = -bounds.top.toFloat() + 3
+        canvas.drawText(text, x, y, paint)
+        return bitmap
+    }
 
     fun renderGrid(state: GameState, width: Int, height: Int, bgAlpha: Int = 204): Bitmap {
         val cellW = width.toFloat() / GRID_COLS
@@ -29,22 +62,32 @@ object WidgetRenderer {
         // 반투명 배경
         canvas.drawColor(Color.argb(bgAlpha, 10, 10, 26))
 
-        // Game Over: 보드 전체 회색 + 픽셀아트 GAME OVER 이미지
+        // Game Over: 실제 블록을 흐리게 + 반투명 오버레이 + GAME OVER 텍스트
         if (state.gameOver) {
-            val grayColor = Color.parseColor("#444466")
+            // 실제 블록들 렌더링 (흐리게)
             for (y in 0 until GRID_ROWS) {
                 for (x in 0 until GRID_COLS) {
                     val left = x * cellSize
                     val top = y * cellSize
-                    paint.color = grayColor
-                    canvas.drawRect(
-                        RectF(left + 1, top + 1, left + cellSize - 1, top + cellSize - 1),
-                        paint
-                    )
+                    val rect = RectF(left + 1, top + 1, left + cellSize - 1, top + cellSize - 1)
+                    val colorValue = state.grid[y][x]
+                    if (colorValue != 0) {
+                        drawGlossyBlock(canvas, paint, left, top, cellSize, getBlockColor(colorValue))
+                    } else {
+                        paint.color = Color.argb(minOf(bgAlpha, 100), 26, 26, 46)
+                        canvas.drawRect(rect, paint)
+                    }
                 }
             }
 
             drawGridLines(canvas, paint, cellSize, totalW, totalH)
+
+            // 반투명 어두운 오버레이 (블록이 흐리게 보이도록)
+            paint.color = Color.argb(140, 0, 0, 0)
+            paint.style = Paint.Style.FILL
+            canvas.drawRect(RectF(0f, 0f, totalW.toFloat(), totalH.toFloat()), paint)
+
+            // GAME OVER 텍스트
             drawPixelGameOver(canvas, paint, totalW, totalH, cellSize)
 
             return bitmap
@@ -111,7 +154,7 @@ object WidgetRenderer {
             val pxSize = size / 9f
             val cx = size / 2f
             val cy = size / 2f
-            paint.color = Color.parseColor("#0088FF")
+            paint.color = Color.parseColor("#00F0FF")
             paint.style = Paint.Style.FILL
             // 가로줄 (5칸)
             for (i in -2..2) {
@@ -140,7 +183,7 @@ object WidgetRenderer {
         val cols = maxX - minX + 1
         val rows = maxY - minY + 1
 
-        val cellSize = size.toFloat() / maxOf(cols, rows, 4) * 0.8f
+        val cellSize = size.toFloat() / maxOf(cols, rows, 4) * 0.95f
         val offsetX = (size - cols * cellSize) / 2f
         val offsetY = (size - rows * cellSize) / 2f
 
@@ -154,42 +197,41 @@ object WidgetRenderer {
         return bitmap
     }
 
+    // 고전 테트리스 3D 베벨 블록 (글로시 없음, 뚜렷한 베벨)
     private fun drawGlossyBlock(canvas: Canvas, paint: Paint, left: Float, top: Float, cellSize: Float, color: Int) {
-        val inset = 1f
+        val inset = 0.5f
         val l = left + inset
         val t = top + inset
         val r = left + cellSize - inset
         val b = top + cellSize - inset
-        val bevelW = cellSize * 0.15f
+        val bevelW = 2f
 
         paint.shader = null
         paint.style = Paint.Style.FILL
+
+        // 베이스 색상
         paint.color = color
         canvas.drawRect(RectF(l, t, r, b), paint)
 
-        // 윗면 + 왼쪽 밝은 베벨
-        paint.color = Color.argb(100, 255, 255, 255)
+        // 상단 밝은 베벨 (55% 흰색)
+        paint.color = Color.argb(140, 255, 255, 255)
         canvas.drawRect(RectF(l, t, r, t + bevelW), paint)
+
+        // 좌측 밝은 베벨 (45% 흰색)
+        paint.color = Color.argb(115, 255, 255, 255)
         canvas.drawRect(RectF(l, t, l + bevelW, b), paint)
 
-        // 아랫면 + 오른쪽 어두운 베벨
-        paint.color = Color.argb(120, 0, 0, 0)
+        // 하단 어두운 베벨 (55% 검정)
+        paint.color = Color.argb(140, 0, 0, 0)
         canvas.drawRect(RectF(l, b - bevelW, r, b), paint)
-        canvas.drawRect(RectF(r - bevelW, t, r, b), paint)
 
-        // 중앙 글로시 반사
-        paint.shader = LinearGradient(
-            l, t, l, t + cellSize * 0.5f,
-            Color.argb(70, 255, 255, 255),
-            Color.argb(0, 255, 255, 255),
-            Shader.TileMode.CLAMP
-        )
-        canvas.drawRect(RectF(l + bevelW, t + bevelW, r - bevelW, t + cellSize * 0.5f), paint)
-        paint.shader = null
+        // 우측 어두운 베벨 (50% 검정)
+        paint.color = Color.argb(128, 0, 0, 0)
+        canvas.drawRect(RectF(r - bevelW, t, r, b), paint)
     }
 
     private fun drawGridLines(canvas: Canvas, paint: Paint, cellSize: Float, totalW: Int, totalH: Int) {
-        paint.color = Color.argb(140, 34, 34, 68)
+        paint.color = Color.argb(60, 0, 240, 255)
         paint.strokeWidth = 1f
         paint.style = Paint.Style.FILL
         for (x in 0..GRID_COLS) {
@@ -326,8 +368,8 @@ object WidgetRenderer {
             paint
         )
 
-        // 글자 그리기 (빨간색)
-        paint.color = Color.parseColor("#FF0000")
+        // 글자 그리기 (네온 레드)
+        paint.color = Color.parseColor("#FF3355")
         fun drawLine(letters: Array<Array<IntArray>>, offsetY: Float) {
             for ((li, letter) in letters.withIndex()) {
                 val ox = startX + li * (charW + gap) * pixelSize
