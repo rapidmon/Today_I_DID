@@ -37,7 +37,7 @@ object TetrisGameEngine {
     const val ROWS = 12
     private const val PREFS_NAME = "tetris_widget"
 
-    private val SCORE_TABLE = mapOf(1 to 1, 2 to 3, 3 to 5, 4 to 7)
+    private val SCORE_TABLE = mapOf(1 to 100, 2 to 300, 3 to 500, 4 to 700)
 
     val COLOR_PALETTE = arrayOf(
         "#FF0000", "#FF8800", "#FFDD00", "#00CC00", "#0088FF", "#CC00FF", "#FF00AA"

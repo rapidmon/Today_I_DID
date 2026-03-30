@@ -4,10 +4,10 @@ export const COLS = 10
 export const ROWS = 12
 
 export const SCORE_TABLE: Record<number, number> = {
-  1: 1,
-  2: 3,
-  3: 5,
-  4: 7,
+  1: 100,
+  2: 300,
+  3: 500,
+  4: 700,
 }
 
 // 요일별 7색 팔레트 (레트로 테트리스 스타일)
@@ -22,6 +22,12 @@ export const COLOR_PALETTE = [
 ]
 
 export const BLOCK_TYPES: BlockType[] = ['I', 'O', 'T', 'S', 'Z', 'J', 'L']
+
+// 블록 타입별 대표 색상 (성취/히스토리 표시용)
+export const BLOCK_TYPE_COLORS: Record<BlockType, string> = {
+  I: '#0088FF', O: '#FFDD00', T: '#CC00FF',
+  S: '#00CC00', Z: '#FF0000', J: '#FF8800', L: '#FF00AA',
+}
 
 export const SPAWN_POSITION = { x: 3, y: 0 }
 

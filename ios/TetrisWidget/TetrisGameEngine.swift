@@ -40,7 +40,7 @@ class TetrisGameEngine {
     static let ROWS = 12
     static let suiteName = "group.com.limheerae.TodayIdid"
 
-    static let SCORE_TABLE: [Int: Int] = [1: 1, 2: 3, 3: 5, 4: 7]
+    static let SCORE_TABLE: [Int: Int] = [1: 100, 2: 300, 3: 500, 4: 700]
 
     static let COLOR_PALETTE = [
         "#FF0000", "#FF8800", "#FFDD00", "#00CC00", "#0088FF", "#CC00FF", "#FF00AA"

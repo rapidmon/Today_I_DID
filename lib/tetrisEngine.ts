@@ -216,12 +216,12 @@ export function applyPenalties(state: GameState): GameState {
   }
 }
 
-// 일일 활동 보너스 (+1점, 하루 1회)
+// 일일 활동 보너스 (+100점, 하루 1회)
 export function applyDailyBonus(state: GameState, todayStr: string): GameState {
   if (state.dailyBonusDate === todayStr) return state
   return {
     ...state,
-    score: state.score + 1,
+    score: state.score + 100,
     dailyBonusDate: todayStr,
   }
 }
