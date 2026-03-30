@@ -3,8 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { Task, Routine } from '@/types/record'
 
-let idCounter = 0
-const genId = (prefix: string) => `${prefix}_${++idCounter}_${Date.now()}`
+const genId = (prefix: string) =>
+  `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 
 interface TaskStore {
   tasks: Task[]

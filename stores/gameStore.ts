@@ -32,8 +32,8 @@ export const useGameStore = create<GameStore>((set) => ({
 
   addBlock: (block, content) =>
     set((s) => {
-      // SharedPreferences에 블록 추가 (위젯 동기화)
       widgetBridge.addBlockToQueue(block.type, block.colorId, block.sourceRecordId, content)
+        .catch(() => { /* 위젯 동기화 실패 무시 */ })
 
       const newState = {
         ...s.gameState,
@@ -47,8 +47,8 @@ export const useGameStore = create<GameStore>((set) => ({
 
   addPenalties: (count) =>
     set((s) => {
-      // SharedPreferences에 페널티 전달 (위젯 동기화)
       widgetBridge.addPenalties(count)
+        .catch(() => { /* 위젯 동기화 실패 무시 */ })
 
       const withPenalties = { ...s.gameState, pendingPenalties: count }
       return { gameState: applyPenalties(withPenalties) }
@@ -57,17 +57,17 @@ export const useGameStore = create<GameStore>((set) => ({
   applyDailyBonus: (todayStr) =>
     set((s) => {
       const newState = applyDailyBonus(s.gameState, todayStr)
-      // 점수 변경 시 위젯 동기화
       widgetBridge.updateScore(newState.score)
+        .catch(() => { /* 위젯 동기화 실패 무시 */ })
       return { gameState: newState }
     }),
 
-  // 위젯 score를 앱에 동기화 (위젯에서 줄 클리어 시 점수가 올라가므로)
   syncScore: (score) =>
     set((s) => ({ gameState: { ...s.gameState, score } })),
 
   resetGame: () => {
     widgetBridge.resetGame()
+      .catch(() => { /* 위젯 동기화 실패 무시 */ })
     return set({ gameState: createInitialState() })
   },
 }))
