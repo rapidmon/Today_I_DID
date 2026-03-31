@@ -34,7 +34,10 @@
       "Bash(\"C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe\" -s emulator-5554 shell \"pm list packages -3\" 2>&1)",
       "Bash(\"C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe\" -s emulator-5554 shell \"pm uninstall host.exp.exponent\" 2>&1)",
       "Bash(\"C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe\" -s emulator-5554 shell \"pm uninstall com.perfectcalendar.app\" 2>&1)",
-      "Bash(\"C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe\" -s emulator-5554 shell \"getprop ro.build.version.sdk\" 2>&1)"
+      "Bash(\"C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe\" -s emulator-5554 shell \"getprop ro.build.version.sdk\" 2>&1)",
+      "Bash(find /c/Users/Foryoucom/Desktop/coding/Today_I_did -type d -name \"drawables\\\\|res\")",
+      "WebFetch(domain:uxwing.com)",
+      "Bash(git add:*)"
     ]
   }
 }
