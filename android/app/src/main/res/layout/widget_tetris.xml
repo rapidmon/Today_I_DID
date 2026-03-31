@@ -129,29 +129,122 @@
                         android:scaleType="center" />
                 </LinearLayout>
 
-                <!-- LINES 박스 -->
+                <!-- TODO 박스 -->
                 <LinearLayout
-                    android:id="@+id/lines_box"
+                    android:id="@+id/todo_box"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
                     android:orientation="vertical"
-                    android:gravity="center_horizontal"
-                    android:background="@drawable/box_neon_green"
-                    android:padding="6dp"
+                    android:background="@drawable/box_neon_magenta"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="4dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
                     android:layout_marginTop="4dp">
 
                     <ImageView
-                        android:id="@+id/lines_label"
+                        android:id="@+id/todo_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
                         android:scaleType="center" />
 
-                    <ImageView
-                        android:id="@+id/lines_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    <!-- TODO 항목 1 -->
+                    <LinearLayout
+                        android:id="@+id/todo_row_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="24dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="3dp"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="4dp"
+                            android:layout_height="4dp"
+                            android:background="#99FF00E5" />
+
+                        <ImageView
+                            android:id="@+id/todo_text_1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:scaleType="fitStart" />
+                    </LinearLayout>
+
+                    <!-- TODO 항목 2 -->
+                    <LinearLayout
+                        android:id="@+id/todo_row_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="24dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
                         android:layout_marginTop="2dp"
-                        android:scaleType="center" />
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="4dp"
+                            android:layout_height="4dp"
+                            android:background="#99FF00E5" />
+
+                        <ImageView
+                            android:id="@+id/todo_text_2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:scaleType="fitStart" />
+                    </LinearLayout>
+
+                    <!-- TODO 항목 3 -->
+                    <LinearLayout
+                        android:id="@+id/todo_row_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="24dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="2dp"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="4dp"
+                            android:layout_height="4dp"
+                            android:background="#99FF00E5" />
+
+                        <ImageView
+                            android:id="@+id/todo_text_3"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:scaleType="fitStart" />
+                    </LinearLayout>
+
+                    <!-- TODO 항목 4 -->
+                    <LinearLayout
+                        android:id="@+id/todo_row_4"
+                        android:layout_width="match_parent"
+                        android:layout_height="24dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="2dp"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:layout_width="4dp"
+                            android:layout_height="4dp"
+                            android:background="#99FF00E5" />
+
+                        <ImageView
+                            android:id="@+id/todo_text_4"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            android:scaleType="fitStart" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -168,51 +261,39 @@
             android:paddingStart="2dp"
             android:paddingEnd="2dp">
 
-            <TextView
+            <ImageView
                 android:id="@+id/btn_left"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"
-                android:text="◀"
-                android:textSize="18sp"
-                android:textColor="#00F0FF"
-                android:gravity="center"
+                android:scaleType="center"
                 android:background="@drawable/btn_neon_cyan"
                 android:layout_marginEnd="3dp" />
 
-            <TextView
+            <ImageView
                 android:id="@+id/btn_right"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"
-                android:text="▶"
-                android:textSize="18sp"
-                android:textColor="#00F0FF"
-                android:gravity="center"
+                android:scaleType="center"
                 android:background="@drawable/btn_neon_cyan"
                 android:layout_marginEnd="6dp" />
 
-            <TextView
+            <ImageView
                 android:id="@+id/btn_down"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"
-                android:text="▼"
-                android:textSize="18sp"
-                android:textColor="#00FF88"
-                android:gravity="center"
+                android:scaleType="center"
                 android:background="@drawable/btn_neon_green"
                 android:layout_marginEnd="6dp" />
 
-            <TextView
+            <ImageView
                 android:id="@+id/btn_rotate"
                 android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"
-                android:text="↻"
-                android:textSize="18sp"
-                android:textColor="#FFE500"
-                android:gravity="center"
+                android:scaleType="center"
                 android:background="@drawable/btn_neon_yellow" />
         </LinearLayout>
     </LinearLayout>

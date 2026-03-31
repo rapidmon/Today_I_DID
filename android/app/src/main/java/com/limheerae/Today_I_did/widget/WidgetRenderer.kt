@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.Shader
+import android.graphics.Path
 import android.graphics.Typeface
 import androidx.core.content.res.ResourcesCompat
 import com.limheerae.Today_I_did.R
@@ -16,6 +17,13 @@ import com.limheerae.Today_I_did.R
 object WidgetRenderer {
     private const val GRID_COLS = 10
     private const val GRID_ROWS = 12
+    private var cachedTypeface: Typeface? = null
+
+    private fun getTypeface(context: Context): Typeface {
+        return cachedTypeface ?: ResourcesCompat.getFont(context, R.font.press_start_2p)?.also {
+            cachedTypeface = it
+        } ?: Typeface.MONOSPACE
+    }
 
     // 픽셀 폰트로 텍스트를 Bitmap으로 렌더링
     fun renderText(
@@ -25,7 +33,7 @@ object WidgetRenderer {
         textColor: Int,
         align: Paint.Align = Paint.Align.CENTER
     ): Bitmap {
-        val typeface = ResourcesCompat.getFont(context, R.font.press_start_2p)
+        val typeface = getTypeface(context)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             this.typeface = typeface
             this.textSize = textSizePx
@@ -150,25 +158,18 @@ object WidgetRenderer {
         canvas.drawColor(Color.argb(minOf(bgAlpha, 80), 26, 26, 46))
 
         if (blockType == null) {
-            // 블록 없으면 픽셀아트 + 아이콘 표시
-            val pxSize = size / 9f
+            // 블록 없으면 얇은 + 아이콘
             val cx = size / 2f
             val cy = size / 2f
+            val lineLen = size * 0.3f
             paint.color = Color.parseColor("#00F0FF")
-            paint.style = Paint.Style.FILL
-            // 가로줄 (5칸)
-            for (i in -2..2) {
-                canvas.drawRect(
-                    cx + i * pxSize - pxSize / 2, cy - pxSize / 2,
-                    cx + i * pxSize + pxSize / 2, cy + pxSize / 2, paint)
-            }
-            // 세로줄 (5칸, 중앙 제외 4칸)
-            for (i in -2..2) {
-                if (i == 0) continue
-                canvas.drawRect(
-                    cx - pxSize / 2, cy + i * pxSize - pxSize / 2,
-                    cx + pxSize / 2, cy + i * pxSize + pxSize / 2, paint)
-            }
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = size * 0.04f
+            paint.strokeCap = Paint.Cap.ROUND
+            // 가로선
+            canvas.drawLine(cx - lineLen, cy, cx + lineLen, cy, paint)
+            // 세로선
+            canvas.drawLine(cx, cy - lineLen, cx, cy + lineLen, paint)
             return bitmap
         }
 
@@ -387,6 +388,111 @@ object WidgetRenderer {
 
         drawLine(line1, startY)
         drawLine(line2, startY + (charH + 2) * pixelSize)
+    }
+
+    // TODO 항목용 텍스트 렌더링 (Inter 폰트, 좌측 정렬, 말줄임)
+    fun renderTodoText(
+        context: Context,
+        text: String,
+        textSizePx: Float,
+        textColor: Int,
+        maxWidthPx: Int
+    ): Bitmap {
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            typeface = Typeface.create("sans-serif", Typeface.NORMAL)
+            this.textSize = textSizePx
+            this.color = textColor
+            this.textAlign = Paint.Align.LEFT
+        }
+
+        // 말줄임 처리
+        var displayText = text
+        val ellipsis = "..."
+        if (paint.measureText(text) > maxWidthPx) {
+            var end = text.length
+            while (end > 0 && paint.measureText(text.substring(0, end) + ellipsis) > maxWidthPx) {
+                end--
+            }
+            displayText = text.substring(0, end) + ellipsis
+        }
+
+        // 고정 높이: fontMetrics 기반으로 모든 텍스트가 동일 크기 비트맵 생성
+        val fm = paint.fontMetrics
+        val fixedH = (-fm.top + fm.bottom + 4).toInt()
+        val w = maxOf(maxWidthPx, 1)
+
+        val bitmap = Bitmap.createBitmap(w, fixedH, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        canvas.drawText(displayText, 2f, -fm.top + 2, paint)
+        return bitmap
+    }
+
+    // 삼각형 버튼 아이콘 렌더링
+    fun renderTriangleIcon(size: Int, color: Int, direction: String): Bitmap {
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = color
+            style = Paint.Style.FILL
+        }
+
+        val pad = size * 0.25f
+        val path = Path()
+
+        when (direction) {
+            "left" -> {
+                path.moveTo(pad, size / 2f)
+                path.lineTo(size - pad, pad)
+                path.lineTo(size - pad, size - pad)
+                path.close()
+            }
+            "right" -> {
+                path.moveTo(size - pad, size / 2f)
+                path.lineTo(pad, pad)
+                path.lineTo(pad, size - pad)
+                path.close()
+            }
+            "down" -> {
+                path.moveTo(size / 2f, size - pad)
+                path.lineTo(pad, pad)
+                path.lineTo(size - pad, pad)
+                path.close()
+            }
+        }
+
+        canvas.drawPath(path, paint)
+        return bitmap
+    }
+
+    // 회전 아이콘 렌더링 (원호 + 화살촉)
+    fun renderRotateIcon(size: Int, color: Int): Bitmap {
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.color = color
+            style = Paint.Style.STROKE
+            strokeWidth = size * 0.12f
+            strokeCap = Paint.Cap.ROUND
+        }
+
+        val pad = size * 0.22f
+        val rect = RectF(pad, pad, size - pad, size - pad)
+        // 270도 원호 (위쪽이 열림)
+        canvas.drawArc(rect, -60f, 280f, false, paint)
+
+        // 화살촉
+        paint.style = Paint.Style.FILL
+        val arrowPath = Path()
+        val cx = size / 2f + (size / 2f - pad) * Math.cos(Math.toRadians(-60.0)).toFloat()
+        val cy = size / 2f + (size / 2f - pad) * Math.sin(Math.toRadians(-60.0)).toFloat()
+        val arrowSize = size * 0.18f
+        arrowPath.moveTo(cx + arrowSize, cy - arrowSize * 0.3f)
+        arrowPath.lineTo(cx - arrowSize * 0.2f, cy - arrowSize * 1.2f)
+        arrowPath.lineTo(cx - arrowSize * 0.2f, cy + arrowSize * 0.6f)
+        arrowPath.close()
+        canvas.drawPath(arrowPath, paint)
+
+        return bitmap
     }
 
     fun getBlockColor(colorId: Int): Int {

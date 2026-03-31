@@ -97,8 +97,7 @@ class TetrisWidgetBridge(reactContext: ReactApplicationContext) :
     fun resetGame(promise: Promise) {
         try {
             val context = reactApplicationContext
-            val prefs = context.getSharedPreferences("tetris_widget", Context.MODE_PRIVATE)
-            prefs.edit().clear().apply()
+            TetrisGameEngine.resetGame(context)
 
             refreshWidget(context)
 
@@ -140,6 +139,20 @@ class TetrisWidgetBridge(reactContext: ReactApplicationContext) :
             val prefs = context.getSharedPreferences("tetris_widget", Context.MODE_PRIVATE)
             val json = prefs.getString("achievements", "[]") ?: "[]"
             promise.resolve(json)
+        } catch (e: Exception) {
+            promise.reject("ERROR", e.message)
+        }
+    }
+
+    // 할 일 목록을 위젯용 SharedPreferences에 동기화
+    @ReactMethod
+    fun syncTasks(tasksJson: String, promise: Promise) {
+        try {
+            val context = reactApplicationContext
+            val prefs = context.getSharedPreferences("TodayIDid_tasks", Context.MODE_PRIVATE)
+            prefs.edit().putString("tasks", tasksJson).apply()
+            refreshWidget(context)
+            promise.resolve(true)
         } catch (e: Exception) {
             promise.reject("ERROR", e.message)
         }

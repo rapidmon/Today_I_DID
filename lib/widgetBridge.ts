@@ -11,6 +11,7 @@ interface WidgetBridge {
   getScore: () => Promise<number>
   isGameOver: () => Promise<boolean>
   getAchievements: () => Promise<string>
+  syncTasks: (tasksJson: string) => Promise<boolean>
 }
 
 const noop = async () => true
@@ -35,6 +36,8 @@ const bridge: WidgetBridge = (Platform.OS === 'android' || Platform.OS === 'ios'
         TetrisWidgetBridge.isGameOver(),
       getAchievements: () =>
         TetrisWidgetBridge.getAchievements(),
+      syncTasks: (tasksJson: string) =>
+        TetrisWidgetBridge.syncTasks(tasksJson),
     }
   : {
       addBlockToQueue: noop,
@@ -45,6 +48,7 @@ const bridge: WidgetBridge = (Platform.OS === 'android' || Platform.OS === 'ios'
       getScore: async () => 0,
       isGameOver: async () => false,
       getAchievements: noopString,
+      syncTasks: noop,
     }
 
 export default bridge

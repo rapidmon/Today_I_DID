@@ -9,9 +9,12 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.RemoteViews
 import com.limheerae.Today_I_did.MainActivity
 import com.limheerae.Today_I_did.R
+import org.json.JSONArray
+import org.json.JSONObject
 
 class TetrisWidgetProvider : AppWidgetProvider() {
 
@@ -135,6 +138,9 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         val rootBgColor = Color.argb(bgAlpha, 0, 0, 0)
         views.setInt(R.id.widget_root, "setBackgroundColor", rootBgColor)
 
+        // 빈 영역 탭 시 앱 열리지 않도록 NOOP 클릭 설정
+        views.setOnClickPendingIntent(R.id.widget_root, createPendingIntent(context, "NOOP"))
+
         // === 헤더 텍스트 (Bitmap 렌더링) ===
         // NEW 버튼
         val newColor = if (state.gameOver) 0xFF00F0FF.toInt() else 0xFF555577.toInt()
@@ -161,8 +167,10 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         views.setImageViewBitmap(R.id.next_label, WidgetRenderer.renderText(context, "NEXT", textSize, 0x7700F0FF))
         views.setImageViewBitmap(R.id.score_label, WidgetRenderer.renderText(context, "SCORE", textSize, 0x77FFE500))
         views.setImageViewBitmap(R.id.score_text, WidgetRenderer.renderText(context, "${state.score}", textSize, 0xFFFFE500.toInt()))
-        views.setImageViewBitmap(R.id.lines_label, WidgetRenderer.renderText(context, "LINES", textSize, 0x7700FF88))
-        views.setImageViewBitmap(R.id.lines_text, WidgetRenderer.renderText(context, "${state.totalLineClears}", textSize, 0xFF00FF88.toInt()))
+
+        // === TODO 영역 ===
+        views.setImageViewBitmap(R.id.todo_label, WidgetRenderer.renderText(context, "TODO", textSize, 0x77FF00E5))
+        renderTodoItems(context, views)
 
         // NEXT 블록 렌더링
         val nextBlock = if (state.blockQueue.isNotEmpty()) state.blockQueue[0] else null
@@ -172,21 +180,26 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         views.setImageViewBitmap(R.id.next_block, nextBitmap)
         views.setOnClickPendingIntent(R.id.next_block, createOpenAppPendingIntent(context))
 
-        // === 조작 버튼 ===
+        // === 조작 버튼 (삼각형 아이콘) ===
+        val iconSize = dpToPx(context, 18f).toInt()
         if (state.gameOver) {
-            views.setTextColor(R.id.btn_left, 0xFF333355.toInt())
-            views.setTextColor(R.id.btn_right, 0xFF333355.toInt())
-            views.setTextColor(R.id.btn_down, 0xFF333355.toInt())
-            views.setTextColor(R.id.btn_rotate, 0xFF333355.toInt())
+            val mutedColor = 0xFF333355.toInt()
+            views.setImageViewBitmap(R.id.btn_left, WidgetRenderer.renderTriangleIcon(iconSize, mutedColor, "left"))
+            views.setImageViewBitmap(R.id.btn_right, WidgetRenderer.renderTriangleIcon(iconSize, mutedColor, "right"))
+            views.setImageViewBitmap(R.id.btn_down, WidgetRenderer.renderTriangleIcon(iconSize, mutedColor, "down"))
+            views.setImageViewBitmap(R.id.btn_rotate, WidgetRenderer.renderRotateIcon(iconSize, mutedColor))
             views.setOnClickPendingIntent(R.id.btn_left, createPendingIntent(context, "NOOP"))
             views.setOnClickPendingIntent(R.id.btn_right, createPendingIntent(context, "NOOP"))
             views.setOnClickPendingIntent(R.id.btn_rotate, createPendingIntent(context, "NOOP"))
             views.setOnClickPendingIntent(R.id.btn_down, createPendingIntent(context, "NOOP"))
         } else {
-            views.setTextColor(R.id.btn_left, 0xFF00F0FF.toInt())
-            views.setTextColor(R.id.btn_right, 0xFF00F0FF.toInt())
-            views.setTextColor(R.id.btn_down, 0xFF00FF88.toInt())
-            views.setTextColor(R.id.btn_rotate, 0xFFFFE500.toInt())
+            val cyanColor = 0xFF00F0FF.toInt()
+            val greenColor = 0xFF00FF88.toInt()
+            val yellowColor = 0xFFFFE500.toInt()
+            views.setImageViewBitmap(R.id.btn_left, WidgetRenderer.renderTriangleIcon(iconSize, cyanColor, "left"))
+            views.setImageViewBitmap(R.id.btn_right, WidgetRenderer.renderTriangleIcon(iconSize, cyanColor, "right"))
+            views.setImageViewBitmap(R.id.btn_down, WidgetRenderer.renderTriangleIcon(iconSize, greenColor, "down"))
+            views.setImageViewBitmap(R.id.btn_rotate, WidgetRenderer.renderRotateIcon(iconSize, yellowColor))
             views.setOnClickPendingIntent(R.id.btn_left, createPendingIntent(context, ACTION_MOVE_LEFT))
             views.setOnClickPendingIntent(R.id.btn_right, createPendingIntent(context, ACTION_MOVE_RIGHT))
             views.setOnClickPendingIntent(R.id.btn_rotate, createPendingIntent(context, ACTION_ROTATE))
@@ -210,6 +223,46 @@ class TetrisWidgetProvider : AppWidgetProvider() {
                 updateWidget(context)
             }, 300)
         }, 300)
+    }
+
+    private fun renderTodoItems(context: Context, views: RemoteViews) {
+        val todoTextSize = dpToPx(context, 14f)
+        val todoColor = 0xE6888899.toInt()
+        val maxWidth = dpToPx(context, 55f).toInt()
+
+        val todoRowIds = intArrayOf(R.id.todo_row_1, R.id.todo_row_2, R.id.todo_row_3, R.id.todo_row_4)
+        val todoTextIds = intArrayOf(R.id.todo_text_1, R.id.todo_text_2, R.id.todo_text_3, R.id.todo_text_4)
+
+        val pendingTasks = getPendingTasks(context)
+
+        for (i in todoRowIds.indices) {
+            if (i < pendingTasks.size) {
+                views.setViewVisibility(todoRowIds[i], View.VISIBLE)
+                views.setImageViewBitmap(
+                    todoTextIds[i],
+                    WidgetRenderer.renderTodoText(context, pendingTasks[i], todoTextSize, todoColor, maxWidth)
+                )
+            } else {
+                views.setViewVisibility(todoRowIds[i], View.GONE)
+            }
+        }
+    }
+
+    private fun getPendingTasks(context: Context): List<String> {
+        val prefs = context.getSharedPreferences("TodayIDid_tasks", Context.MODE_PRIVATE)
+        val tasksJson = prefs.getString("tasks", "[]") ?: "[]"
+        val tasks = mutableListOf<String>()
+        try {
+            val arr = JSONArray(tasksJson)
+            for (i in 0 until arr.length()) {
+                val task = arr.getJSONObject(i)
+                if (task.optString("status") == "pending") {
+                    tasks.add(task.optString("content", ""))
+                    if (tasks.size >= 4) break
+                }
+            }
+        } catch (_: Exception) {}
+        return tasks
     }
 
     private fun createPendingIntent(context: Context, action: String): PendingIntent {
