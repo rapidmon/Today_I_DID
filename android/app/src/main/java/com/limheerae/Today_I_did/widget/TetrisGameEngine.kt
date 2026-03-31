@@ -29,7 +29,8 @@ data class GameState(
     val gameOver: Boolean,
     val totalLineClears: Int,
     val animationState: String,
-    val clearingRows: List<Int>
+    val clearingRows: List<Int>,
+    val combo: Int = 0
 )
 
 object TetrisGameEngine {
@@ -37,7 +38,9 @@ object TetrisGameEngine {
     const val ROWS = 12
     private const val PREFS_NAME = "tetris_widget"
 
-    private val SCORE_TABLE = mapOf(1 to 100, 2 to 300, 3 to 500, 4 to 700)
+    // 실제 테트리스 기본 점수 (레벨 1 기준: ×1)
+    private val SCORE_TABLE = mapOf(1 to 40, 2 to 100, 3 to 300, 4 to 1200)
+    private const val COMBO_BONUS = 50
 
     val COLOR_PALETTE = arrayOf(
         "#FF0000", "#FF8800", "#FFDD00", "#00CC00", "#0088FF", "#CC00FF", "#FF00AA"
@@ -119,11 +122,11 @@ object TetrisGameEngine {
             "highlight" -> state.copy(animationState = "fade")
             "fade" -> {
                 val cleared = clearLines(state, context)
-                spawnPiece(cleared)
+                spawnPiece(cleared, context)
             }
             "done" -> {
                 val cleared = clearLines(state, context)
-                spawnPiece(cleared)
+                spawnPiece(cleared, context)
             }
             else -> state
         }
@@ -166,7 +169,8 @@ object TetrisGameEngine {
             return locked.copy(animationState = "highlight", clearingRows = completedRows)
         }
 
-        return spawnPiece(locked)
+        // 줄 클리어 없으면 콤보 리셋
+        return spawnPiece(locked.copy(combo = 0), context)
     }
 
     private fun rotate(state: GameState): GameState {
@@ -238,24 +242,56 @@ object TetrisGameEngine {
             newRecordIds.add(0, arrayOfNulls(COLS))
         }
 
-        val bonus = SCORE_TABLE[rows.size] ?: 0
+        val baseScore = SCORE_TABLE[rows.size] ?: 0
+        val comboBonus = if (state.combo > 0) COMBO_BONUS * state.combo else 0
+        val totalBonus = baseScore + comboBonus
 
         return state.copy(
             grid = newGrid.toTypedArray(),
             gridRecordIds = newRecordIds.toTypedArray(),
-            score = state.score + bonus,
+            score = state.score + totalBonus,
             totalLineClears = state.totalLineClears + rows.size,
             clearingRows = emptyList(),
-            animationState = "none"
+            animationState = "none",
+            combo = state.combo + 1
         )
     }
 
-    private fun spawnPiece(state: GameState): GameState {
-        if (state.blockQueue.isEmpty()) {
-            return state.copy(activePiece = null)
+    private fun spawnPiece(state: GameState, context: Context? = null): GameState {
+        // 스폰 전 페널티 자동 적용
+        var current = state
+        if (context != null) {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val pending = prefs.getInt("pendingPenalties", 0)
+            if (pending > 0) {
+                val newGrid = current.grid.toMutableList().map { it.copyOf() }.toMutableList()
+                val newRecordIds = current.gridRecordIds.toMutableList().map { it.copyOf() }.toMutableList()
+                for (p in 0 until pending) {
+                    if (newGrid[0].any { it != 0 }) {
+                        prefs.edit().putInt("pendingPenalties", 0).apply()
+                        return current.copy(
+                            grid = newGrid.toTypedArray(),
+                            gridRecordIds = newRecordIds.toTypedArray(),
+                            gameOver = true,
+                            activePiece = null
+                        )
+                    }
+                    newGrid.removeAt(0)
+                    newRecordIds.removeAt(0)
+                    val emptyCol = kotlin.random.Random.nextInt(COLS)
+                    newGrid.add(IntArray(COLS) { if (it == emptyCol) 0 else 99 })
+                    newRecordIds.add(Array(COLS) { if (it == emptyCol) null else "penalty" })
+                }
+                current = current.copy(grid = newGrid.toTypedArray(), gridRecordIds = newRecordIds.toTypedArray())
+                prefs.edit().putInt("pendingPenalties", 0).apply()
+            }
         }
 
-        val next = state.blockQueue.removeAt(0)
+        if (current.blockQueue.isEmpty()) {
+            return current.copy(activePiece = null)
+        }
+
+        val next = current.blockQueue.removeAt(0)
         val newPiece = ActivePiece(
             type = next.type,
             rotation = 0,
@@ -265,11 +301,11 @@ object TetrisGameEngine {
         )
 
         val cells = getAbsoluteCells(newPiece.type, 0, newPiece.position)
-        if (!canPlace(state.grid, cells)) {
-            return state.copy(gameOver = true, activePiece = null)
+        if (!canPlace(current.grid, cells)) {
+            return current.copy(gameOver = true, activePiece = null)
         }
 
-        return state.copy(activePiece = newPiece)
+        return current.copy(activePiece = newPiece)
     }
 
     // 페널티 줄 적용
@@ -287,7 +323,7 @@ object TetrisGameEngine {
             newGrid.removeAt(0)
             newRecordIds.removeAt(0)
 
-            val emptyCol = (Math.random() * COLS).toInt()
+            val emptyCol = kotlin.random.Random.nextInt(COLS)
             val penaltyRow = IntArray(COLS) { if (it == emptyCol) 0 else 99 }
             val penaltyRecordRow: Array<String?> = Array(COLS) { if (it == emptyCol) null else "penalty" }
             newGrid.add(penaltyRow)
@@ -309,7 +345,7 @@ object TetrisGameEngine {
     fun trySpawnPiece(context: Context) {
         val state = loadState(context)
         if (state.activePiece == null && !state.gameOver && state.blockQueue.isNotEmpty()) {
-            val newState = spawnPiece(state)
+            val newState = spawnPiece(state, context)
             saveState(context, newState)
         }
     }
@@ -439,7 +475,8 @@ object TetrisGameEngine {
                 ?.split(",")
                 ?.filter { it.isNotEmpty() }
                 ?.map { it.toInt() }
-                ?: emptyList())
+                ?: emptyList()),
+            combo = if (needsReset) 0 else prefs.getInt("combo", 0)
         )
     }
 
@@ -492,6 +529,7 @@ object TetrisGameEngine {
         editor.putInt("totalLineClears", state.totalLineClears)
         editor.putString("animationState", state.animationState)
         editor.putString("clearingRows", state.clearingRows.joinToString(","))
+        editor.putInt("combo", state.combo)
 
         editor.apply()
     }
