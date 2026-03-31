@@ -99,6 +99,10 @@
     }
 
     .section-label { letter-spacing: 3px; }
+
+    /* SVG 아이콘 네온 글로우 */
+    .icon-glow-cyan { filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.7)) drop-shadow(0 0 8px rgba(0, 240, 255, 0.3)); }
+    .icon-glow-green { filter: drop-shadow(0 0 3px rgba(0, 255, 136, 0.6)); }
   </style>
 </head>
 <body>
@@ -134,24 +138,35 @@
         </div>
       </div>
 
-      <!-- 모드 토글 -->
+      <!-- 모드 토글 (루틴 활성) -->
       <div class="flex px-4 gap-2 mt-1 mb-2">
-        <button class="px-4 py-2 rounded-lg bg-neon-cyan/15 neon-border-cyan box-glow-cyan">
-          <span class="main-font text-neon-cyan font-bold text-xs tracking-wide">할 일</span>
-        </button>
         <button class="px-4 py-2 rounded-lg bg-bg-card border border-border-subtle">
-          <span class="main-font text-text-muted font-bold text-xs tracking-wide">루틴</span>
+          <span class="main-font text-text-muted font-bold text-xs tracking-wide">할 일</span>
+        </button>
+        <button class="px-4 py-2 rounded-lg bg-neon-cyan/15 neon-border-cyan box-glow-cyan">
+          <span class="main-font text-neon-cyan font-bold text-xs tracking-wide">루틴</span>
         </button>
       </div>
 
-      <!-- 입력 영역 -->
-      <div class="flex px-4 gap-2 mb-3">
+      <!-- 입력 영역 (루틴 모드) -->
+      <div class="flex px-4 gap-2 mb-2">
         <div class="flex-1 bg-bg-secondary border border-border-subtle rounded-xl px-4 py-3 flex items-center">
-          <span class="main-font text-text-muted text-sm">오늘 할 일을 적어주세요...</span>
+          <span class="main-font text-text-muted text-sm">매일 반복할 일을 적어주세요...</span>
         </div>
         <button class="bg-neon-cyan/20 neon-border-cyan rounded-xl px-4 flex items-center justify-center box-glow-cyan">
           <span class="main-font text-neon-cyan font-bold text-sm tracking-wider">ADD</span>
         </button>
+      </div>
+
+      <!-- 요일 선택 -->
+      <div class="flex justify-around px-4 mb-3 pt-2">
+        <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">일</span>
+        <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">월</span>
+        <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">화</span>
+        <span class="main-font text-text-muted font-semibold" style="font-size: 13px;">수</span>
+        <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">목</span>
+        <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">금</span>
+        <span class="main-font text-text-muted font-semibold" style="font-size: 13px;">토</span>
       </div>
 
       <!-- 루틴 섹션 -->
@@ -201,7 +216,7 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-1.5">
               <span class="main-font text-text-primary font-medium text-sm truncate">운동하기</span>
-              <span class="text-neon-green text-xs">&#x21bb;</span>
+              <svg class="icon-glow-cyan" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00F0FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
             </div>
           </div>
           <div class="w-8 h-8 rounded-lg border-2 border-neon-cyan/30 ml-3 flex-shrink-0"></div>
@@ -225,7 +240,7 @@
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-1.5">
               <span class="main-font text-text-muted font-medium text-sm line-through">블로그 포스팅 작성</span>
-              <span class="text-neon-green text-xs">&#x21bb;</span>
+              <svg class="icon-glow-cyan" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00F0FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
             </div>
           </div>
           <!-- 미니 블록 (T블록) -->
@@ -305,25 +320,25 @@
 
       <!-- 성취 FAB -->
       <div class="absolute" style="bottom: 76px; right: 20px;">
-        <button class="w-14 h-14 rounded-2xl bg-bg-card neon-border-cyan box-glow-cyan flex items-center justify-center" style="box-shadow: 0 4px 20px rgba(0, 240, 255, 0.15), 0 0 12px rgba(0, 240, 255, 0.1);">
-          <span class="pixel-font text-neon-cyan glow-cyan" style="font-size: 10px;">&#9733;</span>
+        <button class="w-14 h-14 rounded-2xl bg-bg-card neon-border-cyan flex items-center justify-center">
+          <svg class="icon-glow-cyan" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00F0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         </button>
       </div>
 
       <!-- 탭바 -->
       <div class="flex items-center justify-around py-2 pb-5 border-t border-border-subtle/50" style="background: linear-gradient(180deg, #0D0D22, #0A0A1A);">
         <div class="flex flex-col items-center gap-1 py-1 px-4">
-          <span class="text-text-muted" style="font-size: 18px;">&#127942;</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
           <span class="main-font text-text-muted font-bold" style="font-size: 9px; letter-spacing: 1px;">RANKING</span>
         </div>
         <div class="flex flex-col items-center gap-1 py-1 px-4 relative">
           <!-- 활성 탭 인디케이터 (상단 바) -->
           <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-neon-cyan rounded-full" style="box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);"></div>
-          <span class="tab-active-glow" style="font-size: 18px;">&#127968;</span>
+          <svg class="icon-glow-cyan" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00F0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
           <span class="main-font text-neon-cyan font-bold glow-cyan" style="font-size: 9px; letter-spacing: 1px;">HOME</span>
         </div>
         <div class="flex flex-col items-center gap-1 py-1 px-4">
-          <span class="text-text-muted" style="font-size: 18px;">&#128202;</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
           <span class="main-font text-text-muted font-bold" style="font-size: 9px; letter-spacing: 1px;">HISTORY</span>
         </div>
       </div>
@@ -458,11 +473,11 @@
           <div class="flex justify-between items-start px-4 pt-3 pb-2">
             <div>
               <span class="pixel-font text-text-secondary" style="font-size: 10px;">GAME #1</span>
-              <p class="main-font text-text-muted text-xs mt-1">3월 25일</p>
+              <p class="main-font text-text-muted text-xs mt-1">4월 3일</p>
             </div>
             <div class="text-right">
               <p class="main-font text-text-muted font-bold" style="font-size: 9px; letter-spacing: 2px;">SCORE</p>
-              <p class="pixel-font text-neon-yellow/70 text-lg">720</p>
+              <p class="pixel-font text-neon-yellow/70 text-lg">403</p>
             </div>
           </div>
           <div class="flex items-center px-4 pb-3 gap-5">
@@ -488,16 +503,16 @@
       <!-- 탭바 -->
       <div class="flex items-center justify-around py-2 pb-5 border-t border-border-subtle/50" style="background: linear-gradient(180deg, #0D0D22, #0A0A1A);">
         <div class="flex flex-col items-center gap-1 py-1 px-4">
-          <span class="text-text-muted" style="font-size: 18px;">&#127942;</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
           <span class="main-font text-text-muted font-bold" style="font-size: 9px; letter-spacing: 1px;">RANKING</span>
         </div>
         <div class="flex flex-col items-center gap-1 py-1 px-4">
-          <span class="text-text-muted" style="font-size: 18px;">&#127968;</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
           <span class="main-font text-text-muted font-bold" style="font-size: 9px; letter-spacing: 1px;">HOME</span>
         </div>
         <div class="flex flex-col items-center gap-1 py-1 px-4 relative">
           <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-neon-cyan rounded-full" style="box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);"></div>
-          <span class="tab-active-glow" style="font-size: 18px;">&#128202;</span>
+          <svg class="icon-glow-cyan" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00F0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
           <span class="main-font text-neon-cyan font-bold glow-cyan" style="font-size: 9px; letter-spacing: 1px;">HISTORY</span>
         </div>
       </div>
@@ -520,7 +535,7 @@
       <div class="flex-1 flex flex-col items-center justify-center px-8">
         <!-- 트로피 아이콘 (네온 글로우) -->
         <div class="w-20 h-20 rounded-3xl bg-neon-yellow/5 neon-border-yellow flex items-center justify-center mb-6 box-glow-yellow">
-          <span class="text-4xl tab-active-glow" style="filter: drop-shadow(0 0 12px rgba(255, 229, 0, 0.5));">&#127942;</span>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFE500" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 12px rgba(255, 229, 0, 0.5));"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
         </div>
 
         <h2 class="main-font text-text-primary font-bold text-lg mb-2">랭킹 개발 예정</h2>
@@ -570,15 +585,15 @@
       <div class="flex items-center justify-around py-2 pb-5 border-t border-border-subtle/50" style="background: linear-gradient(180deg, #0D0D22, #0A0A1A);">
         <div class="flex flex-col items-center gap-1 py-1 px-4 relative">
           <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-neon-cyan rounded-full" style="box-shadow: 0 0 8px rgba(0, 240, 255, 0.6);"></div>
-          <span class="tab-active-glow" style="font-size: 18px;">&#127942;</span>
+          <svg class="icon-glow-cyan" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00F0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
           <span class="main-font text-neon-cyan font-bold glow-cyan" style="font-size: 9px; letter-spacing: 1px;">RANKING</span>
         </div>
         <div class="flex flex-col items-center gap-1 py-1 px-4">
-          <span class="text-text-muted" style="font-size: 18px;">&#127968;</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
           <span class="main-font text-text-muted font-bold" style="font-size: 9px; letter-spacing: 1px;">HOME</span>
         </div>
         <div class="flex flex-col items-center gap-1 py-1 px-4">
-          <span class="text-text-muted" style="font-size: 18px;">&#128202;</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
           <span class="main-font text-text-muted font-bold" style="font-size: 9px; letter-spacing: 1px;">HISTORY</span>
         </div>
       </div>
@@ -698,15 +713,15 @@
       <!-- 탭바 (모달 뒤) -->
       <div class="flex items-center justify-around py-2 pb-5 border-t border-border-subtle/50 opacity-30" style="background: linear-gradient(180deg, #0D0D22, #0A0A1A);">
         <div class="flex flex-col items-center gap-1 py-1 px-4">
-          <span style="font-size: 18px;">&#127942;</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
           <span class="main-font font-bold" style="font-size: 9px;">RANKING</span>
         </div>
         <div class="flex flex-col items-center gap-1 py-1 px-4">
-          <span style="font-size: 18px;">&#127968;</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
           <span class="main-font font-bold" style="font-size: 9px;">HOME</span>
         </div>
         <div class="flex flex-col items-center gap-1 py-1 px-4">
-          <span style="font-size: 18px;">&#128202;</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
           <span class="main-font font-bold" style="font-size: 9px;">HISTORY</span>
         </div>
       </div>
@@ -930,29 +945,43 @@
               <p class="pixel-font text-neon-yellow glow-yellow" style="font-size: 14px;">1,250</p>
             </div>
 
-            <!-- LINES -->
-            <div class="rounded-lg p-2 text-center" style="background: rgba(26, 26, 53, 0.8); border: 1px solid rgba(0, 255, 136, 0.1);">
-              <p class="pixel-font text-neon-green/50 mb-0.5" style="font-size: 14px; letter-spacing: 2px;">LINES</p>
-              <p class="pixel-font text-neon-green glow-green" style="font-size: 14px;">7</p>
-            </div>
+            <!-- TODO: 미완료 할 일 목록 -->
+            <div class="rounded-lg p-2 flex-1" style="background: rgba(26, 26, 53, 0.8); border: 1px solid rgba(255, 0, 229, 0.15);">
+              <p class="pixel-font mb-1.5 text-center" style="font-size: 14px; letter-spacing: 2px; color: rgba(255, 0, 229, 0.5);">TODO</p>
+              <div class="flex flex-col gap-1.5">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <div class="w-1 h-1 rounded-full flex-shrink-0" style="background: rgba(255, 0, 229, 0.6);"></div>
+                  <p class="main-font truncate" style="font-size: 14px; color: rgba(136, 136, 170, 0.9);">TS 강의 듣기</p>
+                </div>
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <div class="w-1 h-1 rounded-full flex-shrink-0" style="background: rgba(255, 0, 229, 0.6);"></div>
+                  <p class="main-font truncate" style="font-size: 14px; color: rgba(136, 136, 170, 0.9);">운동하기</p>
+                </div>
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <div class="w-1 h-1 rounded-full flex-shrink-0" style="background: rgba(255, 0, 229, 0.6);"></div>
+                  <p class="main-font truncate" style="font-size: 14px; color: rgba(136, 136, 170, 0.9);">블로그 포스팅...</p>
+                </div>
+              </div>
+                          </div>
+
           </div>
         </div>
 
         <!-- 하단 조작 버튼: ◀ ▶ | ▼ | ↻ -->
         <div class="flex items-center justify-center gap-2 px-3 py-2" style="background: rgba(0, 240, 255, 0.03); border-top: 1px solid rgba(0, 240, 255, 0.08);">
-          <button class="w-12 h-9 rounded-xl flex items-center justify-center" style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.2);">
-            <span class="text-neon-cyan text-lg">&#9664;</span>
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 346 512.73" width="12" height="14" fill="#00F0FF"><path d="M315.38 3.95 7.71 241.08a19.186 19.186 0 0 0-3.76 3.67c-6.39 8.29-4.87 20.21 3.42 26.6L314.21 507.8c3.37 3.06 7.85 4.93 12.76 4.93 10.51 0 19.03-8.52 19.03-19.03V18.96h-.06c0-4.05-1.29-8.14-3.96-11.59-6.4-8.29-18.31-9.81-26.6-3.42z"/></svg>
           </button>
-          <button class="w-12 h-9 rounded-xl flex items-center justify-center" style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.2);">
-            <span class="text-neon-cyan text-lg">&#9654;</span>
-          </button>
-          <div class="w-2"></div>
-          <button class="w-12 h-9 rounded-xl flex items-center justify-center" style="background: rgba(0, 255, 136, 0.08); border: 1px solid rgba(0, 255, 136, 0.2);">
-            <span class="text-neon-green text-lg">&#9660;</span>
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 346.02 512.76" width="12" height="14" fill="#00F0FF"><path d="M338.31 241.09 30.62 3.95c-8.29-6.39-20.2-4.87-26.6 3.42A18.905 18.905 0 0 0 .06 18.96H0v474.77c0 10.51 8.52 19.03 19.03 19.03 4.91 0 9.39-1.87 12.77-4.93l306.85-236.46c8.29-6.4 9.81-18.32 3.41-26.6-1.1-1.43-2.36-2.66-3.75-3.68z"/></svg>
           </button>
           <div class="w-2"></div>
-          <button class="w-12 h-9 rounded-xl flex items-center justify-center" style="background: rgba(255, 229, 0, 0.08); border: 1px solid rgba(255, 229, 0, 0.2);">
-            <span class="text-neon-yellow text-lg">&#8635;</span>
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(0, 255, 136, 0.08); border: 1px solid rgba(0, 255, 136, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 345.51" width="14" height="12" fill="#00FF88"><path d="m3.95 30.57 236.79 307.24c1.02 1.39 2.24 2.65 3.67 3.75 8.27 6.39 20.17 4.87 26.56-3.41l236.11-306.4C510.14 28.38 512 23.91 512 19c0-10.49-8.51-19-19-19H18.93v.06A18.9 18.9 0 0 0 7.36 4.01C-.92 10.4-2.44 22.3 3.95 30.57z"/></svg>
+          </button>
+          <div class="w-2"></div>
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(255, 229, 0, 0.08); border: 1px solid rgba(255, 229, 0, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 452.64" width="14" height="14" fill="#FFE500"><path d="M368.35 161.02c-33.05-59.34-90.64-98.27-164.75-89.98-69.06 7.72-131.91 57.64-147.19 131.68-12.78 61.99 10.79 121.11 52.63 161.1 48.87 46.7 122.66 67.32 192.61 36.01 35.84-16.05 60.23-36.5 78.47-62.84 1.86-2.46 4.36-6.41 7.83-9 10.07-7.53 23.32 1.42 21.28 12.44-.43 2.36-1.49 4.88-3.36 7.53-15 23.71-31.64 41.83-53.38 58.4-49.84 37.98-114.27 55.13-178.91 41.8-60.24-12.42-109.19-48.92-139.52-97.8C-18.98 264.9-6.89 162.04 48.32 89.93c34.29-44.79 85.22-77.72 147.5-87.26 105.15-16.11 210.71 42.27 244.52 135.32l42.51-13.6c11.78-3.73 24.36 2.79 28.1 14.57a22.33 22.33 0 0 1-.9 15.89l-48.64 108.53c-5.04 11.3-18.29 16.36-29.59 11.32l-1.65-.82-.02.03-106.62-58.85c-10.86-5.96-14.83-19.6-8.87-30.46 3.15-5.74 8.44-9.55 14.34-11l39.35-12.58z"/></svg>
           </button>
         </div>
       </div>
@@ -962,7 +991,8 @@
         <p class="main-font text-text-muted text-xs leading-5">
           반투명 배경 &middot; 4단계 투명도 조절 (우상단 %표시)<br>
           &#9664;&#9654; 좌우이동 / &#9660; 하강 / &#8635; 회전<br>
-          NEXT에 블록 없으면 + 로 전환 &rarr; 앱 열기
+          NEXT에 블록 없으면 + 로 전환 &rarr; 앱 열기<br>
+          사이드 패널: NEXT + SCORE + TODO (LINES 제거)
         </p>
       </div>
 
@@ -1164,31 +1194,313 @@
               <p class="pixel-font text-neon-yellow glow-yellow" style="font-size: 14px;">2,480</p>
             </div>
 
-            <!-- LINES -->
-            <div class="rounded-lg p-2 text-center" style="background: rgba(26, 26, 53, 0.8); border: 1px solid rgba(0, 255, 136, 0.1);">
-              <p class="pixel-font text-neon-green/50 mb-0.5" style="font-size: 14px; letter-spacing: 2px;">LINES</p>
-              <p class="pixel-font text-neon-green glow-green" style="font-size: 14px;">12</p>
-            </div>
           </div>
         </div>
 
         <!-- 하단 버튼: 비활성 -->
         <div class="flex items-center justify-center gap-2 px-3 py-2 opacity-30" style="background: rgba(255, 51, 85, 0.03); border-top: 1px solid rgba(255, 51, 85, 0.08);">
-          <button class="w-12 h-9 rounded-xl flex items-center justify-center" style="background: rgba(42, 42, 80, 0.3); border: 1px solid rgba(85, 85, 119, 0.2);">
-            <span class="text-text-muted text-lg">&#9664;</span>
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(42, 42, 80, 0.3); border: 1px solid rgba(85, 85, 119, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 346 512.73" width="12" height="14" fill="#555577"><path d="M315.38 3.95 7.71 241.08a19.186 19.186 0 0 0-3.76 3.67c-6.39 8.29-4.87 20.21 3.42 26.6L314.21 507.8c3.37 3.06 7.85 4.93 12.76 4.93 10.51 0 19.03-8.52 19.03-19.03V18.96h-.06c0-4.05-1.29-8.14-3.96-11.59-6.4-8.29-18.31-9.81-26.6-3.42z"/></svg>
           </button>
-          <button class="w-12 h-9 rounded-xl flex items-center justify-center" style="background: rgba(42, 42, 80, 0.3); border: 1px solid rgba(85, 85, 119, 0.2);">
-            <span class="text-text-muted text-lg">&#9654;</span>
-          </button>
-          <div class="w-2"></div>
-          <button class="w-12 h-9 rounded-xl flex items-center justify-center" style="background: rgba(42, 42, 80, 0.3); border: 1px solid rgba(85, 85, 119, 0.2);">
-            <span class="text-text-muted text-lg">&#9660;</span>
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(42, 42, 80, 0.3); border: 1px solid rgba(85, 85, 119, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 346.02 512.76" width="12" height="14" fill="#555577"><path d="M338.31 241.09 30.62 3.95c-8.29-6.39-20.2-4.87-26.6 3.42A18.905 18.905 0 0 0 .06 18.96H0v474.77c0 10.51 8.52 19.03 19.03 19.03 4.91 0 9.39-1.87 12.77-4.93l306.85-236.46c8.29-6.4 9.81-18.32 3.41-26.6-1.1-1.43-2.36-2.66-3.75-3.68z"/></svg>
           </button>
           <div class="w-2"></div>
-          <button class="w-12 h-9 rounded-xl flex items-center justify-center" style="background: rgba(42, 42, 80, 0.3); border: 1px solid rgba(85, 85, 119, 0.2);">
-            <span class="text-text-muted text-lg">&#8635;</span>
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(42, 42, 80, 0.3); border: 1px solid rgba(85, 85, 119, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 345.51" width="14" height="12" fill="#555577"><path d="m3.95 30.57 236.79 307.24c1.02 1.39 2.24 2.65 3.67 3.75 8.27 6.39 20.17 4.87 26.56-3.41l236.11-306.4C510.14 28.38 512 23.91 512 19c0-10.49-8.51-19-19-19H18.93v.06A18.9 18.9 0 0 0 7.36 4.01C-.92 10.4-2.44 22.3 3.95 30.57z"/></svg>
+          </button>
+          <div class="w-2"></div>
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(42, 42, 80, 0.3); border: 1px solid rgba(85, 85, 119, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 452.64" width="14" height="14" fill="#555577"><path d="M368.35 161.02c-33.05-59.34-90.64-98.27-164.75-89.98-69.06 7.72-131.91 57.64-147.19 131.68-12.78 61.99 10.79 121.11 52.63 161.1 48.87 46.7 122.66 67.32 192.61 36.01 35.84-16.05 60.23-36.5 78.47-62.84 1.86-2.46 4.36-6.41 7.83-9 10.07-7.53 23.32 1.42 21.28 12.44-.43 2.36-1.49 4.88-3.36 7.53-15 23.71-31.64 41.83-53.38 58.4-49.84 37.98-114.27 55.13-178.91 41.8-60.24-12.42-109.19-48.92-139.52-97.8C-18.98 264.9-6.89 162.04 48.32 89.93c34.29-44.79 85.22-77.72 147.5-87.26 105.15-16.11 210.71 42.27 244.52 135.32l42.51-13.6c11.78-3.73 24.36 2.79 28.1 14.57a22.33 22.33 0 0 1-.9 15.89l-48.64 108.53c-5.04 11.3-18.29 16.36-29.59 11.32l-1.65-.82-.02.03-106.62-58.85c-10.86-5.96-14.83-19.6-8.87-30.46 3.15-5.74 8.44-9.55 14.34-11l39.35-12.58z"/></svg>
           </button>
         </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ========== WITH TODO LIST 위젯 ========== -->
+  <div class="phone-frame">
+    <div class="min-h-full flex flex-col items-center justify-center" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+
+      <!-- 위젯 제목 -->
+      <p class="pixel-font text-text-muted mb-4" style="font-size: 8px; letter-spacing: 3px;">WITH TODO LIST</p>
+
+      <!-- 위젯 프레임 -->
+      <div class="rounded-3xl overflow-hidden" style="width: 340px; background: rgba(10, 10, 26, 0.85); border: 1px solid rgba(0, 240, 255, 0.15); box-shadow: 0 0 40px rgba(0, 240, 255, 0.08), 0 8px 32px rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px);">
+
+        <!-- 위젯 상단 바 -->
+        <div class="flex items-center justify-between px-2.5 py-2" style="background: rgba(0, 240, 255, 0.05); border-bottom: 1px solid rgba(0, 240, 255, 0.1);">
+          <button class="rounded-lg px-2 py-1 flex items-center justify-center" style="background: rgba(42, 42, 80, 0.4); border: 1px solid rgba(85, 85, 119, 0.3);">
+            <span class="pixel-font text-text-muted/40" style="font-size: 14px; letter-spacing: 1px;">NEW</span>
+          </button>
+          <span class="pixel-font text-neon-cyan/60" style="font-size: 12px; letter-spacing: 2px;">TODAY I DID</span>
+          <div class="flex items-center gap-1.5">
+            <span class="main-font text-neon-yellow/40 font-bold" style="font-size: 14px;">70%</span>
+            <button class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(255, 229, 0, 0.1); border: 1px solid rgba(255, 229, 0, 0.2);">
+              <span class="text-neon-yellow" style="font-size: 14px;">&#9788;</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 메인 영역: 게임판 + 사이드패널 -->
+        <div class="flex gap-1.5 px-1.5 py-1.5">
+
+          <!-- 테트리스 게임판 (10x12 그리드) -->
+          <div class="relative flex-shrink-0" style="background: rgba(10, 10, 26, 0.6); border: 1px solid rgba(0, 240, 255, 0.08); border-radius: 4px; padding: 2px;">
+            <div class="flex flex-col gap-px">
+              <!-- Row 1-4: 빈 줄 -->
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+              </div>
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+              </div>
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+              </div>
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+              </div>
+              <!-- Row 5: T블록 낙하 중 -->
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #CC00FF;"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+              </div>
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #CC00FF;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #CC00FF;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #CC00FF;"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+              </div>
+              <!-- Row 7-8: 빈줄 -->
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+              </div>
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+              </div>
+              <!-- Row 9: 부분 블록 -->
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #00CC00;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #00CC00;"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+              </div>
+              <!-- Row 10 -->
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FF8800;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #00CC00;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #00CC00;"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #0088FF;"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+              </div>
+              <!-- Row 11 -->
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FF0000;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FF0000;"></div>
+                <div class="w-5 h-5 rounded-sm" style="background: rgba(42, 42, 80, 0.3);"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FF8800;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FF8800;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FFDD00;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FFDD00;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #0088FF;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #0088FF;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #0088FF;"></div>
+              </div>
+              <!-- Row 12 (바닥) -->
+              <div class="flex gap-px">
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FF0000;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FF00AA;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FF00AA;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FF8800;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #CC00FF;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FFDD00;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #FFDD00;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #0088FF;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #00CC00;"></div>
+                <div class="w-5 h-5 rounded-sm tetris-cell" style="background: #00CC00;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 사이드 패널 (TODO 포함) -->
+          <div class="flex flex-col gap-1.5 flex-1 min-w-0">
+            <!-- NEXT -->
+            <div class="rounded-lg p-2 text-center" style="background: rgba(26, 26, 53, 0.8); border: 1px solid rgba(0, 240, 255, 0.1);">
+              <p class="pixel-font text-neon-cyan/50 mb-1.5" style="font-size: 14px; letter-spacing: 2px;">NEXT</p>
+              <div class="flex justify-center">
+                <div class="flex gap-px">
+                  <div class="w-4 h-4 tetris-cell rounded-sm" style="background: #0088FF;"></div>
+                  <div class="w-4 h-4 tetris-cell rounded-sm" style="background: #0088FF;"></div>
+                  <div class="w-4 h-4 tetris-cell rounded-sm" style="background: #0088FF;"></div>
+                  <div class="w-4 h-4 tetris-cell rounded-sm" style="background: #0088FF;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SCORE -->
+            <div class="rounded-lg p-2 text-center" style="background: rgba(26, 26, 53, 0.8); border: 1px solid rgba(255, 229, 0, 0.1);">
+              <p class="pixel-font text-neon-yellow/50 mb-0.5" style="font-size: 14px; letter-spacing: 2px;">SCORE</p>
+              <p class="pixel-font text-neon-yellow glow-yellow" style="font-size: 14px;">1,250</p>
+            </div>
+
+            <!-- TODO: 미완료 할 일 목록 -->
+            <div class="rounded-lg p-2 flex-1" style="background: rgba(26, 26, 53, 0.8); border: 1px solid rgba(255, 0, 229, 0.15);">
+              <p class="pixel-font mb-1.5 text-center" style="font-size: 14px; letter-spacing: 2px; color: rgba(255, 0, 229, 0.5);">TODO</p>
+              <div class="flex flex-col gap-1.5">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <div class="w-1 h-1 rounded-full flex-shrink-0" style="background: rgba(255, 0, 229, 0.6);"></div>
+                  <p class="main-font truncate" style="font-size: 14px; color: rgba(136, 136, 170, 0.9);">TS 강의 듣기</p>
+                </div>
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <div class="w-1 h-1 rounded-full flex-shrink-0" style="background: rgba(255, 0, 229, 0.6);"></div>
+                  <p class="main-font truncate" style="font-size: 14px; color: rgba(136, 136, 170, 0.9);">운동하기</p>
+                </div>
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <div class="w-1 h-1 rounded-full flex-shrink-0" style="background: rgba(255, 0, 229, 0.6);"></div>
+                  <p class="main-font truncate" style="font-size: 14px; color: rgba(136, 136, 170, 0.9);">블로그 포스팅...</p>
+                </div>
+              </div>
+                          </div>
+          </div>
+        </div>
+
+        <!-- 하단 조작 버튼 -->
+        <div class="flex items-center justify-center gap-2 px-3 py-2" style="background: rgba(0, 240, 255, 0.03); border-top: 1px solid rgba(0, 240, 255, 0.08);">
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 346 512.73" width="12" height="14" fill="#00F0FF"><path d="M315.38 3.95 7.71 241.08a19.186 19.186 0 0 0-3.76 3.67c-6.39 8.29-4.87 20.21 3.42 26.6L314.21 507.8c3.37 3.06 7.85 4.93 12.76 4.93 10.51 0 19.03-8.52 19.03-19.03V18.96h-.06c0-4.05-1.29-8.14-3.96-11.59-6.4-8.29-18.31-9.81-26.6-3.42z"/></svg>
+          </button>
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 346.02 512.76" width="12" height="14" fill="#00F0FF"><path d="M338.31 241.09 30.62 3.95c-8.29-6.39-20.2-4.87-26.6 3.42A18.905 18.905 0 0 0 .06 18.96H0v474.77c0 10.51 8.52 19.03 19.03 19.03 4.91 0 9.39-1.87 12.77-4.93l306.85-236.46c8.29-6.4 9.81-18.32 3.41-26.6-1.1-1.43-2.36-2.66-3.75-3.68z"/></svg>
+          </button>
+          <div class="w-2"></div>
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(0, 255, 136, 0.08); border: 1px solid rgba(0, 255, 136, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 345.51" width="14" height="12" fill="#00FF88"><path d="m3.95 30.57 236.79 307.24c1.02 1.39 2.24 2.65 3.67 3.75 8.27 6.39 20.17 4.87 26.56-3.41l236.11-306.4C510.14 28.38 512 23.91 512 19c0-10.49-8.51-19-19-19H18.93v.06A18.9 18.9 0 0 0 7.36 4.01C-.92 10.4-2.44 22.3 3.95 30.57z"/></svg>
+          </button>
+          <div class="w-2"></div>
+          <button class="w-12 h-9 rounded-xl flex items-center justify-center text-center" style="background: rgba(255, 229, 0, 0.08); border: 1px solid rgba(255, 229, 0, 0.2);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 452.64" width="14" height="14" fill="#FFE500"><path d="M368.35 161.02c-33.05-59.34-90.64-98.27-164.75-89.98-69.06 7.72-131.91 57.64-147.19 131.68-12.78 61.99 10.79 121.11 52.63 161.1 48.87 46.7 122.66 67.32 192.61 36.01 35.84-16.05 60.23-36.5 78.47-62.84 1.86-2.46 4.36-6.41 7.83-9 10.07-7.53 23.32 1.42 21.28 12.44-.43 2.36-1.49 4.88-3.36 7.53-15 23.71-31.64 41.83-53.38 58.4-49.84 37.98-114.27 55.13-178.91 41.8-60.24-12.42-109.19-48.92-139.52-97.8C-18.98 264.9-6.89 162.04 48.32 89.93c34.29-44.79 85.22-77.72 147.5-87.26 105.15-16.11 210.71 42.27 244.52 135.32l42.51-13.6c11.78-3.73 24.36 2.79 28.1 14.57a22.33 22.33 0 0 1-.9 15.89l-48.64 108.53c-5.04 11.3-18.29 16.36-29.59 11.32l-1.65-.82-.02.03-106.62-58.85c-10.86-5.96-14.83-19.6-8.87-30.46 3.15-5.74 8.44-9.55 14.34-11l39.35-12.58z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 위젯 설명 -->
+      <div class="mt-5 px-8 text-center">
+        <p class="main-font text-text-muted text-xs leading-5">
+          LINES 제거 &rarr; TODO 영역: 미완료 할 일 최대 3개 표시<br>
+          neon-magenta 도트 + 말줄임 텍스트 (9px)<br>
+          남은 항목 수 "+N more" 표시 &middot; 탭하면 앱으로 이동
+        </p>
+      </div>
+
+      <!-- ====== TODO 0개 상태 (빈 상태) ====== -->
+      <p class="pixel-font text-text-muted mt-8 mb-4" style="font-size: 8px; letter-spacing: 3px;">TODO EMPTY STATE</p>
+
+      <!-- 빈 상태 사이드 패널만 표시 -->
+      <div class="rounded-2xl overflow-hidden p-3" style="width: 120px; background: rgba(10, 10, 26, 0.85); border: 1px solid rgba(0, 240, 255, 0.1);">
+        <div class="flex flex-col gap-1.5">
+          <!-- NEXT (축약) -->
+          <div class="rounded-lg p-1.5 text-center" style="background: rgba(26, 26, 53, 0.8); border: 1px solid rgba(0, 240, 255, 0.1);">
+            <p class="pixel-font text-neon-cyan/50" style="font-size: 10px; letter-spacing: 1px;">NEXT</p>
+          </div>
+          <!-- SCORE (축약) -->
+          <div class="rounded-lg p-1.5 text-center" style="background: rgba(26, 26, 53, 0.8); border: 1px solid rgba(255, 229, 0, 0.1);">
+            <p class="pixel-font text-neon-yellow/50" style="font-size: 10px; letter-spacing: 1px;">SCORE</p>
+          </div>
+          <!-- TODO: 빈 상태 -->
+          <div class="rounded-lg p-2 text-center flex-1" style="background: rgba(26, 26, 53, 0.5); border: 1px dashed rgba(255, 0, 229, 0.2);">
+            <p class="pixel-font mb-1" style="font-size: 10px; letter-spacing: 1px; color: rgba(255, 0, 229, 0.3);">TODO</p>
+            <p class="main-font" style="font-size: 9px; color: rgba(85, 85, 119, 0.4);">ALL DONE!</p>
+            <p class="mt-1" style="font-size: 14px;">&#10003;</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 px-8 text-center">
+        <p class="main-font text-text-muted text-xs leading-5">
+          할 일이 없을 때: dashed 테두리 + "ALL DONE!" 메시지
+        </p>
       </div>
 
     </div>
@@ -1308,7 +1620,7 @@
       <p>5. 단색 골드 스코어 &#8594; 네온 옐로우 + 글로우 효과</p>
       <p>6. 탭바 &#8594; 다크 배경 + 시안 네온 인디케이터</p>
       <p>7. 체크박스 &#8594; 네온 시안 보더 + 완료 시 그린 글로우</p>
-      <p>8. 이모지 아이콘 유지 (커스텀 아이콘 불필요)</p>
+      <p>8. 이모지 &#8594; 인라인 SVG 아이콘 (네온 글로우 + 스트로크 스타일)</p>
     </div>
   </div>
 
