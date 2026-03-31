@@ -24,6 +24,7 @@ import type { QueuedBlock, GameHistory, GameHistoryAchievement } from '@/types/g
 import { useHistoryStore } from '@/stores/historyStore'
 import { homeStyles as styles } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
+import { RefreshIcon, StarIcon, ClipboardIcon } from '@/components/ui/Icons'
 
 const today = () => {
   const now = new Date()
@@ -461,7 +462,7 @@ export default function HomeScreen() {
       {/* 할 일 리스트 — 날짜별 그룹핑 */}
       {activeTasks.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>📝</Text>
+          <ClipboardIcon size={40} color="#555577" />
           <Text style={styles.emptyText}>오늘 할 일이 없어요</Text>
           <Text style={styles.emptySubText}>할 일을 추가하고 완료하면 블록이 생성돼요!</Text>
         </View>
@@ -475,9 +476,10 @@ export default function HomeScreen() {
               {/* 날짜 헤더 */}
               <View style={styles.dateHeader}>
                 <View style={styles.dateLine} />
-                <Text style={styles.dateText}>
-                  {date === todayStr ? `${formatDateHeader(date)} (오늘)` : formatDateHeader(date)}
-                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={styles.dateText}>{formatDateHeader(date)}</Text>
+                  {date === todayStr && <Text style={styles.dateTodayLabel}>&lt;오늘&gt;</Text>}
+                </View>
                 <View style={styles.dateLine} />
               </View>
 
@@ -502,7 +504,7 @@ export default function HomeScreen() {
                       >
                         {item.content}
                       </Text>
-                      {item.isRoutine && <Text style={styles.routineIcon}>🔄</Text>}
+                      {item.isRoutine && <RefreshIcon size={12} color="#00F0FF" />}
                     </View>
                   </View>
 
@@ -537,7 +539,7 @@ export default function HomeScreen() {
         accessibilityLabel="완성된 라인 보기"
         accessibilityRole="button"
       >
-        <Text style={styles.fabText}>★</Text>
+        <StarIcon size={24} color="#00F0FF" />
       </Pressable>
 
       {/* 완성 라인 팝업 — 두루마리 스타일 */}

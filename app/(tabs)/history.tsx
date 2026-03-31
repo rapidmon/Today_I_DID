@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { ChartIcon } from '@/components/ui/Icons'
 import { useHistoryStore } from '@/stores/historyStore'
 import { BLOCK_TYPE_COLORS } from '@/constants/tetris'
 
@@ -22,7 +23,7 @@ export default function HistoryScreen() {
 
       {histories.length === 0 ? (
         <View style={s.emptyState}>
-          <Text style={s.emptyIcon}>📊</Text>
+          <ChartIcon size={40} color="#555577" />
           <Text style={s.emptyText}>아직 기록이 없어요</Text>
           <Text style={s.emptySubText}>게임이 끝나면 여기에 기록이 쌓입니다</Text>
         </View>

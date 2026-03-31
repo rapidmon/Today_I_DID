@@ -1,7 +1,11 @@
 import { Tabs } from 'expo-router'
-import { View, Text } from 'react-native'
+import { View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { TrophyIcon, HomeIcon, ChartIcon } from '@/components/ui/Icons'
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets()
+
   return (
     <Tabs
       screenOptions={{
@@ -10,8 +14,8 @@ export default function TabLayout() {
           backgroundColor: '#0A0A1A',
           borderTopColor: 'rgba(42, 42, 80, 0.5)',
           borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom + 4,
           paddingTop: 4,
         },
         tabBarActiveTintColor: '#00F0FF',
@@ -37,7 +41,7 @@ export default function TabLayout() {
                   shadowOpacity: 0.6, shadowRadius: 4, elevation: 4,
                 }} />
               )}
-              <Text style={{ fontSize: 20, color }}>🏆</Text>
+              <TrophyIcon size={20} color={color} />
             </View>
           ),
         }}
@@ -56,7 +60,7 @@ export default function TabLayout() {
                   shadowOpacity: 0.6, shadowRadius: 4, elevation: 4,
                 }} />
               )}
-              <Text style={{ fontSize: 20, color }}>🏠</Text>
+              <HomeIcon size={20} color={color} />
             </View>
           ),
         }}
@@ -75,7 +79,7 @@ export default function TabLayout() {
                   shadowOpacity: 0.6, shadowRadius: 4, elevation: 4,
                 }} />
               )}
-              <Text style={{ fontSize: 20, color }}>📊</Text>
+              <ChartIcon size={20} color={color} />
             </View>
           ),
         }}
