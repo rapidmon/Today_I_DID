@@ -40,16 +40,16 @@ export const homeStyles = StyleSheet.create({
     textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },
-  headerRight: { flexDirection: 'row' as const, gap: 8 },
+  headerRight: { flexDirection: 'row' as const, gap: 8, alignItems: 'center' as const },
   scoreBadge: {
     backgroundColor: 'rgba(255, 229, 0, 0.1)',
     borderWidth: 1, borderColor: 'rgba(255, 229, 0, 0.3)',
-    borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6,
-    shadowColor: '#FFE500', shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.2, shadowRadius: 12,
+    borderRadius: 8, paddingHorizontal: 12,
+    paddingTop: 8, paddingBottom: 5,
   },
   scoreText: {
     fontFamily: 'PressStart2P', color: COLORS.neonYellow, fontSize: 8, letterSpacing: 1,
+    textAlignVertical: 'center' as const,
     textShadowColor: 'rgba(255, 229, 0, 0.6)', textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },
@@ -111,29 +111,25 @@ export const homeStyles = StyleSheet.create({
 
   // 요일 선택
   dayRow: {
-    flexDirection: 'row', justifyContent: 'center', paddingHorizontal: 20,
-    gap: 8, marginBottom: 8,
+    flexDirection: 'row', justifyContent: 'space-around', paddingHorizontal: 16,
+    paddingTop: 8, marginBottom: 8,
   },
   dayButton: {
-    width: 38, height: 32, borderRadius: 16,
-    borderWidth: 1, borderColor: COLORS.borderSubtle,
     alignItems: 'center' as const, justifyContent: 'center' as const,
-    backgroundColor: COLORS.bgCard,
+    paddingVertical: 4, paddingHorizontal: 4,
   },
-  dayButtonActive: {
-    backgroundColor: 'rgba(0, 240, 255, 0.15)',
-    borderColor: 'rgba(0, 240, 255, 0.3)',
-    elevation: 4,
-    shadowColor: '#00F0FF', shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3, shadowRadius: 6,
+  dayButtonActive: {},
+  dayText: { fontFamily: 'InterSemiBold', color: COLORS.textMuted, fontSize: 13 },
+  dayTextActive: {
+    color: COLORS.neonCyan,
+    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
   },
-  dayText: { fontFamily: 'InterSemiBold', color: COLORS.textMuted, fontSize: 12 },
-  dayTextActive: { color: COLORS.neonCyan },
 
   // 루틴
   routineSection: { paddingHorizontal: 16, marginBottom: 8 },
   sectionLabel: {
-    fontFamily: 'PressStart2P', color: COLORS.textMuted, fontSize: 7,
+    fontFamily: 'PressStart2P', color: COLORS.textMuted, fontSize: 9,
     letterSpacing: 3, marginBottom: 6,
   },
   routineList: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
@@ -169,7 +165,7 @@ export const homeStyles = StyleSheet.create({
   recordContent: { flex: 1 },
   recordTextRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6 },
   recordText: {
-    fontFamily: 'InterMedium', color: COLORS.textPrimary, fontSize: 14, flexShrink: 1,
+    fontFamily: 'InterMedium', color: COLORS.textPrimary, fontSize: 16, flexShrink: 1,
   },
   recordTextCompleted: { color: COLORS.textMuted, textDecorationLine: 'line-through' },
   routineIcon: { fontSize: 12, color: COLORS.neonGreen },
@@ -181,7 +177,12 @@ export const homeStyles = StyleSheet.create({
   },
   dateLine: { flex: 1, height: 1, backgroundColor: COLORS.borderSubtle },
   dateText: {
-    fontFamily: 'PressStart2P', color: 'rgba(0, 240, 255, 0.6)', fontSize: 8,
+    fontFamily: 'PressStart2P', color: 'rgba(0, 240, 255, 0.6)', fontSize: 10,
+    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  dateTodayLabel: {
+    fontFamily: 'InterBold', color: 'rgba(0, 240, 255, 0.6)', fontSize: 11,
     textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },
@@ -194,7 +195,7 @@ export const homeStyles = StyleSheet.create({
   },
   blockText: { fontSize: 14, fontWeight: 'bold' },
   pendingCheckbox: {
-    width: 32, height: 32, borderWidth: 2, borderColor: 'rgba(0, 240, 255, 0.3)',
+    width: 32, height: 32, borderWidth: 2, borderColor: '#00F0FF',
     borderRadius: 8, backgroundColor: 'transparent', marginLeft: 12,
     alignItems: 'center' as const, justifyContent: 'center' as const,
   },
@@ -211,9 +212,7 @@ export const homeStyles = StyleSheet.create({
     position: 'absolute', bottom: 24, right: 20, width: 56, height: 56, borderRadius: 16,
     backgroundColor: COLORS.bgCard, alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: 'rgba(0, 240, 255, 0.3)',
-    elevation: 8,
-    shadowColor: '#00F0FF', shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.15, shadowRadius: 12,
+    elevation: 0,
   },
   fabText: {
     fontFamily: 'PressStart2P', fontSize: 16, color: COLORS.neonCyan,
