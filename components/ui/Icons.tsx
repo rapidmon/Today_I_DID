@@ -1,4 +1,4 @@
-import Svg, { Path, Polygon } from 'react-native-svg'
+import Svg, { Circle, Path, Polygon } from 'react-native-svg'
 
 interface IconProps {
   size?: number
@@ -47,6 +47,17 @@ export const RefreshIcon = ({ size = 12, color = '#00F0FF' }: IconProps) => (
 export const StarIcon = ({ size = 24, color = '#00F0FF' }: IconProps) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
     <Polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+  </Svg>
+)
+
+// 실패: 해골 (Lucide skull)
+export const SkullIcon = ({ size = 16, color = '#FF3355' }: IconProps) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+    <Circle cx="9" cy="12" r="1" />
+    <Circle cx="15" cy="12" r="1" />
+    <Path d="M8 20v2h8v-2" />
+    <Path d="m12.5 17-.5-1-.5 1h1z" />
+    <Path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20" />
   </Svg>
 )
 

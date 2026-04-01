@@ -24,7 +24,7 @@ import type { QueuedBlock, GameHistory, GameHistoryAchievement } from '@/types/g
 import { useHistoryStore } from '@/stores/historyStore'
 import { homeStyles as styles } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
-import { RefreshIcon, StarIcon, ClipboardIcon } from '@/components/ui/Icons'
+import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon } from '@/components/ui/Icons'
 
 const today = () => {
   const now = new Date()
@@ -519,8 +519,8 @@ export default function HomeScreen() {
                       </View>
                     )
                   ) : item.status === 'failed' ? (
-                    <View style={[styles.blockBadge, { backgroundColor: '#FFE0E0' }]}>
-                      <Text style={[styles.blockText, { color: '#FF4444' }]}>💀</Text>
+                    <View style={[styles.blockBadge, { backgroundColor: 'rgba(255, 51, 85, 0.1)' }]}>
+                      <SkullIcon size={18} color="#FF3355" />
                     </View>
                   ) : (
                     <View style={styles.pendingCheckbox} />
