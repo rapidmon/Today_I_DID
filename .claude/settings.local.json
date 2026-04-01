@@ -37,7 +37,11 @@
       "Bash(\"C:/Users/Foryoucom/AppData/Local/Android/Sdk/platform-tools/adb.exe\" -s emulator-5554 shell \"getprop ro.build.version.sdk\" 2>&1)",
       "Bash(find /c/Users/Foryoucom/Desktop/coding/Today_I_did -type d -name \"drawables\\\\|res\")",
       "WebFetch(domain:uxwing.com)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(grep -r group.com.limheerae /c/Users/Foryoucom/Desktop/coding/Today_I_did --include=*.json --include=*.plist --include=*.entitlements)",
+      "Bash(grep -r \"TetrisWidgetBridge\\\\|group.com.limheerae\" /c/Users/Foryoucom/Desktop/coding/Today_I_did/src --include=*.js --include=*.ts --include=*.tsx)",
+      "Bash(grep -r \"addBlockToQueue\\\\|TetrisWidgetBridge\\\\|widgetBridge\" /c/Users/Foryoucom/Desktop/coding/Today_I_did/src --include=*.js --include=*.ts --include=*.tsx)",
+      "Bash(xargs grep:*)"
     ]
   }
 }
