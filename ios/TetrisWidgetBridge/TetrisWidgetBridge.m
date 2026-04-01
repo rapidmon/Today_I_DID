@@ -32,4 +32,8 @@ RCT_EXTERN_METHOD(isGameOver:(RCTPromiseResolveBlock)resolve
 RCT_EXTERN_METHOD(getAchievements:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(syncTasks:(NSString *)tasksJson
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 @end

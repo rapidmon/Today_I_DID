@@ -31,6 +31,7 @@ struct GameState {
     var totalLineClears: Int
     var animationState: String  // "none", "highlight", "fade", "done"
     var clearingRows: [Int]
+    var combo: Int = 0
 }
 
 // MARK: - 게임 엔진
@@ -40,7 +41,9 @@ class TetrisGameEngine {
     static let ROWS = 12
     static let suiteName = "group.com.limheerae.TodayIdid"
 
-    static let SCORE_TABLE: [Int: Int] = [1: 100, 2: 300, 3: 500, 4: 700]
+    // 실제 테트리스 기본 점수
+    static let SCORE_TABLE: [Int: Int] = [1: 40, 2: 100, 3: 300, 4: 1200]
+    static let COMBO_BONUS = 50
 
     static let COLOR_PALETTE = [
         "#FF0000", "#FF8800", "#FFDD00", "#00CC00", "#0088FF", "#CC00FF", "#FF00AA"
@@ -162,7 +165,10 @@ class TetrisGameEngine {
             return s
         }
 
-        return spawnPiece(state: locked)
+        // 줄 클리어 없으면 콤보 리셋
+        var noCombo = locked
+        noCombo.combo = 0
+        return spawnPiece(state: noCombo)
     }
 
     static func rotate(state: GameState) -> GameState {
@@ -239,28 +245,57 @@ class TetrisGameEngine {
             newRecordIds.insert(Array(repeating: nil, count: COLS), at: 0)
         }
 
-        let bonus = SCORE_TABLE[rows.count] ?? 0
+        let baseScore = SCORE_TABLE[rows.count] ?? 0
+        let comboBonus = state.combo > 0 ? COMBO_BONUS * state.combo : 0
+        let totalBonus = baseScore + comboBonus
 
         var s = state
         s.grid = newGrid
         s.gridRecordIds = newRecordIds
-        s.score = state.score + bonus
+        s.score = state.score + totalBonus
         s.totalLineClears = state.totalLineClears + rows.count
         s.clearingRows = []
         s.animationState = "none"
+        s.combo = state.combo + 1
         return s
     }
 
     // MARK: - 블록 스폰
 
     static func spawnPiece(state: GameState) -> GameState {
-        guard !state.blockQueue.isEmpty else {
-            var s = state
+        // 스폰 전 페널티 자동 적용
+        var current = state
+        if let defaults = UserDefaults(suiteName: suiteName) {
+            let pending = defaults.integer(forKey: "pendingPenalties")
+            if pending > 0 {
+                for _ in 0..<pending {
+                    if current.grid[0].contains(where: { $0 != 0 }) {
+                        defaults.set(0, forKey: "pendingPenalties")
+                        current.gameOver = true
+                        current.activePiece = nil
+                        return current
+                    }
+                    current.grid.removeFirst()
+                    current.gridRecordIds.removeFirst()
+                    let emptyCol = Int.random(in: 0..<COLS)
+                    var penaltyRow = Array(repeating: 99, count: COLS)
+                    penaltyRow[emptyCol] = 0
+                    var penaltyRecordRow: [String?] = Array(repeating: "penalty", count: COLS)
+                    penaltyRecordRow[emptyCol] = nil
+                    current.grid.append(penaltyRow)
+                    current.gridRecordIds.append(penaltyRecordRow)
+                }
+                defaults.set(0, forKey: "pendingPenalties")
+            }
+        }
+
+        guard !current.blockQueue.isEmpty else {
+            var s = current
             s.activePiece = nil
             return s
         }
 
-        var s = state
+        var s = current
         let next = s.blockQueue.removeFirst()
         let newPiece = ActivePiece(
             type: next.type,
@@ -412,7 +447,8 @@ class TetrisGameEngine {
             gameOver: defaults.bool(forKey: "gameOver"),
             totalLineClears: defaults.integer(forKey: "totalLineClears"),
             animationState: defaults.string(forKey: "animationState") ?? "none",
-            clearingRows: parseClearingRows(defaults.string(forKey: "clearingRows") ?? "")
+            clearingRows: parseClearingRows(defaults.string(forKey: "clearingRows") ?? ""),
+            combo: defaults.integer(forKey: "combo")
         )
     }
 
@@ -460,6 +496,7 @@ class TetrisGameEngine {
         defaults.set(state.totalLineClears, forKey: "totalLineClears")
         defaults.set(state.animationState, forKey: "animationState")
         defaults.set(state.clearingRows.map(String.init).joined(separator: ","), forKey: "clearingRows")
+        defaults.set(state.combo, forKey: "combo")
     }
 
     // MARK: - 리셋
@@ -497,7 +534,8 @@ class TetrisGameEngine {
             gameOver: false,
             totalLineClears: 0,
             animationState: "none",
-            clearingRows: []
+            clearingRows: [],
+            combo: 0
         )
     }
 

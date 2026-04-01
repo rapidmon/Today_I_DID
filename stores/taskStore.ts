@@ -54,7 +54,7 @@ export const useTaskStore = create<TaskStore>()(
 )
 
 // tasks 변경 시 위젯 SharedPreferences에 동기화
-if (Platform.OS === 'android') {
+if (Platform.OS === 'android' || Platform.OS === 'ios') {
   let prevPendingJson = ''
   useTaskStore.subscribe((state) => {
     const pending = state.tasks

@@ -11,12 +11,52 @@ struct NeonColors {
     static let neonYellow = Color(hex: "#FFE500")
     static let neonGreen = Color(hex: "#00FF88")
     static let neonRed = Color(hex: "#FF3355")
+    static let neonMagenta = Color(hex: "#FF00E5")
     static let textMuted = Color(hex: "#555577")
+    static let textSecondary = Color(hex: "#8888AA")
     static let borderSubtle = Color(hex: "#2A2A50")
 
     // Press Start 2P 대체 — iOS는 .monospaced 디자인 사용
     static func pixelFont(_ size: CGFloat) -> Font {
         .system(size: size, weight: .bold, design: .monospaced)
+    }
+}
+
+// MARK: - 삼각형 아이콘 Shape
+
+struct TriangleLeft: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let pad = rect.width * 0.25
+        path.move(to: CGPoint(x: pad, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.width - pad, y: pad))
+        path.addLine(to: CGPoint(x: rect.width - pad, y: rect.height - pad))
+        path.closeSubpath()
+        return path
+    }
+}
+
+struct TriangleRight: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let pad = rect.width * 0.25
+        path.move(to: CGPoint(x: rect.width - pad, y: rect.midY))
+        path.addLine(to: CGPoint(x: pad, y: pad))
+        path.addLine(to: CGPoint(x: pad, y: rect.height - pad))
+        path.closeSubpath()
+        return path
+    }
+}
+
+struct TriangleDown: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let pad = rect.height * 0.25
+        path.move(to: CGPoint(x: rect.midX, y: rect.height - pad))
+        path.addLine(to: CGPoint(x: pad, y: pad))
+        path.addLine(to: CGPoint(x: rect.width - pad, y: pad))
+        path.closeSubpath()
+        return path
     }
 }
 
@@ -55,20 +95,20 @@ struct TetrisWidgetView: View {
 
     var body: some View {
         VStack(spacing: 2) {
-            // 상단 바 (패딩 축소)
+            // 상단 바
             headerBar
 
             // 중앙: 게임판 + 사이드패널
             HStack(spacing: 2) {
-                // 게임판 — 높이에 맞춰 자동 크기
+                // 게임판
                 TetrisGridView(state: entry.state)
                     .aspectRatio(CGFloat(TetrisGameEngine.COLS) / CGFloat(TetrisGameEngine.ROWS), contentMode: .fit)
 
-                // 사이드패널 — 남은 공간 채움
+                // 사이드패널
                 sidePanel
             }
 
-            // 하단 버튼 (패딩 축소)
+            // 하단 버튼
             controlButtons
         }
         .padding(4)
@@ -131,7 +171,7 @@ struct TetrisWidgetView: View {
         .padding(.horizontal, 2)
     }
 
-    // MARK: - 사이드 패널 (남은 공간 채움)
+    // MARK: - 사이드 패널
 
     private var sidePanel: some View {
         VStack(spacing: 4) {
@@ -142,12 +182,16 @@ struct TetrisWidgetView: View {
                     .foregroundColor(NeonColors.neonCyan.opacity(0.5))
 
                 if entry.state.blockQueue.isEmpty {
-                    Link(destination: URL(string: "todayidid://add")!) {
-                        Text("+")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(NeonColors.neonCyan.opacity(0.5))
-                            .frame(maxWidth: .infinity, minHeight: 40)
+                    // 얇은 + 아이콘
+                    ZStack {
+                        Rectangle()
+                            .fill(NeonColors.neonCyan.opacity(0.6))
+                            .frame(width: 20, height: 1.5)
+                        Rectangle()
+                            .fill(NeonColors.neonCyan.opacity(0.6))
+                            .frame(width: 1.5, height: 20)
                     }
+                    .frame(maxWidth: .infinity, minHeight: 40)
                 } else {
                     let nextBlock = entry.state.blockQueue.first!
                     NextBlockView(type: nextBlock.type, colorId: nextBlock.colorId)
@@ -181,39 +225,75 @@ struct TetrisWidgetView: View {
             )
             .cornerRadius(8)
 
-            // LINES 박스
-            VStack(spacing: 2) {
-                Text("LINES")
-                    .font(NeonColors.pixelFont(16))
-                    .foregroundColor(NeonColors.neonGreen.opacity(0.5))
-                Text("\(entry.state.totalLineClears)")
-                    .font(NeonColors.pixelFont(16))
-                    .foregroundColor(NeonColors.neonGreen)
-            }
-            .padding(6)
-            .frame(maxWidth: .infinity)
-            .background(NeonColors.bgCard.opacity(0.8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(NeonColors.neonGreen.opacity(0.1), lineWidth: 1)
-            )
-            .cornerRadius(8)
+            // TODO 박스
+            todoPanel
 
             Spacer()
         }
         .frame(maxWidth: .infinity)
     }
 
-    // MARK: - 조작 버튼 ◀ ▶ | ▼ | ↻
+    // MARK: - TODO 패널
+
+    private var todoPanel: some View {
+        let tasks = loadPendingTasks()
+
+        return VStack(alignment: .leading, spacing: 0) {
+            Text("TODO")
+                .font(NeonColors.pixelFont(16))
+                .foregroundColor(NeonColors.neonMagenta.opacity(0.5))
+                .frame(maxWidth: .infinity)
+
+            ForEach(0..<4, id: \.self) { i in
+                if i < tasks.count {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(NeonColors.neonMagenta.opacity(0.6))
+                            .frame(width: 4, height: 4)
+                        Text(tasks[i])
+                            .font(.system(size: 11, weight: .regular))
+                            .foregroundColor(NeonColors.textSecondary)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    }
+                    .frame(height: 18)
+                } else {
+                    Spacer().frame(height: 18)
+                }
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(NeonColors.bgCard.opacity(0.8))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(NeonColors.neonMagenta.opacity(0.15), lineWidth: 1)
+        )
+        .cornerRadius(8)
+    }
+
+    private func loadPendingTasks() -> [String] {
+        guard let defaults = UserDefaults(suiteName: TetrisGameEngine.suiteName),
+              let json = defaults.string(forKey: "pendingTasks"),
+              let data = json.data(using: .utf8),
+              let arr = try? JSONSerialization.jsonObject(with: data) as? [[String: String]] else {
+            return []
+        }
+        return Array(arr.compactMap { $0["content"] }.prefix(4))
+    }
+
+    // MARK: - 조작 버튼
 
     private var controlButtons: some View {
         let isDisabled = entry.state.gameOver
+        let iconSize: CGFloat = 14
 
         return HStack(spacing: 3) {
             Button(intent: MoveLeftIntent()) {
-                Text("◀")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(isDisabled ? NeonColors.textMuted : NeonColors.neonCyan)
+                TriangleLeft()
+                    .fill(isDisabled ? NeonColors.textMuted : NeonColors.neonCyan)
+                    .frame(width: iconSize, height: iconSize)
                     .frame(maxWidth: .infinity, minHeight: 34)
                     .background(isDisabled ? NeonColors.borderSubtle.opacity(0.3) : NeonColors.neonCyan.opacity(0.08))
                     .overlay(
@@ -226,9 +306,9 @@ struct TetrisWidgetView: View {
             .disabled(isDisabled)
 
             Button(intent: MoveRightIntent()) {
-                Text("▶")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(isDisabled ? NeonColors.textMuted : NeonColors.neonCyan)
+                TriangleRight()
+                    .fill(isDisabled ? NeonColors.textMuted : NeonColors.neonCyan)
+                    .frame(width: iconSize, height: iconSize)
                     .frame(maxWidth: .infinity, minHeight: 34)
                     .background(isDisabled ? NeonColors.borderSubtle.opacity(0.3) : NeonColors.neonCyan.opacity(0.08))
                     .overlay(
@@ -243,9 +323,9 @@ struct TetrisWidgetView: View {
             Spacer().frame(width: 4)
 
             Button(intent: MoveDownIntent()) {
-                Text("▼")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(isDisabled ? NeonColors.textMuted : NeonColors.neonGreen)
+                TriangleDown()
+                    .fill(isDisabled ? NeonColors.textMuted : NeonColors.neonGreen)
+                    .frame(width: iconSize, height: iconSize)
                     .frame(maxWidth: .infinity, minHeight: 34)
                     .background(isDisabled ? NeonColors.borderSubtle.opacity(0.3) : NeonColors.neonGreen.opacity(0.08))
                     .overlay(
@@ -260,8 +340,9 @@ struct TetrisWidgetView: View {
             Spacer().frame(width: 4)
 
             Button(intent: RotateIntent()) {
-                Text("↻")
-                    .font(.system(size: 18, weight: .bold))
+                // 회전 아이콘 — 원호 + 화살촉
+                Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 14, weight: .bold))
                     .foregroundColor(isDisabled ? NeonColors.textMuted : NeonColors.neonYellow)
                     .frame(maxWidth: .infinity, minHeight: 34)
                     .background(isDisabled ? NeonColors.borderSubtle.opacity(0.3) : NeonColors.neonYellow.opacity(0.08))
@@ -285,7 +366,7 @@ struct NextBlockView: View {
     let colorId: Int
 
     var body: some View {
-        let cells = TetrisGameEngine.getAbsoluteCells(type: type, rotation: 0, pos: (0, 0))
+        let cells = TetrisGameEngine.getAbsoluteCells(type: type, rotation: 0, pos: Position(x: 0, y: 0))
         let minX = cells.map(\.x).min() ?? 0
         let minY = cells.map(\.y).min() ?? 0
         let maxX = cells.map(\.x).max() ?? 0
@@ -310,7 +391,6 @@ struct NextBlockView: View {
                         height: cellSize - 1
                     )
                     context.fill(Path(rect), with: .color(color))
-                    // 고전 테트리스 3D 베벨
                     let hlRect = CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: 2)
                     context.fill(Path(hlRect), with: .color(.white.opacity(0.4)))
                     let leftRect = CGRect(x: rect.minX, y: rect.minY, width: 2, height: rect.height)

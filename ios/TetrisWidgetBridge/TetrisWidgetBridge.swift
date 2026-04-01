@@ -133,6 +133,17 @@ class TetrisWidgetBridge: NSObject {
         resolve(json)
     }
 
+    // 할 일 목록을 위젯용 UserDefaults에 동기화
+    @objc func syncTasks(
+        _ tasksJson: String,
+        resolver resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        defaults?.set(tasksJson, forKey: "pendingTasks")
+        WidgetCenter.shared.reloadTimelines(ofKind: "TetrisWidget")
+        resolve(true)
+    }
+
     // React Native 모듈 설정
     @objc static func requiresMainQueueSetup() -> Bool { false }
 }
