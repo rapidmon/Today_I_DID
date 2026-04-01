@@ -182,9 +182,9 @@ export default function HomeScreen() {
   // 하나의 setTasks로 배치 처리하여 리렌더링 1회로 줄임
   useEffect(() => {
     const todayStr = today()
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    const yesterdayStr = yesterday.toISOString().slice(0, 10)
+    const [y, m, d] = todayStr.split('-').map(Number)
+    const yesterday = new Date(y, m - 1, d - 1)
+    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`
 
     setTasks(prev => {
       let result = prev
