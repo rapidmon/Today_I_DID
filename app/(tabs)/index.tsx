@@ -24,7 +24,7 @@ import type { QueuedBlock, GameHistory, GameHistoryAchievement } from '@/types/g
 import { useHistoryStore } from '@/stores/historyStore'
 import { homeStyles as styles } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
-import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon } from '@/components/ui/Icons'
+import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/Icons'
 
 const today = () => {
   const now = new Date()
@@ -54,6 +54,8 @@ export default function HomeScreen() {
   const [inputText, setInputText] = useState('')
   const [inputMode, setInputMode] = useState<'task' | 'routine'>('task')
   const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>([0, 1, 2, 3, 4, 5, 6])
+  const [selectedMonth, setSelectedMonth] = useState(() => new Date().getMonth() + 1)
+  const [selectedDay, setSelectedDay] = useState(() => new Date().getDate())
   const [popupVisible, setPopupVisible] = useState(false)
   const [expandedAchId, setExpandedAchId] = useState<string | null>(null)
   const [isGameOver, setIsGameOver] = useState(false)
@@ -65,6 +67,51 @@ export default function HomeScreen() {
   const resetGame = useGameStore((s) => s.resetGame)
   const syncScore = useGameStore((s) => s.syncScore)
   const gameScore = useGameStore((s) => s.gameState.score)
+
+  // 날짜 선택기: 현재 년도 기준 선택된 날짜 문자열
+  const selectedYear = new Date().getFullYear()
+  const selectedDateStr = useMemo(() => {
+    return `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`
+  }, [selectedYear, selectedMonth, selectedDay])
+
+  const isSelectedToday = selectedDateStr === todayStr
+
+  // 해당 월의 최대 일수
+  const daysInMonth = useCallback((month: number) => {
+    return new Date(selectedYear, month, 0).getDate()
+  }, [selectedYear])
+
+  const changeMonth = useCallback((delta: number) => {
+    setSelectedMonth(prev => {
+      const next = prev + delta
+      if (next < 1) return 12
+      if (next > 12) return 1
+      return next
+    })
+    // 월 변경 시 일수 보정
+    setSelectedDay(prev => {
+      const newMonth = selectedMonth + delta
+      const correctedMonth = newMonth < 1 ? 12 : newMonth > 12 ? 1 : newMonth
+      const maxDay = new Date(selectedYear, correctedMonth, 0).getDate()
+      return Math.min(prev, maxDay)
+    })
+  }, [selectedMonth, selectedYear])
+
+  const changeDay = useCallback((delta: number) => {
+    setSelectedDay(prev => {
+      const maxDay = daysInMonth(selectedMonth)
+      const next = prev + delta
+      if (next < 1) return maxDay
+      if (next > maxDay) return 1
+      return next
+    })
+  }, [selectedMonth, daysInMonth])
+
+  const resetToToday = useCallback(() => {
+    const now = new Date()
+    setSelectedMonth(now.getMonth() + 1)
+    setSelectedDay(now.getDate())
+  }, [])
 
   // 모달 fade 애니메이션
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -249,10 +296,11 @@ export default function HomeScreen() {
       setSelectedDays([0, 1, 2, 3, 4, 5, 6])
     }
 
+    const taskDate = inputMode === 'task' ? selectedDateStr : today()
     const newTask: Task = {
       id: genId('task'),
       content: trimmed,
-      date: today(),
+      date: taskDate,
       status: 'pending',
       isRoutine: inputMode === 'routine',
       routineId,
@@ -263,7 +311,7 @@ export default function HomeScreen() {
     }
     addTask(newTask)
     setInputText('')
-  }, [inputText, inputMode, selectedDays, genId, addRoutine, addTask])
+  }, [inputText, inputMode, selectedDays, selectedDateStr, genId, addRoutine, addTask])
 
   // setTimeout cleanup용 ref
   const completionTimersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
@@ -391,7 +439,9 @@ export default function HomeScreen() {
             style={styles.input}
             value={inputText}
             onChangeText={setInputText}
-            placeholder={inputMode === 'task' ? '오늘 할 일을 적어주세요...' : '매일 반복할 일을 적어주세요...'}
+            placeholder={inputMode === 'task'
+              ? (isSelectedToday ? '오늘 할 일을 적어주세요...' : `${selectedMonth}월 ${selectedDay}일 할 일을 적어주세요...`)
+              : '매일 반복할 일을 적어주세요...'}
             placeholderTextColor="#555577"
             onSubmitEditing={handleAddTask}
             returnKeyType="done"
@@ -407,6 +457,74 @@ export default function HomeScreen() {
           </Pressable>
         </View>
       </KeyboardAvoidingView>
+
+      {/* 날짜 선택 (할 일 모드일 때) */}
+      {inputMode === 'task' && (
+        <View style={styles.datePickerRow}>
+          {/* 월 선택 */}
+          <View style={styles.datePickerGroup}>
+            <View style={styles.datePickerBlock}>
+              <Pressable
+                style={[styles.datePickerArrow, styles.datePickerArrowLeft]}
+                onPress={() => changeMonth(-1)}
+                accessibilityLabel="이전 월"
+              >
+                <ChevronLeftIcon size={10} color="#8888AA" />
+              </Pressable>
+              <View style={styles.datePickerValue}>
+                <Text style={styles.datePickerValueText}>
+                  {String(selectedMonth).padStart(2, '0')}
+                </Text>
+              </View>
+              <Pressable
+                style={[styles.datePickerArrow, styles.datePickerArrowRight]}
+                onPress={() => changeMonth(1)}
+                accessibilityLabel="다음 월"
+              >
+                <ChevronRightIcon size={10} color="#8888AA" />
+              </Pressable>
+            </View>
+            <Text style={styles.datePickerLabel}>월</Text>
+          </View>
+
+          {/* 일 선택 */}
+          <View style={styles.datePickerGroup}>
+            <View style={styles.datePickerBlock}>
+              <Pressable
+                style={[styles.datePickerArrow, styles.datePickerArrowLeft]}
+                onPress={() => changeDay(-1)}
+                accessibilityLabel="이전 일"
+              >
+                <ChevronLeftIcon size={10} color="#8888AA" />
+              </Pressable>
+              <View style={styles.datePickerValue}>
+                <Text style={styles.datePickerValueText}>
+                  {String(selectedDay).padStart(2, '0')}
+                </Text>
+              </View>
+              <Pressable
+                style={[styles.datePickerArrow, styles.datePickerArrowRight]}
+                onPress={() => changeDay(1)}
+                accessibilityLabel="다음 일"
+              >
+                <ChevronRightIcon size={10} color="#8888AA" />
+              </Pressable>
+            </View>
+            <Text style={styles.datePickerLabel}>일</Text>
+          </View>
+
+          {/* 오늘 복귀 버튼 */}
+          <Pressable
+            style={[styles.datePickerTodayButton, isSelectedToday && { opacity: 0.3 }]}
+            onPress={resetToToday}
+            disabled={isSelectedToday}
+            accessibilityLabel="오늘 날짜로 복귀"
+          >
+            <RefreshIcon size={12} color="#00F0FF" />
+            <Text style={styles.datePickerTodayText}>TODAY</Text>
+          </Pressable>
+        </View>
+      )}
 
       {/* 요일 선택 (루틴 모드일 때만) */}
       {inputMode === 'routine' && (

@@ -1,4 +1,4 @@
-import Svg, { Circle, Path, Polygon } from 'react-native-svg'
+import Svg, { Circle, Path, Polygon, Rect, Line } from 'react-native-svg'
 
 interface IconProps {
   size?: number
@@ -58,6 +58,20 @@ export const SkullIcon = ({ size = 16, color = '#FF3355' }: IconProps) => (
     <Path d="M8 20v2h8v-2" />
     <Path d="m12.5 17-.5-1-.5 1h1z" />
     <Path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20" />
+  </Svg>
+)
+
+// 날짜 선택: 왼쪽 화살표 (Lucide chevron-left)
+export const ChevronLeftIcon = ({ size = 10, color = '#8888AA' }: IconProps) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="m15 18-6-6 6-6" />
+  </Svg>
+)
+
+// 날짜 선택: 오른쪽 화살표 (Lucide chevron-right)
+export const ChevronRightIcon = ({ size = 10, color = '#8888AA' }: IconProps) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="m9 18 6-6-6-6" />
   </Svg>
 )
 

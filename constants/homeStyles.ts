@@ -126,6 +126,54 @@ export const homeStyles = StyleSheet.create({
     textShadowRadius: 8,
   },
 
+  // 날짜 선택기
+  datePickerRow: {
+    flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'space-between' as const,
+    paddingHorizontal: 16, marginBottom: 8, paddingTop: 4,
+  },
+  datePickerGroup: {
+    flexDirection: 'row' as const, alignItems: 'center' as const, gap: 4,
+  },
+  datePickerBlock: {
+    flexDirection: 'row' as const, alignItems: 'center' as const,
+    backgroundColor: COLORS.bgCard, borderWidth: 1, borderColor: COLORS.borderSubtle,
+    borderRadius: 8, overflow: 'hidden' as const,
+  },
+  datePickerArrow: {
+    width: 20, height: 28, alignItems: 'center' as const, justifyContent: 'center' as const,
+  },
+  datePickerArrowLeft: {
+    borderRightWidth: 1, borderRightColor: COLORS.borderSubtle,
+  },
+  datePickerArrowRight: {
+    borderLeftWidth: 1, borderLeftColor: COLORS.borderSubtle,
+  },
+  datePickerValue: {
+    paddingHorizontal: 14, height: 28,
+    alignItems: 'center' as const, justifyContent: 'center' as const,
+    minWidth: 36,
+  },
+  datePickerValueText: {
+    fontFamily: 'PressStart2P', color: COLORS.neonCyan, fontSize: 11,
+    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  datePickerLabel: {
+    fontFamily: 'InterBold', color: COLORS.textSecondary, fontSize: 13,
+  },
+  datePickerTodayButton: {
+    flexDirection: 'row' as const, alignItems: 'center' as const, gap: 4,
+    height: 28, paddingHorizontal: 8,
+    backgroundColor: 'rgba(0, 240, 255, 0.1)',
+    borderWidth: 1, borderColor: 'rgba(0, 240, 255, 0.3)',
+    borderRadius: 8,
+  },
+  datePickerTodayText: {
+    fontFamily: 'PressStart2P', color: COLORS.neonCyan, fontSize: 7,
+    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+
   // 루틴
   routineSection: { paddingHorizontal: 16, marginBottom: 8 },
   sectionLabel: {
