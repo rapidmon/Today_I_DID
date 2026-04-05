@@ -118,14 +118,29 @@ export default function HomeScreen() {
   }, [selectedMonth, todayMonth, todayDay])
 
   const changeDay = useCallback((delta: number) => {
-    setSelectedDay(prev => {
-      const maxDay = new Date(currentYear, selectedMonth, 0).getDate()
-      const minDay = selectedMonth === todayMonth ? todayDay : 1
-      const next = prev + delta
-      if (next < minDay || next > maxDay) return prev
-      return next
-    })
-  }, [selectedMonth, currentYear, todayMonth, todayDay])
+    const maxDay = new Date(currentYear, selectedMonth, 0).getDate()
+    const minDay = selectedMonth === todayMonth ? todayDay : 1
+    const next = selectedDay + delta
+
+    // 다음 달로 넘김
+    if (next > maxDay && selectedMonth < 12) {
+      const nextMonth = selectedMonth + 1
+      setSelectedMonth(nextMonth)
+      setSelectedDay(1)
+      return
+    }
+    // 이전 달로 넘김 (오늘 이전 불가)
+    if (next < minDay && selectedMonth > todayMonth) {
+      const prevMonth = selectedMonth - 1
+      const prevMaxDay = new Date(currentYear, prevMonth, 0).getDate()
+      setSelectedMonth(prevMonth)
+      setSelectedDay(prevMaxDay)
+      return
+    }
+    if (next >= minDay && next <= maxDay) {
+      setSelectedDay(next)
+    }
+  }, [selectedMonth, selectedDay, currentYear, todayMonth, todayDay])
 
   const resetToToday = useCallback(() => {
     setSelectedMonth(todayMonth)
@@ -137,8 +152,10 @@ export default function HomeScreen() {
   const canMonthRight = selectedMonth < 12
   const selectedMaxDay = new Date(currentYear, selectedMonth, 0).getDate()
   const selectedMinDay = selectedMonth === todayMonth ? todayDay : 1
-  const canDayLeft = selectedDay > selectedMinDay
-  const canDayRight = selectedDay < selectedMaxDay
+  // 일 왼쪽: 이전 달로 넘어갈 수 있으면 활성
+  const canDayLeft = selectedDay > selectedMinDay || selectedMonth > todayMonth
+  // 일 오른쪽: 다음 달로 넘어갈 수 있으면 활성
+  const canDayRight = selectedDay < selectedMaxDay || selectedMonth < 12
 
   // 모달 fade 애니메이션
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -486,23 +503,35 @@ export default function HomeScreen() {
 
   const changeEditDay = useCallback((delta: number) => {
     const [, todayM, todayD] = todayStr.split('-').map(Number)
-    const currentYear = new Date().getFullYear()
-    const maxDay = new Date(currentYear, editMonth, 0).getDate()
+    const yr = new Date().getFullYear()
+    const maxDay = new Date(yr, editMonth, 0).getDate()
     const minDay = editMonth === todayM ? todayD : 1
-    setEditDay(prev => {
-      const next = prev + delta
-      if (next < minDay || next > maxDay) return prev
-      return next
-    })
-  }, [editMonth, todayStr])
+    const next = editDay + delta
+
+    if (next > maxDay && editMonth < 12) {
+      setEditMonth(editMonth + 1)
+      setEditDay(1)
+      return
+    }
+    if (next < minDay && editMonth > todayM) {
+      const prevMonth = editMonth - 1
+      const prevMaxDay = new Date(yr, prevMonth, 0).getDate()
+      setEditMonth(prevMonth)
+      setEditDay(prevMaxDay)
+      return
+    }
+    if (next >= minDay && next <= maxDay) {
+      setEditDay(next)
+    }
+  }, [editMonth, editDay, todayStr])
 
   // 수정 모드 날짜 경계 상태
   const canEditMonthLeft = editMonth > todayMonth
   const canEditMonthRight = editMonth < 12
   const editMaxDay = new Date(currentYear, editMonth, 0).getDate()
   const editMinDay = editMonth === todayMonth ? todayDay : 1
-  const canEditDayLeft = editDay > editMinDay
-  const canEditDayRight = editDay < editMaxDay
+  const canEditDayLeft = editDay > editMinDay || editMonth > todayMonth
+  const canEditDayRight = editDay < editMaxDay || editMonth < 12
 
   // 자정 체크: 날짜가 바뀌면 수정 모드 자동 종료
   useEffect(() => {
