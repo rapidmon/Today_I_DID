@@ -46,6 +46,7 @@ export default function HomeScreen() {
   const deleteTask = useTaskStore((s) => s.deleteTask)
   const setTasks = useTaskStore((s) => s.setTasks)
   const addRoutine = useTaskStore((s) => s.addRoutine)
+  const updateRoutine = useTaskStore((s) => s.updateRoutine)
   const removeRoutine = useTaskStore((s) => s.removeRoutine)
   const genId = useTaskStore((s) => s.genId)
   const addHistory = useHistoryStore((s) => s.addHistory)
@@ -65,6 +66,9 @@ export default function HomeScreen() {
   const [editText, setEditText] = useState('')
   const [editMonth, setEditMonth] = useState(1)
   const [editDay, setEditDay] = useState(1)
+  // 루틴 수정 모드
+  const [editingRoutineId, setEditingRoutineId] = useState<string | null>(null)
+  const [editRoutineDays, setEditRoutineDays] = useState<DayOfWeek[]>([])
   const [recentlyCompleted, setRecentlyCompleted] = useState<Set<string>>(new Set())
   const historySavedRef = useRef(false)
   const addBlock = useGameStore((s) => s.addBlock)
@@ -127,6 +131,14 @@ export default function HomeScreen() {
     setSelectedMonth(todayMonth)
     setSelectedDay(todayDay)
   }, [todayMonth, todayDay])
+
+  // 날짜 선택기 경계 상태 (버튼 비활성화용)
+  const canMonthLeft = selectedMonth > todayMonth
+  const canMonthRight = selectedMonth < 12
+  const selectedMaxDay = new Date(currentYear, selectedMonth, 0).getDate()
+  const selectedMinDay = selectedMonth === todayMonth ? todayDay : 1
+  const canDayLeft = selectedDay > selectedMinDay
+  const canDayRight = selectedDay < selectedMaxDay
 
   // 모달 fade 애니메이션
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -394,6 +406,24 @@ export default function HomeScreen() {
     ])
   }, [removeRoutine])
 
+  // 루틴 수정 시작
+  const startEditingRoutine = useCallback((routine: Routine) => {
+    setEditingRoutineId(routine.id)
+    setEditRoutineDays([...(routine.days ?? [0, 1, 2, 3, 4, 5, 6])])
+  }, [])
+
+  // 루틴 수정 저장
+  const saveRoutineEdit = useCallback(() => {
+    if (!editingRoutineId) return
+    updateRoutine(editingRoutineId, { days: editRoutineDays })
+    setEditingRoutineId(null)
+  }, [editingRoutineId, editRoutineDays, updateRoutine])
+
+  // 루틴 수정 취소
+  const cancelRoutineEdit = useCallback(() => {
+    setEditingRoutineId(null)
+  }, [])
+
   // 수정 모드 시작
   const startEditing = useCallback((task: Task) => {
     if (task.status === 'failed') return
@@ -465,6 +495,14 @@ export default function HomeScreen() {
       return next
     })
   }, [editMonth, todayStr])
+
+  // 수정 모드 날짜 경계 상태
+  const canEditMonthLeft = editMonth > todayMonth
+  const canEditMonthRight = editMonth < 12
+  const editMaxDay = new Date(currentYear, editMonth, 0).getDate()
+  const editMinDay = editMonth === todayMonth ? todayDay : 1
+  const canEditDayLeft = editDay > editMinDay
+  const canEditDayRight = editDay < editMaxDay
 
   // 자정 체크: 날짜가 바뀌면 수정 모드 자동 종료
   useEffect(() => {
@@ -577,8 +615,9 @@ export default function HomeScreen() {
           <View style={styles.datePickerGroup}>
             <View style={styles.datePickerBlock}>
               <Pressable
-                style={[styles.datePickerArrow, styles.datePickerArrowLeft]}
+                style={[styles.datePickerArrow, styles.datePickerArrowLeft, !canMonthLeft && { opacity: 0.2 }]}
                 onPress={() => changeMonth(-1)}
+                disabled={!canMonthLeft}
                 accessibilityLabel="이전 월"
               >
                 <ChevronLeftIcon size={10} color="#8888AA" />
@@ -589,8 +628,9 @@ export default function HomeScreen() {
                 </Text>
               </View>
               <Pressable
-                style={[styles.datePickerArrow, styles.datePickerArrowRight]}
+                style={[styles.datePickerArrow, styles.datePickerArrowRight, !canMonthRight && { opacity: 0.2 }]}
                 onPress={() => changeMonth(1)}
+                disabled={!canMonthRight}
                 accessibilityLabel="다음 월"
               >
                 <ChevronRightIcon size={10} color="#8888AA" />
@@ -603,8 +643,9 @@ export default function HomeScreen() {
           <View style={styles.datePickerGroup}>
             <View style={styles.datePickerBlock}>
               <Pressable
-                style={[styles.datePickerArrow, styles.datePickerArrowLeft]}
+                style={[styles.datePickerArrow, styles.datePickerArrowLeft, !canDayLeft && { opacity: 0.2 }]}
                 onPress={() => changeDay(-1)}
+                disabled={!canDayLeft}
                 accessibilityLabel="이전 일"
               >
                 <ChevronLeftIcon size={10} color="#8888AA" />
@@ -615,8 +656,9 @@ export default function HomeScreen() {
                 </Text>
               </View>
               <Pressable
-                style={[styles.datePickerArrow, styles.datePickerArrowRight]}
+                style={[styles.datePickerArrow, styles.datePickerArrowRight, !canDayRight && { opacity: 0.2 }]}
                 onPress={() => changeDay(1)}
+                disabled={!canDayRight}
                 accessibilityLabel="다음 일"
               >
                 <ChevronRightIcon size={10} color="#8888AA" />
@@ -669,22 +711,66 @@ export default function HomeScreen() {
         <View style={styles.routineSection}>
           <Text style={styles.sectionLabel}>ROUTINES</Text>
           <View style={styles.routineList}>
-            {routines.map(r => (
-              <View key={r.id} style={styles.routineChip}>
-                <Text style={styles.routineChipText}>
-                  {r.content} {(r.days ?? [0,1,2,3,4,5,6]).length === 7
-                    ? '매일'
-                    : (r.days ?? []).map(d => DAY_LABELS[d]).join('·')}
-                </Text>
+            {routines.map(r => {
+              const isEditingThis = editingRoutineId === r.id
+              if (isEditingThis) {
+                return (
+                  <View key={r.id} style={styles.routineEditContainer}>
+                    <Text style={styles.editLabel}>EDIT</Text>
+                    <Text style={styles.routineEditName}>{r.content}</Text>
+                    <View style={styles.dayRow}>
+                      {DAY_LABELS.map((label, i) => {
+                        const day = i as DayOfWeek
+                        const isSelected = editRoutineDays.includes(day)
+                        return (
+                          <Pressable
+                            key={day}
+                            style={[styles.dayButton, isSelected && styles.dayButtonActive]}
+                            onPress={() => {
+                              setEditRoutineDays(prev =>
+                                prev.includes(day)
+                                  ? prev.filter(d => d !== day)
+                                  : [...prev, day].sort()
+                              )
+                            }}
+                          >
+                            <Text style={[styles.dayText, isSelected && styles.dayTextActive]}>{label}</Text>
+                          </Pressable>
+                        )
+                      })}
+                    </View>
+                    <View style={styles.editButtonRow}>
+                      <Pressable style={styles.editSaveButton} onPress={saveRoutineEdit}>
+                        <Text style={styles.editSaveText}>SAVE</Text>
+                      </Pressable>
+                      <Pressable style={styles.editCancelButton} onPress={cancelRoutineEdit}>
+                        <Text style={styles.editCancelText}>CANCEL</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                )
+              }
+              return (
                 <Pressable
-                  onPress={() => handleDeleteRoutine(r.id)}
-                  accessibilityLabel={`루틴 삭제: ${r.content}`}
-                  style={styles.routineDeleteButton}
+                  key={r.id}
+                  style={styles.routineChip}
+                  onLongPress={() => startEditingRoutine(r)}
                 >
-                  <Text style={styles.routineDeleteText}>✕</Text>
+                  <Text style={styles.routineChipText}>
+                    {r.content} {(r.days ?? [0,1,2,3,4,5,6]).length === 7
+                      ? '매일'
+                      : (r.days ?? []).map(d => DAY_LABELS[d]).join('·')}
+                  </Text>
+                  <Pressable
+                    onPress={() => handleDeleteRoutine(r.id)}
+                    accessibilityLabel={`루틴 삭제: ${r.content}`}
+                    style={styles.routineDeleteButton}
+                  >
+                    <Text style={styles.routineDeleteText}>✕</Text>
+                  </Pressable>
                 </Pressable>
-              </View>
-            ))}
+              )
+            })}
           </View>
         </View>
       )}
@@ -737,8 +823,9 @@ export default function HomeScreen() {
                         <View style={styles.editDateGroup}>
                           <View style={styles.datePickerBlock}>
                             <Pressable
-                              style={[styles.datePickerArrow, styles.datePickerArrowLeft]}
+                              style={[styles.datePickerArrow, styles.datePickerArrowLeft, !canEditMonthLeft && { opacity: 0.2 }]}
                               onPress={() => changeEditMonth(-1)}
+                              disabled={!canEditMonthLeft}
                             >
                               <ChevronLeftIcon size={10} color="#8888AA" />
                             </Pressable>
@@ -748,8 +835,9 @@ export default function HomeScreen() {
                               </Text>
                             </View>
                             <Pressable
-                              style={[styles.datePickerArrow, styles.datePickerArrowRight]}
+                              style={[styles.datePickerArrow, styles.datePickerArrowRight, !canEditMonthRight && { opacity: 0.2 }]}
                               onPress={() => changeEditMonth(1)}
+                              disabled={!canEditMonthRight}
                             >
                               <ChevronRightIcon size={10} color="#8888AA" />
                             </Pressable>
@@ -759,8 +847,9 @@ export default function HomeScreen() {
                         <View style={styles.editDateGroup}>
                           <View style={styles.datePickerBlock}>
                             <Pressable
-                              style={[styles.datePickerArrow, styles.datePickerArrowLeft]}
+                              style={[styles.datePickerArrow, styles.datePickerArrowLeft, !canEditDayLeft && { opacity: 0.2 }]}
                               onPress={() => changeEditDay(-1)}
+                              disabled={!canEditDayLeft}
                             >
                               <ChevronLeftIcon size={10} color="#8888AA" />
                             </Pressable>
@@ -770,8 +859,9 @@ export default function HomeScreen() {
                               </Text>
                             </View>
                             <Pressable
-                              style={[styles.datePickerArrow, styles.datePickerArrowRight]}
+                              style={[styles.datePickerArrow, styles.datePickerArrowRight, !canEditDayRight && { opacity: 0.2 }]}
                               onPress={() => changeEditDay(1)}
+                              disabled={!canEditDayRight}
                             >
                               <ChevronRightIcon size={10} color="#8888AA" />
                             </Pressable>

@@ -16,6 +16,7 @@ interface TaskStore {
   deleteTask: (taskId: string) => void
   setTasks: (updater: (prev: Task[]) => Task[]) => void
   addRoutine: (routine: Routine) => void
+  updateRoutine: (routineId: string, updates: Partial<Routine>) => void
   removeRoutine: (routineId: string) => void
   genId: (prefix: string) => string
 }
@@ -44,6 +45,13 @@ export const useTaskStore = create<TaskStore>()(
 
       addRoutine: (routine) =>
         set((s) => ({ routines: [...s.routines, routine] })),
+
+      updateRoutine: (routineId, updates) =>
+        set((s) => ({
+          routines: s.routines.map((r) =>
+            r.id === routineId ? { ...r, ...updates } : r
+          ),
+        })),
 
       removeRoutine: (routineId) =>
         set((s) => ({ routines: s.routines.filter((r) => r.id !== routineId) })),

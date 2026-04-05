@@ -179,10 +179,26 @@
               <span class="text-neon-red text-xs font-bold">x</span>
             </div>
           </div>
-          <div class="flex items-center gap-2 bg-bg-card border border-border-subtle rounded-full pl-3 pr-1.5 py-1.5">
-            <span class="text-text-secondary main-font text-xs">독서 30분 월-금</span>
-            <div class="w-5 h-5 rounded-full bg-bg-elevated flex items-center justify-center">
-              <span class="text-neon-red text-xs font-bold">x</span>
+          <!-- 루틴 수정 모드 (long press 시) -->
+          <div class="w-full rounded-xl px-3 py-2.5 neon-border-cyan box-glow-cyan" style="background: rgba(0, 240, 255, 0.03);">
+            <span class="pixel-font text-neon-yellow glow-yellow" style="font-size: 7px; letter-spacing: 2px;">EDIT</span>
+            <p class="main-font text-text-primary font-bold text-xs mt-1 mb-2">독서 30분</p>
+            <div class="flex justify-around mb-2.5">
+              <span class="main-font text-text-muted font-semibold" style="font-size: 13px;">일</span>
+              <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">월</span>
+              <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">화</span>
+              <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">수</span>
+              <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">목</span>
+              <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">금</span>
+              <span class="main-font text-text-muted font-semibold" style="font-size: 13px;">토</span>
+            </div>
+            <div class="flex gap-2">
+              <button class="flex-1 py-1.5 rounded-lg bg-neon-cyan/15 neon-border-cyan text-center">
+                <span class="main-font text-neon-cyan font-bold text-xs">SAVE</span>
+              </button>
+              <button class="flex-1 py-1.5 rounded-lg text-center" style="background: rgba(0, 240, 255, 0.06); border: 1px solid rgba(0, 240, 255, 0.15);">
+                <span class="main-font font-bold text-xs" style="color: rgba(0, 240, 255, 0.7);">CANCEL</span>
+              </button>
             </div>
           </div>
         </div>

@@ -230,6 +230,19 @@ export const homeStyles = StyleSheet.create({
     alignItems: 'center' as const, justifyContent: 'center' as const,
   },
 
+  // 루틴 수정 모드
+  routineEditContainer: {
+    width: '100%' as unknown as number, borderRadius: 12,
+    paddingHorizontal: 12, paddingVertical: 10,
+    backgroundColor: 'rgba(0, 240, 255, 0.03)',
+    borderWidth: 1, borderColor: 'rgba(0, 240, 255, 0.3)',
+    shadowColor: '#00F0FF', shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2, shadowRadius: 12, marginBottom: 4,
+  },
+  routineEditName: {
+    fontFamily: 'InterBold', color: COLORS.textPrimary, fontSize: 13, marginBottom: 6,
+  },
+
   // 루틴
   routineSection: { paddingHorizontal: 16, marginBottom: 8 },
   sectionLabel: {
