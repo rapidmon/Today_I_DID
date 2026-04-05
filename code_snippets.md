@@ -9,24 +9,31 @@
 
 ```typescript
 export const COLS = 10
-export const ROWS = 20
+export const ROWS = 12  // 위젯 크기에 최적화 (10x12)
 
 export const SCORE_TABLE: Record<number, number> = {
-  1: 100,
-  2: 300,
-  3: 500,
-  4: 800,
+  1: 100,   // SINGLE
+  2: 300,   // DOUBLE
+  3: 500,   // TRIPLE
+  4: 700,   // TETRIS
 }
 
+// 요일별 7색 팔레트 (레트로 테트리스 스타일)
 export const COLOR_PALETTE = [
-  '#FF6B6B', // 일
-  '#FF9F43', // 월
-  '#FECA57', // 화
-  '#48DBFB', // 수
-  '#0ABDE3', // 목
-  '#C39BD3', // 금
-  '#FF9FF3', // 토
+  '#FF0000', // 일 - 빨강
+  '#FF8800', // 월 - 주황
+  '#FFDD00', // 화 - 노랑
+  '#00CC00', // 수 - 초록
+  '#0088FF', // 목 - 파랑
+  '#CC00FF', // 금 - 보라
+  '#FF00AA', // 토 - 핑크
 ]
+
+// 블록 타입별 대표 색상 (성취/히스토리 표시용)
+export const BLOCK_TYPE_COLORS: Record<BlockType, string> = {
+  I: '#0088FF', O: '#FFDD00', T: '#CC00FF',
+  S: '#00CC00', Z: '#FF0000', J: '#FF8800', L: '#FF00AA',
+}
 
 export const BLOCK_SHAPES: Record<BlockType, BlockShape[]> = {
   I: [
@@ -1035,4 +1042,459 @@ struct TetrisWidget: Widget {
         .supportedFamilies([.systemLarge])
     }
 }
+```
+
+---
+
+## 12. 할 일/루틴 스토어 (`stores/taskStore.ts`) — 현재 구현
+
+```typescript
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Platform } from 'react-native'
+import type { Task, Routine } from '@/types/record'
+import widgetBridge from '@/lib/widgetBridge'
+
+interface TaskStore {
+  tasks: Task[]
+  routines: Routine[]
+  addTask: (task: Task) => void
+  updateTask: (taskId: string, updates: Partial<Task>) => void
+  deleteTask: (taskId: string) => void
+  setTasks: (updater: (prev: Task[]) => Task[]) => void
+  addRoutine: (routine: Routine) => void
+  updateRoutine: (routineId: string, updates: Partial<Routine>) => void
+  removeRoutine: (routineId: string) => void
+  genId: (prefix: string) => string
+}
+
+export const useTaskStore = create<TaskStore>()(
+  persist(
+    (set) => ({
+      tasks: [],
+      routines: [],
+
+      addTask: (task) =>
+        set((s) => ({ tasks: [task, ...s.tasks] })),
+
+      updateTask: (taskId, updates) =>
+        set((s) => ({
+          tasks: s.tasks.map((t) =>
+            t.id === taskId ? { ...t, ...updates } : t
+          ),
+        })),
+
+      deleteTask: (taskId) =>
+        set((s) => ({ tasks: s.tasks.filter((t) => t.id !== taskId) })),
+
+      setTasks: (updater) =>
+        set((s) => ({ tasks: updater(s.tasks) })),
+
+      addRoutine: (routine) =>
+        set((s) => ({ routines: [...s.routines, routine] })),
+
+      updateRoutine: (routineId, updates) =>
+        set((s) => ({
+          routines: s.routines.map((r) =>
+            r.id === routineId ? { ...r, ...updates } : r
+          ),
+        })),
+
+      removeRoutine: (routineId) =>
+        set((s) => ({ routines: s.routines.filter((r) => r.id !== routineId) })),
+
+      genId: (prefix) =>
+        `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    }),
+    {
+      name: 'task-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
+)
+
+// tasks 변경 시 위젯 SharedPreferences에 동기화 (오늘 날짜 pending만)
+if (Platform.OS === 'android' || Platform.OS === 'ios') {
+  let prevPendingJson = ''
+  useTaskStore.subscribe((state) => {
+    const now = new Date()
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    const pending = state.tasks
+      .filter((t) => t.status === 'pending' && t.date === todayStr)
+      .map((t) => ({ content: t.content, status: t.status }))
+    const json = JSON.stringify(pending)
+    if (json !== prevPendingJson) {
+      prevPendingJson = json
+      widgetBridge.syncTasks(json).catch(() => {})
+    }
+  })
+}
+```
+
+---
+
+## 13. 게임 스토어 (`stores/gameStore.ts`) — 현재 구현
+
+```typescript
+import { create } from 'zustand'
+import {
+  createInitialState,
+  processAction,
+  advanceAnimation,
+  spawnPiece,
+  applyPenalties,
+  applyDailyBonus,
+} from '@/lib/tetrisEngine'
+import widgetBridge from '@/lib/widgetBridge'
+import type { GameState, GameAction, QueuedBlock } from '@/types/game'
+
+interface GameStore {
+  gameState: GameState
+  dispatch: (action: GameAction) => void
+  advanceAnimation: () => void
+  addBlock: (block: QueuedBlock, content: string) => void
+  addPenalties: (count: number) => void
+  applyDailyBonus: (todayStr: string) => void
+  syncScore: (score: number) => void
+  resetGame: () => void
+}
+
+export const useGameStore = create<GameStore>((set) => ({
+  gameState: createInitialState(),
+
+  dispatch: (action) =>
+    set((s) => ({ gameState: processAction(s.gameState, action) })),
+
+  advanceAnimation: () =>
+    set((s) => ({ gameState: advanceAnimation(s.gameState) })),
+
+  addBlock: (block, content) =>
+    set((s) => {
+      widgetBridge.addBlockToQueue(block.type, block.colorId, block.sourceRecordId, content)
+        .catch(() => {})
+      const newState = {
+        ...s.gameState,
+        blockQueue: [...s.gameState.blockQueue, block],
+      }
+      if (!newState.activePiece && !newState.gameOver) {
+        return { gameState: spawnPiece(newState) }
+      }
+      return { gameState: newState }
+    }),
+
+  addPenalties: (count) =>
+    set((s) => {
+      widgetBridge.addPenalties(count).catch(() => {})
+      const withPenalties = { ...s.gameState, pendingPenalties: count }
+      return { gameState: applyPenalties(withPenalties) }
+    }),
+
+  applyDailyBonus: (todayStr) =>
+    set((s) => {
+      const newState = applyDailyBonus(s.gameState, todayStr)
+      widgetBridge.updateScore(newState.score).catch(() => {})
+      return { gameState: newState }
+    }),
+
+  syncScore: (score) =>
+    set((s) => ({ gameState: { ...s.gameState, score } })),
+
+  resetGame: () => {
+    widgetBridge.resetGame().catch(() => {})
+    return set({ gameState: createInitialState() })
+  },
+}))
+```
+
+---
+
+## 14. 날짜 선택 핵심 로직 (`app/(tabs)/index.tsx`)
+
+```typescript
+// 날짜 선택기: 현재 년도 고정, 과거 날짜 선택 불가
+const currentYear = new Date().getFullYear()
+const [todayMonth, todayDay] = useMemo(() => {
+  const [, m, d] = todayStr.split('-').map(Number)
+  return [m, d]
+}, [todayStr])
+
+const selectedDateStr = useMemo(() => {
+  return `${currentYear}-${String(selectedMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`
+}, [currentYear, selectedMonth, selectedDay])
+
+const isSelectedToday = selectedDateStr === todayStr
+
+// 일 변경 시 월 자동 넘김
+const changeDay = useCallback((delta: number) => {
+  const maxDay = new Date(currentYear, selectedMonth, 0).getDate()
+  const minDay = selectedMonth === todayMonth ? todayDay : 1
+  const next = selectedDay + delta
+
+  // 다음 달로 넘김
+  if (next > maxDay && selectedMonth < 12) {
+    const nextMonth = selectedMonth + 1
+    setSelectedMonth(nextMonth)
+    setSelectedDay(1)
+    return
+  }
+  // 이전 달로 넘김 (오늘 이전 불가)
+  if (next < minDay && selectedMonth > todayMonth) {
+    const prevMonth = selectedMonth - 1
+    const prevMaxDay = new Date(currentYear, prevMonth, 0).getDate()
+    setSelectedMonth(prevMonth)
+    setSelectedDay(prevMaxDay)
+    return
+  }
+  if (next >= minDay && next <= maxDay) {
+    setSelectedDay(next)
+  }
+}, [selectedMonth, selectedDay, currentYear, todayMonth, todayDay])
+
+// 경계 상태 (버튼 비활성화용)
+const canMonthLeft = selectedMonth > todayMonth
+const canMonthRight = selectedMonth < 12
+const canDayLeft = selectedDay > selectedMinDay || selectedMonth > todayMonth
+const canDayRight = selectedDay < selectedMaxDay || selectedMonth < 12
+```
+
+---
+
+## 15. 페널티 + 일일 보너스 (`lib/tetrisEngine.ts`)
+
+```typescript
+// 페널티 줄 추가 (미완료 할 일 1개당 1줄)
+// 회색 9칸 + 빈칸 1칸(랜덤 위치)을 보드 하단에 추가
+export function applyPenalties(state: GameState): GameState {
+  if (state.pendingPenalties <= 0) return state
+
+  let newGrid = state.grid.map(row => [...row])
+  let newGridRecordIds = state.gridRecordIds.map(row => [...row])
+
+  for (let p = 0; p < state.pendingPenalties; p++) {
+    newGrid.shift()
+    newGridRecordIds.shift()
+
+    const emptyCol = Math.floor(Math.random() * COLS)
+    const penaltyRow = Array(COLS).fill(PENALTY_COLOR_ID)
+    penaltyRow[emptyCol] = 0
+    const penaltyRecordRow: (string | null)[] = Array(COLS).fill('penalty')
+    penaltyRecordRow[emptyCol] = null
+
+    newGrid.push(penaltyRow)
+    newGridRecordIds.push(penaltyRecordRow)
+  }
+
+  const topRowHasBlocks = newGrid[0].some(cell => cell !== 0)
+  const gameOver = topRowHasBlocks ? true : state.gameOver
+
+  return {
+    ...state,
+    grid: newGrid,
+    gridRecordIds: newGridRecordIds,
+    pendingPenalties: 0,
+    gameOver,
+  }
+}
+
+// 일일 활동 보너스 (+100점, 하루 1회)
+export function applyDailyBonus(state: GameState, todayStr: string): GameState {
+  if (state.dailyBonusDate === todayStr) return state
+  return {
+    ...state,
+    score: state.score + 100,
+    dailyBonusDate: todayStr,
+  }
+}
+```
+
+---
+
+## 16. 타입 정의 (`types/record.ts`) — 현재 구현
+
+```typescript
+import type { BlockType } from './game'
+
+export type TaskStatus = 'pending' | 'completed' | 'failed' | 'archived'
+
+export interface Task {
+  id: string
+  content: string
+  date: string
+  status: TaskStatus
+  isRoutine: boolean
+  routineId: string | null
+  blockType: BlockType | null
+  colorId: number | null
+  createdAt: number
+  completedAt: number | null
+}
+
+// 0=일, 1=월, 2=화, 3=수, 4=목, 5=금, 6=토
+export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6
+
+export interface Routine {
+  id: string
+  content: string
+  active: boolean
+  days: DayOfWeek[]
+  createdAt: number
+}
+```
+
+---
+
+## 17. 게임 타입 (`types/game.ts`) — 현재 구현
+
+```typescript
+export type BlockType = 'I' | 'O' | 'T' | 'S' | 'Z' | 'J' | 'L'
+export type Rotation = 0 | 1 | 2 | 3
+export type BlockShape = { x: number; y: number }[]
+
+export interface ActivePiece {
+  type: BlockType
+  rotation: Rotation
+  position: { x: number; y: number }
+  colorId: number
+  sourceRecordId: string
+}
+
+export interface QueuedBlock {
+  type: BlockType
+  colorId: number
+  sourceRecordId: string
+}
+
+export interface GameState {
+  grid: number[][]
+  gridRecordIds: (string | null)[][]
+  score: number
+  activePiece: ActivePiece | null
+  blockQueue: QueuedBlock[]
+  gameOver: boolean
+  totalLineClears: number
+  animationState: 'none' | 'highlight' | 'fade' | 'done'
+  clearingRows: number[]
+  pendingPenalties: number
+  dailyBonusDate: string | null
+}
+
+export const PENALTY_COLOR_ID = 99
+
+export type GameAction = 'move_left' | 'move_right' | 'move_down' | 'rotate'
+
+// 히스토리용 타입
+export interface CompletedTask {
+  content: string
+  blockType: BlockType
+  colorId: number
+  completedAt: number
+}
+
+export interface AchievementRecord {
+  id: string
+  content: string
+  blockType: BlockType
+}
+
+export interface GameHistoryAchievement {
+  id: string
+  recordIds: string[]
+  records: AchievementRecord[]
+  lineCount: number
+  score: number
+  clearedAt: number
+}
+
+export interface GameHistory {
+  id: string
+  endedAt: number
+  finalScore: number
+  totalLineClears: number
+  completedTasks: CompletedTask[]
+  achievements: GameHistoryAchievement[]
+}
+```
+
+---
+
+## 18. SVG 아이콘 (`components/ui/Icons.tsx`) — 현재 구현
+
+```tsx
+import Svg, { Circle, Path, Polygon } from 'react-native-svg'
+
+interface IconProps {
+  size?: number
+  color?: string
+}
+
+// 탭바: 트로피 (Lucide trophy)
+export const TrophyIcon = ({ size = 20, color = '#555577' }: IconProps) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
+    <Path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7" />
+    <Path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7" />
+    <Path d="M4 22h16" />
+    <Path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+    <Path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+    <Path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+  </Svg>
+)
+
+// 날짜 선택: 왼쪽 화살표 (Lucide chevron-left)
+export const ChevronLeftIcon = ({ size = 10, color = '#8888AA' }: IconProps) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={3}>
+    <Path d="m15 18-6-6 6-6" />
+  </Svg>
+)
+
+// 날짜 선택: 오른쪽 화살표 (Lucide chevron-right)
+export const ChevronRightIcon = ({ size = 10, color = '#8888AA' }: IconProps) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={3}>
+    <Path d="m9 18 6-6-6-6" />
+  </Svg>
+)
+
+// 실패: 해골 (Lucide skull)
+export const SkullIcon = ({ size = 16, color = '#FF3355' }: IconProps) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2}>
+    <Circle cx="9" cy="12" r="1" />
+    <Circle cx="15" cy="12" r="1" />
+    <Path d="M8 20v2h8v-2" />
+    <Path d="m12.5 17-.5-1-.5 1h1z" />
+    <Path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20" />
+  </Svg>
+)
+
+// 기타: HomeIcon, ChartIcon, RefreshIcon, StarIcon, ClipboardIcon 등
+```
+
+---
+
+## 19. 히스토리 스토어 (`stores/historyStore.ts`) — 현재 구현
+
+```typescript
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import type { GameHistory } from '@/types/game'
+
+interface HistoryStore {
+  histories: GameHistory[]
+  addHistory: (history: GameHistory) => void
+}
+
+export const useHistoryStore = create<HistoryStore>()(
+  persist(
+    (set) => ({
+      histories: [],
+
+      addHistory: (history) =>
+        set((s) => ({ histories: [history, ...s.histories] })),
+    }),
+    {
+      name: 'history-storage',
+      storage: createJSONStorage(() => AsyncStorage),
+    }
+  )
+)
 ```

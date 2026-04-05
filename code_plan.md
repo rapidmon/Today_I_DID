@@ -101,14 +101,31 @@ interface GameState {
 type GameAction = 'move_left' | 'move_right' | 'move_down' | 'rotate'
 ```
 
-**types/record.ts**
+**types/record.ts** (현재 구현)
 ```typescript
-interface Record {
+type TaskStatus = 'pending' | 'completed' | 'failed' | 'archived'
+
+interface Task {
   id: string
   content: string
-  blockType: BlockType
-  createdAt: Timestamp
   date: string                 // "2026-03-20"
+  status: TaskStatus
+  isRoutine: boolean
+  routineId: string | null
+  blockType: BlockType | null
+  colorId: number | null
+  createdAt: number
+  completedAt: number | null
+}
+
+type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6
+
+interface Routine {
+  id: string
+  content: string
+  active: boolean
+  days: DayOfWeek[]
+  createdAt: number
 }
 ```
 
@@ -532,3 +549,117 @@ Step 15 → UI/UX 마무리
 - **Step 9 완료 시**: 앱에서 테트리스 플레이 가능 (엔진 검증 완료)
 - **Step 12 완료 시**: Android 위젯에서 테트리스 플레이 가능
 - **Step 13 완료 시**: iOS 위젯에서 테트리스 플레이 가능
+
+---
+
+## Step 16: 할 일 날짜 선택 기능 ✅ (2026-04-05 완료)
+
+### 작업 내용
+할 일 모드에서 특정 날짜에 할 일을 미리 등록할 수 있는 날짜 선택기 구현.
+
+### 체크리스트
+- [x] 월/일 좌우 화살표 버튼으로 날짜 선택 UI
+- [x] TODAY 버튼으로 오늘 날짜 복귀
+- [x] 오늘 이전 날짜 선택 불가 (버튼 disabled + opacity 0.2)
+- [x] 연도는 현재 년도 고정
+- [x] 일 변경 시 월 자동 넘김 (1월 31일 +1 → 2월 1일)
+- [x] 월 변경 시 1일로 초기화 (오늘 월이면 오늘 일자로)
+- [x] 앱 복귀 시 날짜 선택기 오늘로 리셋
+- [x] `ChevronLeftIcon`, `ChevronRightIcon` 아이콘 추가
+
+### 수정 파일
+- `app/(tabs)/index.tsx` — `selectedMonth`, `selectedDay`, `changeMonth()`, `changeDay()`, `resetToToday()`
+- `components/ui/Icons.tsx` — `ChevronLeftIcon`, `ChevronRightIcon`
+
+---
+
+## Step 17: 할 일 수정 기능 ✅ (2026-04-05 완료)
+
+### 작업 내용
+등록된 할 일을 long press로 인라인 수정/삭제.
+
+### 체크리스트
+- [x] long press (0.5초) → 인라인 수정 모드 진입
+- [x] 텍스트(할 일 내용) 수정
+- [x] 날짜(월/일) 수정 (오늘 이전 불가)
+- [x] 삭제 기능 (DELETE 버튼)
+- [x] `completed`/`failed` 상태는 수정 불가
+- [x] 10초 간격 자정 체크 → 날짜 변경 시 수정 모드 자동 종료
+
+### 수정 파일
+- `app/(tabs)/index.tsx` — `editingTaskId`, `editText`, `editMonth`, `editDay`
+- `stores/taskStore.ts` — `updateTask()`, `deleteTask()`
+
+---
+
+## Step 18: 루틴 수정 기능 ✅ (2026-04-05 완료)
+
+### 작업 내용
+루틴 칩 long press로 요일 수정/삭제.
+
+### 체크리스트
+- [x] 루틴 칩 long press → 요일 수정 모드 진입
+- [x] 요일 버튼 7개 토글
+- [x] SAVE 버튼: `taskStore.updateRoutine(routineId, { days })`
+- [x] CANCEL 버튼: 수정 취소
+- [x] DELETE 버튼: `taskStore.removeRoutine(routineId)` (확인 Alert 후)
+
+### 수정 파일
+- `app/(tabs)/index.tsx` — `editingRoutineId`, `editRoutineDays`
+- `stores/taskStore.ts` — `updateRoutine()`, `removeRoutine()`
+
+---
+
+## Step 19: 미래 날짜 완료 제한 + 위젯 TODAY 필터 ✅ (2026-04-05 완료)
+
+### 작업 내용
+- 오늘 날짜 할 일만 완료 가능 (미래 날짜는 해당 날짜까지 대기)
+- 위젯에는 오늘 날짜 할 일만 표시
+
+### 수정 파일
+- `app/(tabs)/index.tsx` — 완료 조건에 `task.date === todayStr` 체크 추가
+- `stores/taskStore.ts` — subscribe에서 `t.date === todayStr` 필터
+
+---
+
+## Step 20: 위젯 ALL DONE + GAME OVER 개선 ✅ (2026-04-05 완료)
+
+### 작업 내용
+- pending 할 일 0개 → TODO 영역에 "ALL DONE!" 표시
+- GAME OVER 시 → NEXT 클릭 비활성화, TODO에 "T_T" 표시 (magenta)
+
+### 수정 파일
+- `android/.../widget/TetrisWidgetProvider.kt`
+- `android/.../widget/WidgetRenderer.kt`
+- `ios/TetrisWidget/TetrisWidget.swift`
+
+---
+
+## Step 21: COMPLETED LINES CRT 리디자인 ✅ (2026-04-05 완료)
+
+### 작업 내용
+성취 모달을 CRT 모니터 스타일로 전면 교체.
+
+### 체크리스트
+- [x] CRT 하우징 + LED + 스크린 + 스캔라인 효과
+- [x] 라인 카드에 SINGLE/DOUBLE/TRIPLE/TETRIS 라벨
+- [x] 하단 스코어 바 (LINES/SCORE/TASKS)
+- [x] 줄 수별 보더 색상 차등 (1줄=cyan, 2줄+=magenta)
+
+### 수정 파일
+- `app/(tabs)/index.tsx` — 모달 렌더링 로직
+- `constants/homeStyles.ts` — CRT 관련 스타일 추가
+
+---
+
+## 작업 순서 요약 (업데이트)
+
+```
+Step 1~15  → 기존 핵심 구현 완료
+Step 16 ✅ → 할 일 날짜 선택
+Step 17 ✅ → 할 일 수정 (long press)
+Step 18 ✅ → 루틴 수정 (long press)
+Step 19 ✅ → 미래 날짜 완료 제한 + 위젯 TODAY 필터
+Step 20 ✅ → 위젯 ALL DONE + GAME OVER 개선
+Step 21 ✅ → COMPLETED LINES CRT 리디자인
+```

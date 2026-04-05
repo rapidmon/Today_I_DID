@@ -49,10 +49,35 @@
                                       → [미완료 ❌] → 자정 넘기면 페널티
 ```
 
+#### 날짜 선택 기능 (2026-04-05 추가)
+- 할 일 모드에서 **월/일 좌우 화살표** 버튼으로 특정 날짜에 할 일 추가 가능
+- **TODAY** 버튼으로 오늘 날짜로 즉시 복귀
+- **오늘 이전 날짜 선택 불가** (과거 날짜 화살표 비활성화 + opacity 0.2)
+- 연도는 현재 년도 고정
+- 일 변경 시 **월 자동 넘김** (1월 31일 +1 → 2월 1일)
+- 앱 복귀 시 날짜 선택기를 오늘로 리셋
+
+#### 할 일 수정 기능 (2026-04-05 추가)
+- 할 일 항목 **long press** → 인라인 수정 모드 진입
+- 텍스트(할 일 내용), 날짜(월/일) 변경 가능
+- 삭제 가능 (DELETE 버튼)
+- `completed`/`failed` 상태는 **수정 불가**
+- 수정 시 날짜는 **오늘 이전 불가**
+- **10초 간격 자정 체크**로 날짜 변경 시 수정 모드 자동 종료
+
+#### 미래 날짜 완료 제한 (2026-04-05 추가)
+- 오늘 날짜의 할 일만 **완료 처리 가능**
+- 미래 날짜 할 일은 해당 날짜가 되어야 완료 가능
+
 #### 루틴 시스템
 - 사용자가 루틴 등록 (예: "운동 30분", "영어 공부")
-- 매일 자정에 해당 루틴이 오늘의 할 일 리스트에 자동 추가
-- 루틴은 수정/삭제/일시정지 가능
+- **요일별 반복 설정**: 루틴마다 특정 요일을 지정 (일~토)
+- 해당 요일에 자동으로 할 일 리스트에 추가
+- 루틴은 수정/삭제 가능
+
+#### 루틴 수정 기능 (2026-04-05 추가)
+- 루틴 칩 **long press** → 요일 수정 모드 진입
+- 요일 버튼 7개 토글 + **SAVE/CANCEL/DELETE** 버튼
 - 루틴에서 생성된 할 일도 일반 할 일과 동일하게 완료/미완료 처리
 
 #### 할 일 리스트 UI (듀오링고 리그 랭킹 스타일)
@@ -200,19 +225,22 @@
 
 ### 3-6. 점수 시스템
 
-#### 줄 클리어 점수
+#### 줄 클리어 점수 (NES 테트리스 기반)
 동시에 없애는 줄 수에 따라 점수 차등 부여:
 
-| 동시 클리어 줄 수 | 점수 |
-|-----------------|------|
-| 1줄 | 1점 |
-| 2줄 | 3점 |
-| 3줄 | 5점 |
-| 4줄 (최대) | 7점 |
+| 동시 클리어 줄 수 | 점수 | 라벨 |
+|-----------------|------|------|
+| 1줄 | 40점 | SINGLE |
+| 2줄 | 100점 | DOUBLE |
+| 3줄 | 300점 | TRIPLE |
+| 4줄 (최대) | 1,200점 | TETRIS |
+
+#### 콤보 보너스
+- 연속 줄 클리어 시 **+50점** 추가
 
 #### 일일 활동 보너스
-- 매일 하나 이상의 할 일을 완료하면 **+1점** 추가
-- 날짜가 바뀔 때 전날 완료 기록이 있으면 자동 부여
+- 매일 하나 이상의 할 일을 완료하면 **+100점** 추가 (하루 1회)
+- `applyDailyBonus()` 함수, `dailyBonusDate` 상태로 중복 방지
 
 #### Game Over
 - 새 블록이 내려올 공간이 없으면 Game Over
@@ -406,73 +434,57 @@ interface GameStats {
 ```
 app/                          # Expo Router 페이지
 ├── (tabs)/
-│   ├── index.tsx             # 홈 — 오늘 한 일 기록
-│   ├── history.tsx           # 기록 히스토리
-│   ├── achievements.tsx      # 성취 갤러리 (클리어 기록)
-│   └── stats.tsx             # 게임 통계
+│   ├── _layout.tsx           # 탭 네비게이션 (RANKING/HOME/HISTORY)
+│   ├── index.tsx             # 홈 — 할 일 추가/수정/날짜 선택/루틴 관리/성취 모달
+│   ├── ranking.tsx           # 랭킹 화면 (개인 최고 기록)
+│   └── history.tsx           # 히스토리 화면 (과거 게임 판 기록)
 ├── _layout.tsx               # 루트 레이아웃
-└── login.tsx                 # 로그인 페이지
 
 components/
 ├── ui/
-│   ├── Button.tsx
-│   ├── Input.tsx
-│   ├── Card.tsx
-│   └── Modal.tsx
-├── layout/
-│   └── TabBar.tsx
-├── record/
-│   ├── RecordInput.tsx       # 기록 입력 컴포넌트
-│   ├── RecordList.tsx        # 기록 목록 컴포넌트
-│   └── BlockStockBadge.tsx    # 남은 블록 수 표시
-├── game/
-│   └── TetrisBoard.tsx       # 앱 내 테트리스 보드 미리보기
-└── achievement/
-    ├── AchievementCard.tsx   # 성취 카드 컴포넌트
-    └── AchievementList.tsx   # 성취 갤러리 목록
+│   ├── MiniBlock.tsx         # 미니 테트리스 블록 렌더러
+│   └── Icons.tsx             # SVG 아이콘 컴포넌트 (Trophy, Home, Chart, Refresh, Star, Skull, ChevronLeft, ChevronRight, Clipboard)
+└── layout/
 
 hooks/
-├── useRecords.ts             # 기록 CRUD
-├── useGameState.ts           # 게임 상태 관리
-├── useAchievements.ts        # 성취 기록 조회
-└── useAuth.ts                # 인증
 
 lib/
-├── firebase.ts               # Firebase 초기화
 ├── tetrisEngine.ts           # 테트리스 게임 로직 (핵심 엔진)
-├── colorMapper.ts            # 날짜 → 색상 변환
+├── colorMapper.ts            # 색상 변환 (랜덤 + 날짜 기반)
 └── widgetBridge.ts           # 앱 ↔ 위젯 데이터 통신
 
 types/
-├── record.ts
-├── game.ts
-├── achievement.ts
-└── user.ts
+├── record.ts                 # Task, Routine, DayOfWeek 타입
+└── game.ts                   # GameState, GameHistory, GameHistoryAchievement 타입
 
 stores/
-├── gameStore.ts              # Zustand — 게임 상태
-└── authStore.ts              # Zustand — 인증 상태
+├── gameStore.ts              # Zustand — 게임 상태 (dispatch, addBlock, addPenalties 등)
+├── taskStore.ts              # Zustand — 할 일/루틴 (addTask, updateTask, deleteTask, addRoutine, updateRoutine, removeRoutine)
+└── historyStore.ts           # Zustand — 히스토리 (addHistory, persist)
 
 constants/
-└── tetris.ts                 # 테트리스 상수 (블록 모양, 그리드 크기, 색상 팔레트 등)
+├── tetris.ts                 # 테트리스 상수 (블록 모양, 그리드 10x12, 색상 팔레트 등)
+└── homeStyles.ts             # 홈 화면 스타일 (Neon Arcade 디자인 시스템, CRT 모달 등)
 
 android/                      # prebuild 후 생성
 ├── app/src/main/java/.../
-│   ├── TetrisWidgetProvider.kt    # 테트리스 위젯 Provider
-│   ├── TetrisGameEngine.kt       # 테트리스 게임 로직 (Kotlin 포팅)
-│   ├── WidgetRenderer.kt         # 비트맵 렌더링 (Canvas)
-│   └── LineClearAnimator.kt      # 줄 클리어 애니메이션 (Handler 기반)
+│   ├── widget/
+│   │   ├── TetrisWidgetProvider.kt    # 테트리스 위젯 Provider
+│   │   ├── TetrisGameEngine.kt       # 테트리스 게임 로직 (Kotlin 포팅)
+│   │   └── WidgetRenderer.kt         # 비트맵 렌더링 (Canvas, 글로시 블록)
+│   └── bridge/               # React Native 브릿지
 └── app/src/main/res/
-    ├── layout/widget_tetris.xml   # 위젯 레이아웃 (ImageView + 버튼 4개)
+    ├── layout/widget_tetris.xml   # 위젯 레이아웃
     └── xml/tetris_widget_info.xml # 위젯 메타데이터
 
 ios/                          # prebuild 후 생성
-└── TetrisWidget/
-    ├── TetrisWidget.swift         # 위젯 진입점 (WidgetKit)
-    ├── TetrisGameEngine.swift     # 테트리스 게임 로직 (Swift 포팅)
-    ├── TetrisWidgetRenderer.swift # SwiftUI 렌더링
-    ├── TetrisIntents.swift        # AppIntent (버튼 액션)
-    └── LineClearTimeline.swift    # 줄 클리어 타임라인 스케줄링
+├── TetrisWidget/
+│   ├── TetrisWidget.swift         # 위젯 진입점 (WidgetKit)
+│   ├── TetrisGameEngine.swift     # 테트리스 게임 로직 (Swift 포팅)
+│   └── TetrisIntents.swift        # AppIntent (버튼 액션)
+└── TetrisWidgetBridge/       # React Native 브릿지
+
+design-preview.html           # 디자인 프리뷰 (전체 UI 모아보기)
 ```
 
 ---
@@ -820,3 +832,178 @@ interface GameHistory {
 - 클리어한 날짜/시간대에 따라 이름 자동 생성
 - 예: 아침 클리어 → "새벽의 한 줄", 비오는 날 → "빗속의 정리"
 - **레퍼런스**: 날씨 앱 감성 문구, Forest 앱 나무 이름
+
+---
+
+## 13. 할 일 날짜 선택 기능 (2026-04-05 구현 완료)
+
+### 13-1. 개요
+할 일 모드(`task`)에서 특정 날짜에 할 일을 미리 등록할 수 있는 기능.
+
+### 13-2. UI
+- 입력란 위에 **월/일 선택기** 표시 (좌우 화살표 + 현재 날짜)
+- `[◀] 4월 [▶]  [◀] 5일 [▶]` 형태
+- **TODAY** 버튼으로 오늘 날짜로 즉시 복귀
+- 오늘이 아닌 날짜 선택 시 TODAY 버튼이 하이라이트(노란색)
+
+### 13-3. 제약사항
+- **오늘 이전 날짜 선택 불가** (과거 날짜로 이동 시 버튼 disabled + opacity 0.2)
+- **연도는 현재 년도 고정** (`currentYear`)
+- 일 변경 시 **월 자동 넘김**: 1월 31일에서 +1 → 2월 1일 / 2월 1일에서 -1 → 1월 31일
+- 월 변경 시 **1일로 초기화** (해당 월이 오늘 월이면 오늘 일자로)
+- **앱 복귀 시** (AppState: background → active) 날짜 선택기를 오늘로 리셋
+
+### 13-4. 구현 파일
+- `app/(tabs)/index.tsx` — `selectedMonth`, `selectedDay` 상태 + `changeMonth()`, `changeDay()`, `resetToToday()`
+- `components/ui/Icons.tsx` — `ChevronLeftIcon`, `ChevronRightIcon` 추가
+
+---
+
+## 14. 할 일 수정 기능 (2026-04-05 구현 완료)
+
+### 14-1. 개요
+등록된 할 일을 인라인으로 수정/삭제할 수 있는 기능.
+
+### 14-2. 진입 방식
+- 할 일 항목을 **long press** (0.5초) → 인라인 수정 모드 진입
+
+### 14-3. 수정 가능 항목
+| 항목 | 수정 가능 조건 |
+|------|--------------|
+| 텍스트 (할 일 내용) | `pending` 상태만 |
+| 날짜 (월/일) | `pending` 상태만, 오늘 이전 불가 |
+| 삭제 | `pending` 상태만 |
+
+### 14-4. 수정 불가 조건
+- `completed` (완료됨) 상태 → 수정 불가
+- `failed` (실패) 상태 → 수정 불가
+
+### 14-5. 자정 체크
+- **10초 간격**으로 자정 체크 (setInterval)
+- 날짜가 변경되면 수정 모드 자동 종료 (수정 중 자정 넘길 경우 대비)
+
+### 14-6. 구현
+- `editingTaskId`, `editText`, `editMonth`, `editDay` 상태
+- `taskStore.updateTask()`, `taskStore.deleteTask()` 사용
+
+---
+
+## 15. 루틴 수정 기능 (2026-04-05 구현 완료)
+
+### 15-1. 개요
+등록된 루틴의 요일을 수정하거나 삭제할 수 있는 기능.
+
+### 15-2. 진입 방식
+- 루틴 칩을 **long press** → 요일 수정 모드 진입
+
+### 15-3. 수정 UI
+- 요일 버튼 7개 (일~토) 토글 방식
+- **SAVE** 버튼: 변경된 요일 저장 (`taskStore.updateRoutine()`)
+- **CANCEL** 버튼: 수정 취소
+- **DELETE** 버튼: 루틴 삭제 (확인 Alert 후 `taskStore.removeRoutine()`)
+
+### 15-4. 구현
+- `editingRoutineId`, `editRoutineDays` 상태
+- `taskStore.updateRoutine(routineId, { days })`, `taskStore.removeRoutine(routineId)` 사용
+
+---
+
+## 16. 미래 날짜 할 일 완료 제한 (2026-04-05 구현 완료)
+
+- 오늘 날짜의 할 일만 **완료 처리 가능**
+- 미래 날짜 (`task.date > todayStr`)에 등록된 할 일은 해당 날짜가 되어야 완료 가능
+- 미래 날짜 할 일 탭 시 "해당 날짜에 완료할 수 있습니다" 안내 메시지
+
+---
+
+## 17. 위젯 TODAY 필터 (2026-04-05 구현 완료)
+
+- 위젯의 TODO 영역에는 **오늘 날짜 할 일만 표시**
+- `taskStore.subscribe()`에서 `t.date === todayStr`로 필터 적용
+- 미래 날짜 할 일은 위젯에 표시하지 않음
+
+---
+
+## 18. 위젯 ALL DONE 표시 (2026-04-05 구현 완료)
+
+- pending 할 일이 0개일 때 TODO 영역에 **"ALL DONE!"** 텍스트 표시
+- Android (`TetrisWidgetProvider.kt`) + iOS (`TetrisWidget.swift`) 모두 적용
+
+---
+
+## 19. 위젯 GAME OVER 개선 (2026-04-05 구현 완료)
+
+- GAME OVER 시 **NEXT 블록 클릭 비활성화** (스폰 방지)
+- TODO 영역에 **"T_T"** 표시 (픽셀 폰트 스타일, magenta 색상)
+- 기존 GAME OVER 그리드 표시 유지
+
+---
+
+## 20. COMPLETED LINES CRT 리디자인 (2026-04-05 구현 완료)
+
+### 20-1. 개요
+성취 모달(완성된 라인 팝업)을 **CRT 모니터 스타일**로 전면 리디자인.
+
+### 20-2. 구성 요소
+- **CRT 하우징**: 둥근 모서리의 외곽 프레임 (bgElevated 색상)
+- **LED 표시등**: 모니터 상단에 녹색/빨간색 LED 인디케이터
+- **스크린 영역**: 내부 디스플레이 (스캔라인 효과 오버레이)
+- **스캔라인**: 반투명 수평 줄 무늬로 CRT 감성 표현
+
+### 20-3. 라인 카드
+- 줄 클리어 수에 따라 **라벨** 차등 표시:
+  - 1줄 = `SINGLE`
+  - 2줄 = `DOUBLE`
+  - 3줄 = `TRIPLE`
+  - 4줄 = `TETRIS`
+- 줄 수별 **보더 색상** 차등:
+  - 1줄 = cyan (`#00F0FF`)
+  - 2줄+ = magenta (`#FF00E5`)
+
+### 20-4. 하단 스코어 바
+- **LINES**: 총 클리어 줄 수
+- **SCORE**: 총 점수
+- **TASKS**: 해당 줄에 포함된 할 일 수
+
+### 20-5. 구현 파일
+- `constants/homeStyles.ts` — CRT 관련 스타일 추가
+
+---
+
+## 21. 실제 테트리스 점수 시스템 (이전 세션 구현 완료)
+
+### 점수 테이블 (NES 테트리스 기반)
+| 동시 클리어 줄 수 | 점수 |
+|-----------------|------|
+| 1줄 | 40 |
+| 2줄 | 100 |
+| 3줄 | 300 |
+| 4줄 (TETRIS) | 1200 |
+
+- **콤보 보너스**: 연속 클리어 시 +50점
+- **일일 활동 보너스**: 매일 할 일 1개 이상 완료 시 +100점 (하루 1회)
+
+### 구현
+- `constants/tetris.ts`의 `SCORE_TABLE` 업데이트
+- `lib/tetrisEngine.ts`의 `clearLines()` + `applyDailyBonus()` 함수
+
+---
+
+## 22. 페널티 자동 적용 (이전 세션 구현 완료)
+
+- `spawnPiece()` 호출 시 `pendingPenalties > 0`이면 **자동으로 페널티 적용**
+- 별도 NEW 버튼이나 새로고침 불필요
+- 미완료 할 일 1개당 회색 페널티 줄 1줄 (9칸 회색 + 1칸 빈칸)
+- 페널티로 블록이 최상단까지 밀려나면 게임 오버
+
+---
+
+## 23. 디자인 프리뷰 (2026-04-05 업데이트)
+
+`design-preview.html`에 다음 프리뷰 추가:
+- 할 일 모드 (날짜 선택기 UI)
+- 할 일 수정 UI (인라인 편집)
+- 루틴 수정 UI (요일 토글 + SAVE/CANCEL/DELETE)
+- CRT 성취 모달
+- 위젯 통합 프리뷰 (PLAYING / GAME OVER / ALL DONE)
+- GAME OVER TODO "T_T" 표시
