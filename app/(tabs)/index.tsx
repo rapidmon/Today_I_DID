@@ -857,16 +857,18 @@ export default function HomeScreen() {
                 )
               }
               return (
-                <Pressable
-                  key={r.id}
-                  style={styles.routineChip}
-                  onLongPress={() => startEditingRoutine(r)}
-                >
-                  <Text style={styles.routineChipText}>
-                    {r.content} {(r.days ?? [0,1,2,3,4,5,6]).length === 7
-                      ? '매일'
-                      : (r.days ?? []).map(d => DAY_LABELS[d]).join('·')}
-                  </Text>
+                <View key={r.id} style={styles.routineChip}>
+                  <Pressable
+                    onLongPress={() => startEditingRoutine(r)}
+                    delayLongPress={400}
+                    style={{ flex: 1 }}
+                  >
+                    <Text style={styles.routineChipText}>
+                      {r.content} {(r.days ?? [0,1,2,3,4,5,6]).length === 7
+                        ? '매일'
+                        : (r.days ?? []).map(d => DAY_LABELS[d]).join('·')}
+                    </Text>
+                  </Pressable>
                   <Pressable
                     onPress={() => handleDeleteRoutine(r.id)}
                     accessibilityLabel={`루틴 삭제: ${r.content}`}
@@ -874,7 +876,7 @@ export default function HomeScreen() {
                   >
                     <Text style={styles.routineDeleteText}>✕</Text>
                   </Pressable>
-                </Pressable>
+                </View>
               )
             })}
           </View>

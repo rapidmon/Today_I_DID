@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router'
 import { View } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { TrophyIcon, HomeIcon, ChartIcon } from '@/components/ui/Icons'
 
@@ -7,6 +8,7 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets()
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <Tabs
       screenOptions={{
         headerShown: false,
@@ -85,5 +87,6 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </GestureHandlerRootView>
   )
 }
