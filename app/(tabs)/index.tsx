@@ -1048,7 +1048,7 @@ export default function HomeScreen() {
                       <SkullIcon size={18} color="#FF3355" />
                     </View>
                   ) : (
-                    <View style={styles.pendingCheckbox} />
+                    <View style={[styles.pendingCheckbox, !canComplete && styles.pendingCheckboxDisabled]} />
                   )}
                 </Pressable>
                 )

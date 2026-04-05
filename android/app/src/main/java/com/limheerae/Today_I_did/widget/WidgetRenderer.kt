@@ -173,6 +173,24 @@ object WidgetRenderer {
             return bitmap
         }
 
+    // GAME OVER 시 빈 NEXT 블록 (- 표시)
+    fun renderEmptyNextBlock(size: Int, bgAlpha: Int = 204): Bitmap {
+        val bitmap = Bitmap.createBitmap(maxOf(size, 1), maxOf(size, 1), Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint().apply { isAntiAlias = false }
+        canvas.drawColor(Color.argb(minOf(bgAlpha, 80), 26, 26, 46))
+
+        val cx = size / 2f
+        val cy = size / 2f
+        val lineLen = size * 0.2f
+        paint.color = Color.argb(50, 85, 85, 119)
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = size * 0.03f
+        paint.strokeCap = Paint.Cap.ROUND
+        canvas.drawLine(cx - lineLen, cy, cx + lineLen, cy, paint)
+        return bitmap
+    }
+
         val shape = TetrisGameEngine.getAbsoluteCells(blockType, 0, Position(0, 0))
         if (shape.isEmpty()) return bitmap
 
@@ -354,20 +372,9 @@ object WidgetRenderer {
         val totalCharsW = charW * 4 + gap * 3 // 23 pixels wide
         val totalCharsH = charH * 2 + 2 // 16 pixels tall (2 lines + gap)
 
-        val pixelSize = minOf(totalW.toFloat() / (totalCharsW + 4), totalH.toFloat() / (totalCharsH + 4)) * 0.55f
+        val pixelSize = minOf(totalW.toFloat() / (totalCharsW + 4), totalH.toFloat() / (totalCharsH + 4)) * 0.35f
         val startX = (totalW - totalCharsW * pixelSize) / 2f
         val startY = (totalH - totalCharsH * pixelSize) / 2f
-
-        // 배경 박스
-        val pad = pixelSize * 1.5f
-        paint.color = Color.argb(230, 10, 10, 26)
-        paint.style = Paint.Style.FILL
-        canvas.drawRect(
-            RectF(startX - pad, startY - pad,
-                startX + totalCharsW * pixelSize + pad,
-                startY + totalCharsH * pixelSize + pad),
-            paint
-        )
 
         // 글자 그리기 (네온 레드)
         paint.color = Color.parseColor("#FF3355")

@@ -174,8 +174,8 @@ class TetrisWidgetProvider : AppWidgetProvider() {
 
         // NEXT 블록 렌더링
         if (state.gameOver) {
-            // GAME OVER: NEXT 비움 + 클릭 비활성
-            val emptyBitmap = WidgetRenderer.renderNextBlock(null, 0, NEXT_BLOCK_SIZE, bgAlpha)
+            // GAME OVER: NEXT에 - 표시 + 클릭 비활성
+            val emptyBitmap = WidgetRenderer.renderEmptyNextBlock(NEXT_BLOCK_SIZE, bgAlpha)
             views.setImageViewBitmap(R.id.next_block, emptyBitmap)
             views.setOnClickPendingIntent(R.id.next_block, createPendingIntent(context, "NOOP"))
         } else {

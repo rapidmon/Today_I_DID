@@ -336,6 +336,9 @@ export const homeStyles = StyleSheet.create({
     borderRadius: 8, backgroundColor: 'transparent', marginLeft: 12,
     alignItems: 'center' as const, justifyContent: 'center' as const,
   },
+  pendingCheckboxDisabled: {
+    borderColor: COLORS.textMuted, opacity: 0.4,
+  },
   checkOverlay: { fontSize: 20, fontWeight: 'bold' as const, color: COLORS.neonGreen },
 
   // 빈 상태
