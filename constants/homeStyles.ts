@@ -287,6 +287,13 @@ export const homeStyles = StyleSheet.create({
   recordTextCompleted: { color: COLORS.textMuted, textDecorationLine: 'line-through' },
   routineIcon: { fontSize: 12, color: COLORS.neonGreen },
 
+  // 스와이프 삭제
+  swipeDeleteAction: {
+    backgroundColor: 'rgba(255, 51, 85, 0.15)',
+    justifyContent: 'center' as const, alignItems: 'center' as const,
+    width: 60, borderRadius: 0,
+  },
+
   // 날짜 헤더
   dateHeader: {
     flexDirection: 'row' as const, alignItems: 'center' as const,

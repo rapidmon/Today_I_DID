@@ -14,6 +14,7 @@ import {
   AccessibilityInfo,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Swipeable } from 'react-native-gesture-handler'
 import { useGameStore } from '@/stores/gameStore'
 import { useTaskStore } from '@/stores/taskStore'
 import { getColorHex, getRandomColorId } from '@/lib/colorMapper'
@@ -256,39 +257,42 @@ export default function HomeScreen() {
           AccessibilityInfo.announceForAccessibility('게임 오버. 기록이 저장되었습니다.')
         }
 
-        // 위젯 리셋 감지 → 히스토리 저장 + 앱 게임 리셋
-        if (!gameOver) {
+        // 위젯 리셋 감지 (히스토리 이미 저장된 후 리셋)
+        if (!gameOver && historySavedRef.current) {
+          resetGame()
+          historySavedRef.current = false
+          setIsGameOver(false)
+          syncScore(0)
+          setAchievements([])
+          return
+        }
+
+        // 앱이 게임오버를 놓친 채 위젯에서 리셋된 경우
+        // (widgetScore=0 + 아카이브 안 된 completed 태스크 존재)
+        if (!gameOver && !historySavedRef.current && widgetScore === 0) {
           const currentTasks = useTaskStore.getState().tasks
           const completedTasks = currentTasks.filter(
             t => t.status === 'completed' && t.blockType && t.colorId !== null
           )
-
-          // 아직 아카이브 안 된 완료 태스크가 있으면 히스토리 저장
           if (completedTasks.length > 0) {
             const history: GameHistory = {
               id: useTaskStore.getState().genId('history'),
               endedAt: Date.now(),
-              finalScore: widgetScore || gameScore,
-              totalLineClears: parsed.reduce((sum, a) => sum + a.lineCount, 0),
+              finalScore: 0,
+              totalLineClears: 0,
               completedTasks: completedTasks.map(t => ({
                 content: t.content,
                 blockType: t.blockType!,
                 colorId: t.colorId!,
                 completedAt: t.completedAt ?? Date.now(),
               })),
-              achievements: parsed,
+              achievements: [],
             }
             useHistoryStore.getState().addHistory(history)
-
             useTaskStore.getState().setTasks(prev => prev.map(t =>
               t.status === 'completed' ? { ...t, status: 'archived' as const } : t
             ))
-          }
-
-          if (historySavedRef.current || completedTasks.length > 0) {
             resetGame()
-            historySavedRef.current = false
-            setIsGameOver(false)
             syncScore(0)
             setAchievements([])
             return
@@ -456,6 +460,25 @@ export default function HomeScreen() {
 
     applyDailyBonusStore(todayStr)
   }, [tasks, addBlock, updateTask, applyDailyBonusStore, todayStr, isGameOver])
+
+  // 할 일 스와이프 삭제
+  const handleSwipeDelete = useCallback((taskId: string) => {
+    Alert.alert('할 일 삭제', '이 할 일을 삭제할까요?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: () => deleteTask(taskId),
+      },
+    ])
+  }, [deleteTask])
+
+  // 스와이프 삭제 렌더
+  const renderSwipeDelete = useCallback(() => (
+    <View style={styles.swipeDeleteAction}>
+      <TrashIcon size={18} color="#FF3355" />
+    </View>
+  ), [])
 
   // 루틴 삭제
   const handleDeleteRoutine = useCallback((routineId: string) => {
@@ -970,9 +993,10 @@ export default function HomeScreen() {
                   )
                 }
 
-                return (
+                const canSwipeDelete = item.status === 'pending' && !item.isRoutine
+
+                const taskRow = (
                 <Pressable
-                  key={item.id}
                   style={styles.recordItem}
                   onPress={() => canComplete ? handleComplete(item.id) : null}
                   onLongPress={() => canEdit ? startEditing(item) : null}
@@ -1014,6 +1038,21 @@ export default function HomeScreen() {
                   )}
                 </Pressable>
                 )
+
+                if (canSwipeDelete) {
+                  return (
+                    <Swipeable
+                      key={item.id}
+                      renderRightActions={renderSwipeDelete}
+                      onSwipeableOpen={() => handleSwipeDelete(item.id)}
+                      overshootRight={false}
+                    >
+                      {taskRow}
+                    </Swipeable>
+                  )
+                }
+
+                return <View key={item.id}>{taskRow}</View>
               })}
             </View>
             )
