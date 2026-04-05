@@ -42,7 +42,8 @@
       "Bash(grep -r \"TetrisWidgetBridge\\\\|group.com.limheerae\" /c/Users/Foryoucom/Desktop/coding/Today_I_did/src --include=*.js --include=*.ts --include=*.tsx)",
       "Bash(grep -r \"addBlockToQueue\\\\|TetrisWidgetBridge\\\\|widgetBridge\" /c/Users/Foryoucom/Desktop/coding/Today_I_did/src --include=*.js --include=*.ts --include=*.tsx)",
       "Bash(xargs grep:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(./gradlew.bat app:assembleDebug -x lint -x test --configure-on-demand --build-cache)"
     ]
   }
 }

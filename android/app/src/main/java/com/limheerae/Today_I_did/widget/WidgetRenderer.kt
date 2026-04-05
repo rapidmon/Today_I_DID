@@ -173,24 +173,6 @@ object WidgetRenderer {
             return bitmap
         }
 
-    // GAME OVER 시 빈 NEXT 블록 (- 표시)
-    fun renderEmptyNextBlock(size: Int, bgAlpha: Int = 204): Bitmap {
-        val bitmap = Bitmap.createBitmap(maxOf(size, 1), maxOf(size, 1), Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val paint = Paint().apply { isAntiAlias = false }
-        canvas.drawColor(Color.argb(minOf(bgAlpha, 80), 26, 26, 46))
-
-        val cx = size / 2f
-        val cy = size / 2f
-        val lineLen = size * 0.2f
-        paint.color = Color.argb(50, 85, 85, 119)
-        paint.style = Paint.Style.STROKE
-        paint.strokeWidth = size * 0.03f
-        paint.strokeCap = Paint.Cap.ROUND
-        canvas.drawLine(cx - lineLen, cy, cx + lineLen, cy, paint)
-        return bitmap
-    }
-
         val shape = TetrisGameEngine.getAbsoluteCells(blockType, 0, Position(0, 0))
         if (shape.isEmpty()) return bitmap
 
@@ -213,6 +195,23 @@ object WidgetRenderer {
             drawGlossyBlock(canvas, paint, left, top, cellSize, color)
         }
 
+        return bitmap
+    }
+
+    // GAME OVER 시 빈 NEXT 블록 (- 표시)
+    fun renderEmptyNextBlock(size: Int, bgAlpha: Int = 204): Bitmap {
+        val bitmap = Bitmap.createBitmap(maxOf(size, 1), maxOf(size, 1), Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint().apply { isAntiAlias = false }
+        canvas.drawColor(Color.argb(minOf(bgAlpha, 80), 26, 26, 46))
+        val cx = size / 2f
+        val cy = size / 2f
+        val lineLen = size * 0.2f
+        paint.color = Color.argb(50, 85, 85, 119)
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = size * 0.03f
+        paint.strokeCap = Paint.Cap.ROUND
+        canvas.drawLine(cx - lineLen, cy, cx + lineLen, cy, paint)
         return bitmap
     }
 
