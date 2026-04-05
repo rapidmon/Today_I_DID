@@ -641,7 +641,7 @@ export default function HomeScreen() {
       if (!groups[t.date]) groups[t.date] = []
       groups[t.date].push(t)
     }
-    return Object.entries(groups).sort(([a], [b]) => b.localeCompare(a))
+    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
   }, [activeTasks])
 
   const formatDateHeader = (dateStr: string) => {
