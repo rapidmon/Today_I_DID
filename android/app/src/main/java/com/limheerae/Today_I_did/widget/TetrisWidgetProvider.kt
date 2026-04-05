@@ -173,14 +173,17 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         renderTodoItems(context, views, state.gameOver)
 
         // NEXT 블록 렌더링
-        val nextBlock = if (state.blockQueue.isNotEmpty()) state.blockQueue[0] else null
-        val nextBitmap = WidgetRenderer.renderNextBlock(
-            nextBlock?.type, nextBlock?.colorId ?: 0, NEXT_BLOCK_SIZE, bgAlpha
-        )
-        views.setImageViewBitmap(R.id.next_block, nextBitmap)
         if (state.gameOver) {
+            // GAME OVER: NEXT 비움 + 클릭 비활성
+            val emptyBitmap = WidgetRenderer.renderNextBlock(null, 0, NEXT_BLOCK_SIZE, bgAlpha)
+            views.setImageViewBitmap(R.id.next_block, emptyBitmap)
             views.setOnClickPendingIntent(R.id.next_block, createPendingIntent(context, "NOOP"))
         } else {
+            val nextBlock = if (state.blockQueue.isNotEmpty()) state.blockQueue[0] else null
+            val nextBitmap = WidgetRenderer.renderNextBlock(
+                nextBlock?.type, nextBlock?.colorId ?: 0, NEXT_BLOCK_SIZE, bgAlpha
+            )
+            views.setImageViewBitmap(R.id.next_block, nextBitmap)
             views.setOnClickPendingIntent(R.id.next_block, createOpenAppPendingIntent(context))
         }
 
@@ -240,28 +243,32 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         val pendingTasks = getPendingTasks(context)
 
         if (isGameOver) {
-            // GAME OVER: T_T 표시
+            // GAME OVER: T_T 표시 (중앙 배치: 1,4 빈칸 + 2에 텍스트 + 3 빈칸)
             views.setViewVisibility(todoRowIds[0], View.VISIBLE)
+            views.setImageViewBitmap(todoTextIds[0], null)
+            views.setViewVisibility(todoRowIds[1], View.VISIBLE)
             views.setImageViewBitmap(
-                todoTextIds[0],
-                WidgetRenderer.renderText(context, "T_T", dpToPx(context, 11f), 0x4DFF00E5)
+                todoTextIds[1],
+                WidgetRenderer.renderText(context, "T_T", dpToPx(context, 14f), 0x4DFF00E5)
             )
-            for (i in 1 until todoRowIds.size) {
-                views.setViewVisibility(todoRowIds[i], View.GONE)
-            }
+            views.setViewVisibility(todoRowIds[2], View.VISIBLE)
+            views.setImageViewBitmap(todoTextIds[2], null)
+            views.setViewVisibility(todoRowIds[3], View.GONE)
             return
         }
 
         if (pendingTasks.isEmpty()) {
-            // ALL DONE 표시
+            // ALL DONE 표시 (중앙 배치)
             views.setViewVisibility(todoRowIds[0], View.VISIBLE)
+            views.setImageViewBitmap(todoTextIds[0], null)
+            views.setViewVisibility(todoRowIds[1], View.VISIBLE)
             views.setImageViewBitmap(
-                todoTextIds[0],
+                todoTextIds[1],
                 WidgetRenderer.renderText(context, "ALL DONE!", dpToPx(context, 11f), 0x66555577)
             )
-            for (i in 1 until todoRowIds.size) {
-                views.setViewVisibility(todoRowIds[i], View.GONE)
-            }
+            views.setViewVisibility(todoRowIds[2], View.VISIBLE)
+            views.setImageViewBitmap(todoTextIds[2], null)
+            views.setViewVisibility(todoRowIds[3], View.GONE)
             return
         }
 

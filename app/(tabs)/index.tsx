@@ -24,7 +24,7 @@ import type { QueuedBlock, GameHistory, GameHistoryAchievement } from '@/types/g
 import { useHistoryStore } from '@/stores/historyStore'
 import { homeStyles as styles, COLORS } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
-import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/Icons'
+import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/Icons'
 
 const today = () => {
   const now = new Date()
@@ -798,7 +798,7 @@ export default function HomeScreen() {
                         setEditingRoutineId(null)
                         handleDeleteRoutine(r.id)
                       }}>
-                        <SkullIcon size={14} color="#FF3355" />
+                        <TrashIcon size={14} color="#FF3355" />
                       </Pressable>
                     </View>
                   </View>
@@ -859,7 +859,7 @@ export default function HomeScreen() {
               {dateTasks.map((item, index) => {
                 const canComplete = item.status === 'pending' && item.date === todayStr
                 const isEditing = editingTaskId === item.id
-                const canEdit = item.status !== 'failed' && item.status !== 'archived' && item.status !== 'completed'
+                const canEdit = item.status !== 'failed' && item.status !== 'archived' && item.status !== 'completed' && !item.isRoutine
 
                 // 수정 모드 UI
                 if (isEditing) {
@@ -934,7 +934,7 @@ export default function HomeScreen() {
                           <Text style={styles.editCancelText}>CANCEL</Text>
                         </Pressable>
                         <Pressable style={styles.editDeleteButton} onPress={handleDeleteTask}>
-                          <SkullIcon size={14} color="#FF3355" />
+                          <TrashIcon size={14} color="#FF3355" />
                         </Pressable>
                       </View>
                     </View>

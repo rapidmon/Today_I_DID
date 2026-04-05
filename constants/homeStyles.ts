@@ -184,7 +184,7 @@ export const homeStyles = StyleSheet.create({
     shadowOpacity: 0.2, shadowRadius: 12,
   },
   editLabel: {
-    fontFamily: 'PressStart2P', color: COLORS.neonYellow, fontSize: 7,
+    fontFamily: 'PressStart2P', color: COLORS.neonYellow, fontSize: 9,
     letterSpacing: 2, marginBottom: 8,
     textShadowColor: 'rgba(255, 229, 0, 0.6)', textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
@@ -206,7 +206,7 @@ export const homeStyles = StyleSheet.create({
     flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8,
   },
   editSaveButton: {
-    flex: 1, paddingVertical: 6, borderRadius: 8,
+    flex: 1, paddingVertical: 10, borderRadius: 8,
     backgroundColor: 'rgba(0, 240, 255, 0.15)',
     borderWidth: 1, borderColor: 'rgba(0, 240, 255, 0.3)',
     alignItems: 'center' as const,
@@ -215,7 +215,7 @@ export const homeStyles = StyleSheet.create({
     fontFamily: 'InterBold', color: COLORS.neonCyan, fontSize: 12,
   },
   editCancelButton: {
-    flex: 1, paddingVertical: 6, borderRadius: 8,
+    flex: 1, paddingVertical: 10, borderRadius: 8,
     backgroundColor: 'rgba(0, 240, 255, 0.06)',
     borderWidth: 1, borderColor: 'rgba(0, 240, 255, 0.15)',
     alignItems: 'center' as const,

@@ -354,7 +354,7 @@ object WidgetRenderer {
         val totalCharsW = charW * 4 + gap * 3 // 23 pixels wide
         val totalCharsH = charH * 2 + 2 // 16 pixels tall (2 lines + gap)
 
-        val pixelSize = minOf(totalW.toFloat() / (totalCharsW + 4), totalH.toFloat() / (totalCharsH + 4))
+        val pixelSize = minOf(totalW.toFloat() / (totalCharsW + 4), totalH.toFloat() / (totalCharsH + 4)) * 0.55f
         val startX = (totalW - totalCharsW * pixelSize) / 2f
         val startY = (totalH - totalCharsH * pixelSize) / 2f
 
