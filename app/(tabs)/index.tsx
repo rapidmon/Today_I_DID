@@ -857,26 +857,26 @@ export default function HomeScreen() {
                 )
               }
               return (
-                <View key={r.id} style={styles.routineChip}>
-                  <Pressable
-                    onLongPress={() => startEditingRoutine(r)}
-                    delayLongPress={400}
-                    style={{ flex: 1 }}
-                  >
-                    <Text style={styles.routineChipText}>
-                      {r.content} {(r.days ?? [0,1,2,3,4,5,6]).length === 7
-                        ? '매일'
-                        : (r.days ?? []).map(d => DAY_LABELS[d]).join('·')}
-                    </Text>
-                  </Pressable>
+                <Pressable
+                  key={r.id}
+                  style={styles.routineChip}
+                  onLongPress={() => startEditingRoutine(r)}
+                  delayLongPress={400}
+                >
+                  <Text style={styles.routineChipText}>
+                    {r.content} {(r.days ?? [0,1,2,3,4,5,6]).length === 7
+                      ? '매일'
+                      : (r.days ?? []).map(d => DAY_LABELS[d]).join('·')}
+                  </Text>
                   <Pressable
                     onPress={() => handleDeleteRoutine(r.id)}
                     accessibilityLabel={`루틴 삭제: ${r.content}`}
                     style={styles.routineDeleteButton}
+                    hitSlop={4}
                   >
                     <Text style={styles.routineDeleteText}>✕</Text>
                   </Pressable>
-                </View>
+                </Pressable>
               )
             })}
           </View>
@@ -1048,6 +1048,8 @@ export default function HomeScreen() {
                       renderRightActions={renderSwipeDelete}
                       onSwipeableOpen={() => handleSwipeDelete(item.id)}
                       overshootRight={false}
+                      friction={2}
+                      rightThreshold={40}
                     >
                       {taskRow}
                     </Swipeable>
