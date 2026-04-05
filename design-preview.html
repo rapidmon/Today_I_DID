@@ -100,6 +100,9 @@
 
     .section-label { letter-spacing: 3px; }
 
+    /* LED 깜빡임 */
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
     /* SVG 아이콘 네온 글로우 */
     .icon-glow-cyan { filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.7)) drop-shadow(0 0 8px rgba(0, 240, 255, 0.3)); }
     .icon-glow-green { filter: drop-shadow(0 0 3px rgba(0, 255, 136, 0.6)); }
@@ -868,122 +871,132 @@
       <!-- 모달 오버레이 -->
       <div class="absolute inset-0 bg-black/60 flex items-center justify-center" style="backdrop-filter: blur(4px);">
 
-        <!-- 모달 카드 -->
-        <div class="w-[85%] max-h-[70%] rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, #1A1A35, #12122A); border: 1px solid rgba(0, 240, 255, 0.2); box-shadow: 0 0 40px rgba(0, 240, 255, 0.1), 0 20px 60px rgba(0, 0, 0, 0.5);">
+        <!-- 모달 카드: CRT 모니터 스타일 -->
+        <div class="w-[85%] max-h-[75%]" style="background: #2A2A3A; border-radius: 12px; padding: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.6);">
 
-          <!-- 상단 글로우 바 -->
-          <div class="h-1 w-full" style="background: linear-gradient(90deg, transparent, #00F0FF, transparent);"></div>
-
-          <!-- 모달 헤더 -->
-          <div class="flex items-center justify-between px-5 py-3.5" style="border-bottom: 1px solid rgba(42, 42, 80, 0.5);">
-            <div class="flex items-center gap-2">
-              <svg class="icon-glow-cyan" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00F0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <span class="pixel-font text-text-primary glow-cyan" style="font-size: 9px;">COMPLETED LINES</span>
+          <!-- 상단: 전원 LED + 브랜드 + 닫기 -->
+          <div class="flex items-center justify-between" style="padding: 6px 10px 8px;">
+            <div class="flex items-center gap-1.5">
+              <div class="w-1.5 h-1.5 rounded-full bg-neon-green" style="animation: blink 2s infinite;"></div>
+              <span class="main-font text-text-muted font-bold" style="font-size: 8px;">TETRIS-OS v1.0</span>
             </div>
-            <button class="w-7 h-7 rounded-lg bg-bg-elevated flex items-center justify-center">
-              <span class="text-text-muted font-bold text-sm">x</span>
+            <button class="w-6 h-6 rounded flex items-center justify-center" style="background: #3A3A4A;">
+              <span class="text-text-muted font-bold" style="font-size: 10px;">x</span>
             </button>
           </div>
 
-          <!-- 통계 요약 바 -->
-          <div class="flex items-center justify-around py-3 mx-4 my-3 rounded-xl" style="background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.1);">
+          <!-- CRT 스크린 -->
+          <div class="relative overflow-hidden" style="background: #050515; border-radius: 6px; border: 2px solid #1A1A2A;">
+            <!-- 스캔라인 -->
+            <div class="absolute inset-0" style="background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,240,255,0.02) 2px, rgba(0,240,255,0.02) 4px); pointer-events: none; z-index: 2;"></div>
+            <!-- 비네트 -->
+            <div class="absolute inset-0" style="background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%); pointer-events: none; z-index: 3;"></div>
+            <!-- 반사광 -->
+            <div class="absolute" style="top: 8px; left: 10px; width: 40px; height: 16px; background: rgba(255,255,255,0.03); border-radius: 50%; transform: rotate(-15deg); z-index: 4;"></div>
+
+            <!-- 스크린 내용 -->
+            <div class="relative" style="z-index: 1; padding: 14px 12px;">
+              <!-- 제목 -->
+              <div class="text-center mb-3">
+                <span class="pixel-font text-neon-cyan glow-cyan" style="font-size: 9px; letter-spacing: 2px;">COMPLETED LINES</span>
+              </div>
+
+              <!-- 성취 목록 -->
+              <div class="space-y-2" style="max-height: 220px; overflow-y: auto;">
+                <!-- LINE #3 (펼친 상태, magenta) -->
+                <div class="rounded-lg overflow-hidden" style="background: rgba(26, 26, 53, 0.6); border: 1px solid rgba(255, 0, 229, 0.2);">
+                  <div class="px-3 py-2">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="pixel-font text-neon-magenta glow-magenta" style="font-size: 14px;">#3</span>
+                        <div>
+                          <div class="flex items-center gap-1.5">
+                            <span class="main-font text-text-primary font-bold text-xs">DOUBLE</span>
+                            <span class="px-1.5 py-0.5 rounded text-neon-magenta main-font font-bold" style="font-size: 8px; background: rgba(255, 0, 229, 0.1);">x2</span>
+                          </div>
+                          <p class="main-font text-text-muted" style="font-size: 10px; margin-top: 2px;">3월 29일</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="pixel-font text-neon-yellow glow-yellow" style="font-size: 10px;">+400</span>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF00E5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                      </div>
+                    </div>
+                    <div class="mt-2 pt-2 space-y-1.5" style="border-top: 1px solid rgba(255, 0, 229, 0.1);">
+                      <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 bg-neon-cyan tetris-cell rounded-sm"></div>
+                        <span class="main-font text-text-secondary text-xs">TypeScript 강의 듣기</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 bg-neon-magenta tetris-cell rounded-sm"></div>
+                        <span class="main-font text-text-secondary text-xs">블로그 포스팅 작성</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 bg-neon-green tetris-cell rounded-sm"></div>
+                        <span class="main-font text-text-secondary text-xs">운동하기</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- LINE #2 (접힌 상태, cyan) -->
+                <div class="rounded-lg" style="background: rgba(26, 26, 53, 0.6); border: 1px solid rgba(0, 240, 255, 0.12);">
+                  <div class="px-3 py-2">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="pixel-font text-neon-cyan/60" style="font-size: 14px;">#2</span>
+                        <div>
+                          <span class="main-font text-text-secondary font-bold text-xs">SINGLE</span>
+                          <p class="main-font text-text-muted" style="font-size: 10px; margin-top: 2px;">3월 28일</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="pixel-font text-neon-yellow/60" style="font-size: 10px;">+100</span>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- LINE #1 (접힌 상태, cyan) -->
+                <div class="rounded-lg" style="background: rgba(26, 26, 53, 0.6); border: 1px solid rgba(0, 240, 255, 0.12);">
+                  <div class="px-3 py-2">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="pixel-font text-neon-cyan/60" style="font-size: 14px;">#1</span>
+                        <div>
+                          <span class="main-font text-text-secondary font-bold text-xs">SINGLE</span>
+                          <p class="main-font text-text-muted" style="font-size: 10px; margin-top: 2px;">3월 26일</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <span class="pixel-font text-neon-yellow/60" style="font-size: 10px;">+100</span>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 하단 스코어 바 -->
+          <div class="flex items-center justify-around" style="padding: 8px 12px 6px;">
             <div class="text-center">
-              <p class="pixel-font text-neon-cyan glow-cyan" style="font-size: 14px;">4</p>
+              <span class="pixel-font text-neon-green" style="font-size: 12px; text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);">4</span>
               <p class="main-font text-text-muted font-bold" style="font-size: 8px; letter-spacing: 1px;">LINES</p>
             </div>
-            <div class="w-px h-8" style="background: rgba(42, 42, 80, 0.5);"></div>
+            <div style="width: 1px; height: 20px; background: rgba(42, 42, 80, 0.5);"></div>
             <div class="text-center">
-              <p class="pixel-font text-neon-yellow glow-yellow" style="font-size: 14px;">600</p>
+              <span class="pixel-font text-neon-yellow glow-yellow" style="font-size: 12px;">600</span>
               <p class="main-font text-text-muted font-bold" style="font-size: 8px; letter-spacing: 1px;">SCORE</p>
             </div>
-            <div class="w-px h-8" style="background: rgba(42, 42, 80, 0.5);"></div>
+            <div style="width: 1px; height: 20px; background: rgba(42, 42, 80, 0.5);"></div>
             <div class="text-center">
-              <p class="pixel-font text-text-primary" style="font-size: 14px;">7</p>
+              <span class="pixel-font text-neon-cyan glow-cyan" style="font-size: 12px;">7</span>
               <p class="main-font text-text-muted font-bold" style="font-size: 8px; letter-spacing: 1px;">TASKS</p>
             </div>
           </div>
-
-          <!-- 성취 목록 -->
-          <div class="max-h-64 overflow-y-auto px-4 space-y-2.5 pb-3">
-
-            <!-- LINE #3 (펼친 상태, 2줄 = magenta 보더) -->
-            <div class="rounded-xl overflow-hidden" style="background: rgba(26, 26, 53, 0.6); border: 1px solid rgba(255, 0, 229, 0.2);">
-              <div class="px-3.5 py-2.5">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2.5">
-                    <span class="pixel-font text-neon-magenta glow-magenta" style="font-size: 16px;">#3</span>
-                    <div>
-                      <div class="flex items-center gap-1.5">
-                        <span class="main-font text-text-primary font-bold text-xs">DOUBLE</span>
-                        <span class="px-1.5 py-0.5 rounded text-neon-magenta main-font font-bold" style="font-size: 8px; background: rgba(255, 0, 229, 0.1);">x2</span>
-                      </div>
-                      <p class="main-font text-text-muted" style="font-size: 10px; margin-top: 2px;">3월 29일</p>
-                    </div>
-                  </div>
-                  <div class="text-right flex items-center gap-2">
-                    <span class="pixel-font text-neon-yellow glow-yellow" style="font-size: 11px;">+400</span>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF00E5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-                  </div>
-                </div>
-                <!-- 펼침 내용 -->
-                <div class="mt-2.5 pt-2.5 space-y-1.5" style="border-top: 1px solid rgba(255, 0, 229, 0.1);">
-                  <div class="flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 bg-neon-cyan tetris-cell rounded-sm"></div>
-                    <span class="main-font text-text-secondary text-xs">TypeScript 강의 듣기</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 bg-neon-magenta tetris-cell rounded-sm"></div>
-                    <span class="main-font text-text-secondary text-xs">블로그 포스팅 작성</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 bg-neon-green tetris-cell rounded-sm"></div>
-                    <span class="main-font text-text-secondary text-xs">운동하기</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- LINE #2 (접힌 상태, 1줄 = cyan 보더) -->
-            <div class="rounded-xl" style="background: rgba(26, 26, 53, 0.6); border: 1px solid rgba(0, 240, 255, 0.12);">
-              <div class="px-3.5 py-2.5">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2.5">
-                    <span class="pixel-font text-neon-cyan/60" style="font-size: 16px;">#2</span>
-                    <div>
-                      <span class="main-font text-text-secondary font-bold text-xs">SINGLE</span>
-                      <p class="main-font text-text-muted" style="font-size: 10px; margin-top: 2px;">3월 28일</p>
-                    </div>
-                  </div>
-                  <div class="text-right flex items-center gap-2">
-                    <span class="pixel-font text-neon-yellow/60" style="font-size: 11px;">+100</span>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- LINE #1 (접힌 상태, 1줄 = cyan 보더) -->
-            <div class="rounded-xl" style="background: rgba(26, 26, 53, 0.6); border: 1px solid rgba(0, 240, 255, 0.12);">
-              <div class="px-3.5 py-2.5">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2.5">
-                    <span class="pixel-font text-neon-cyan/60" style="font-size: 16px;">#1</span>
-                    <div>
-                      <span class="main-font text-text-secondary font-bold text-xs">SINGLE</span>
-                      <p class="main-font text-text-muted" style="font-size: 10px; margin-top: 2px;">3월 26일</p>
-                    </div>
-                  </div>
-                  <div class="text-right flex items-center gap-2">
-                    <span class="pixel-font text-neon-yellow/60" style="font-size: 11px;">+100</span>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 하단 글로우 바 -->
-          <div class="h-1 w-full" style="background: linear-gradient(90deg, transparent, #00F0FF, transparent); opacity: 0.4;"></div>
         </div>
       </div>
 
