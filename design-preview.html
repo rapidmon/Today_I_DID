@@ -457,13 +457,59 @@
 
       <!-- 할 일 리스트 -->
       <div class="flex-1 overflow-y-auto px-1">
-        <div class="flex items-center px-4 py-3.5 border-b border-border-subtle/50">
-          <span class="main-font text-neon-cyan font-bold text-base mr-3.5 w-6 text-center glow-cyan">1</span>
-          <div class="flex-1 min-w-0">
-            <span class="main-font text-text-primary font-medium text-sm truncate">TypeScript 강의 듣기</span>
+        <!-- 항목 1: 수정 모드 (long press 시) -->
+        <div class="mx-3 my-2 rounded-xl px-3 py-3 neon-border-cyan box-glow-cyan" style="background: rgba(0, 240, 255, 0.03);">
+          <div class="flex items-center justify-between mb-2">
+            <span class="pixel-font text-neon-yellow glow-yellow" style="font-size: 7px; letter-spacing: 2px;">EDIT</span>
+            <span class="main-font text-neon-cyan font-bold text-xs">1</span>
           </div>
-          <div class="w-8 h-8 rounded-lg border-2 border-neon-cyan/30 ml-3 flex-shrink-0"></div>
+          <!-- 텍스트 수정 -->
+          <div class="bg-bg-secondary border border-border-active rounded-lg px-3 py-2 mb-2.5">
+            <span class="main-font text-text-primary text-sm">TypeScript 강의 듣기</span>
+            <span class="inline-block w-0.5 h-4 bg-neon-cyan ml-0.5 animate-pulse" style="vertical-align: middle;"></span>
+          </div>
+          <!-- 날짜 수정 -->
+          <div class="flex items-center gap-2 mb-3">
+            <div class="flex items-center rounded-md bg-bg-card border border-border-subtle overflow-hidden">
+              <button class="w-5 h-6 flex items-center justify-center border-r border-border-subtle">
+                <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#8888AA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <div class="px-2 h-6 flex items-center justify-center">
+                <span class="pixel-font text-neon-cyan glow-cyan" style="font-size: 9px;">04</span>
+              </div>
+              <button class="w-5 h-6 flex items-center justify-center border-l border-border-subtle">
+                <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#8888AA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+            <span class="main-font text-text-secondary font-bold" style="font-size: 11px;">월</span>
+            <div class="flex items-center rounded-md bg-bg-card border border-border-subtle overflow-hidden">
+              <button class="w-5 h-6 flex items-center justify-center border-r border-border-subtle">
+                <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#8888AA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <div class="px-2 h-6 flex items-center justify-center">
+                <span class="pixel-font text-neon-cyan glow-cyan" style="font-size: 9px;">05</span>
+              </div>
+              <button class="w-5 h-6 flex items-center justify-center border-l border-border-subtle">
+                <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#8888AA" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+            <span class="main-font text-text-secondary font-bold" style="font-size: 11px;">일</span>
+          </div>
+          <!-- 버튼 -->
+          <div class="flex items-center gap-2">
+            <button class="flex-1 py-1.5 rounded-lg bg-neon-cyan/15 neon-border-cyan text-center">
+              <span class="main-font text-neon-cyan font-bold text-xs">SAVE</span>
+            </button>
+            <button class="flex-1 py-1.5 rounded-lg bg-bg-card border border-border-subtle text-center">
+              <span class="main-font text-text-muted font-bold text-xs">CANCEL</span>
+            </button>
+            <button class="w-8 h-8 rounded-lg bg-neon-red/10 flex items-center justify-center" style="border: 1px solid rgba(255, 51, 85, 0.3);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF3355" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </button>
+          </div>
         </div>
+
+        <!-- 항목 2: 일반 상태 -->
         <div class="flex items-center px-4 py-3.5 border-b border-border-subtle/50">
           <span class="main-font text-neon-cyan font-bold text-base mr-3.5 w-6 text-center glow-cyan">2</span>
           <div class="flex-1 min-w-0">
@@ -474,6 +520,8 @@
           </div>
           <div class="w-8 h-8 rounded-lg border-2 border-neon-cyan/30 ml-3 flex-shrink-0"></div>
         </div>
+
+        <!-- 항목 3: 완료 상태 -->
         <div class="flex items-center px-4 py-3.5 border-b border-border-subtle/50">
           <span class="main-font text-text-muted font-bold text-base mr-3.5 w-6 text-center">3</span>
           <div class="flex-1 min-w-0">
@@ -483,7 +531,7 @@
             <span class="text-neon-green font-bold text-lg">&#10003;</span>
           </div>
         </div>
-        <div class="h-40"></div>
+        <div class="h-20"></div>
       </div>
 
       <!-- 성취 FAB -->
@@ -803,77 +851,115 @@
           <div class="h-1 w-full" style="background: linear-gradient(90deg, transparent, #00F0FF, transparent);"></div>
 
           <!-- 모달 헤더 -->
-          <div class="flex items-center justify-between px-5 py-4">
+          <div class="flex items-center justify-between px-5 py-3.5" style="border-bottom: 1px solid rgba(42, 42, 80, 0.5);">
             <div class="flex items-center gap-2">
-              <span class="text-neon-yellow glow-yellow">&#9733;</span>
-              <span class="pixel-font text-text-primary glow-cyan" style="font-size: 10px;">COMPLETED LINES</span>
+              <svg class="icon-glow-cyan" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00F0FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span class="pixel-font text-text-primary glow-cyan" style="font-size: 9px;">COMPLETED LINES</span>
             </div>
-            <button class="w-8 h-8 rounded-lg bg-bg-elevated flex items-center justify-center">
-              <span class="text-text-muted font-bold">x</span>
+            <button class="w-7 h-7 rounded-lg bg-bg-elevated flex items-center justify-center">
+              <span class="text-text-muted font-bold text-sm">x</span>
             </button>
           </div>
 
+          <!-- 통계 요약 바 -->
+          <div class="flex items-center justify-around py-3 mx-4 my-3 rounded-xl" style="background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.1);">
+            <div class="text-center">
+              <p class="pixel-font text-neon-cyan glow-cyan" style="font-size: 14px;">4</p>
+              <p class="main-font text-text-muted font-bold" style="font-size: 8px; letter-spacing: 1px;">LINES</p>
+            </div>
+            <div class="w-px h-8" style="background: rgba(42, 42, 80, 0.5);"></div>
+            <div class="text-center">
+              <p class="pixel-font text-neon-yellow glow-yellow" style="font-size: 14px;">600</p>
+              <p class="main-font text-text-muted font-bold" style="font-size: 8px; letter-spacing: 1px;">SCORE</p>
+            </div>
+            <div class="w-px h-8" style="background: rgba(42, 42, 80, 0.5);"></div>
+            <div class="text-center">
+              <p class="pixel-font text-text-primary" style="font-size: 14px;">7</p>
+              <p class="main-font text-text-muted font-bold" style="font-size: 8px; letter-spacing: 1px;">TASKS</p>
+            </div>
+          </div>
+
           <!-- 성취 목록 -->
-          <div class="max-h-80 overflow-y-auto">
+          <div class="max-h-64 overflow-y-auto px-4 space-y-2.5 pb-3">
 
-            <!-- 성취 아이템 1 (펼쳐진 상태) -->
-            <div class="border-t border-border-subtle/50">
-              <div class="px-5 py-3.5">
+            <!-- LINE #3 (펼친 상태, 2줄 = magenta 보더) -->
+            <div class="rounded-xl overflow-hidden" style="background: rgba(26, 26, 53, 0.6); border: 1px solid rgba(255, 0, 229, 0.2);">
+              <div class="px-3.5 py-2.5">
                 <div class="flex items-center justify-between">
-                  <div>
-                    <span class="pixel-font text-neon-cyan glow-cyan" style="font-size: 9px;">LINE #3</span>
-                    <p class="main-font text-text-muted text-xs mt-1">2줄 &middot; +400 &middot; 3월 29일</p>
+                  <div class="flex items-center gap-2.5">
+                    <span class="pixel-font text-neon-magenta glow-magenta" style="font-size: 16px;">#3</span>
+                    <div>
+                      <div class="flex items-center gap-1.5">
+                        <span class="main-font text-text-primary font-bold text-xs">DOUBLE</span>
+                        <span class="px-1.5 py-0.5 rounded text-neon-magenta main-font font-bold" style="font-size: 8px; background: rgba(255, 0, 229, 0.1);">x2</span>
+                      </div>
+                      <p class="main-font text-text-muted" style="font-size: 10px; margin-top: 2px;">3월 29일</p>
+                    </div>
                   </div>
-                  <span class="text-neon-cyan text-xs">&#9650;</span>
+                  <div class="text-right flex items-center gap-2">
+                    <span class="pixel-font text-neon-yellow glow-yellow" style="font-size: 11px;">+400</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FF00E5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                  </div>
                 </div>
-
                 <!-- 펼침 내용 -->
-                <div class="mt-3 pl-3 border-l-2 border-neon-cyan/20 space-y-2">
+                <div class="mt-2.5 pt-2.5 space-y-1.5" style="border-top: 1px solid rgba(255, 0, 229, 0.1);">
                   <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 bg-neon-cyan tetris-cell rounded-sm"></div>
+                    <div class="w-2.5 h-2.5 bg-neon-cyan tetris-cell rounded-sm"></div>
                     <span class="main-font text-text-secondary text-xs">TypeScript 강의 듣기</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 bg-neon-magenta tetris-cell rounded-sm"></div>
+                    <div class="w-2.5 h-2.5 bg-neon-magenta tetris-cell rounded-sm"></div>
                     <span class="main-font text-text-secondary text-xs">블로그 포스팅 작성</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 bg-neon-green tetris-cell rounded-sm"></div>
+                    <div class="w-2.5 h-2.5 bg-neon-green tetris-cell rounded-sm"></div>
                     <span class="main-font text-text-secondary text-xs">운동하기</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- 성취 아이템 2 (접힌 상태) -->
-            <div class="border-t border-border-subtle/50">
-              <div class="px-5 py-3.5">
+            <!-- LINE #2 (접힌 상태, 1줄 = cyan 보더) -->
+            <div class="rounded-xl" style="background: rgba(26, 26, 53, 0.6); border: 1px solid rgba(0, 240, 255, 0.12);">
+              <div class="px-3.5 py-2.5">
                 <div class="flex items-center justify-between">
-                  <div>
-                    <span class="pixel-font text-text-secondary" style="font-size: 9px;">LINE #2</span>
-                    <p class="main-font text-text-muted text-xs mt-1">1줄 &middot; +100 &middot; 3월 28일</p>
+                  <div class="flex items-center gap-2.5">
+                    <span class="pixel-font text-neon-cyan/60" style="font-size: 16px;">#2</span>
+                    <div>
+                      <span class="main-font text-text-secondary font-bold text-xs">SINGLE</span>
+                      <p class="main-font text-text-muted" style="font-size: 10px; margin-top: 2px;">3월 28일</p>
+                    </div>
                   </div>
-                  <span class="text-text-muted text-xs">&#9660;</span>
+                  <div class="text-right flex items-center gap-2">
+                    <span class="pixel-font text-neon-yellow/60" style="font-size: 11px;">+100</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- 성취 아이템 3 (접힌 상태) -->
-            <div class="border-t border-border-subtle/50">
-              <div class="px-5 py-3.5">
+            <!-- LINE #1 (접힌 상태, 1줄 = cyan 보더) -->
+            <div class="rounded-xl" style="background: rgba(26, 26, 53, 0.6); border: 1px solid rgba(0, 240, 255, 0.12);">
+              <div class="px-3.5 py-2.5">
                 <div class="flex items-center justify-between">
-                  <div>
-                    <span class="pixel-font text-text-secondary" style="font-size: 9px;">LINE #1</span>
-                    <p class="main-font text-text-muted text-xs mt-1">1줄 &middot; +100 &middot; 3월 26일</p>
+                  <div class="flex items-center gap-2.5">
+                    <span class="pixel-font text-neon-cyan/60" style="font-size: 16px;">#1</span>
+                    <div>
+                      <span class="main-font text-text-secondary font-bold text-xs">SINGLE</span>
+                      <p class="main-font text-text-muted" style="font-size: 10px; margin-top: 2px;">3월 26일</p>
+                    </div>
                   </div>
-                  <span class="text-text-muted text-xs">&#9660;</span>
+                  <div class="text-right flex items-center gap-2">
+                    <span class="pixel-font text-neon-yellow/60" style="font-size: 11px;">+100</span>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#555577" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- 하단 글로우 바 -->
-          <div class="h-1 w-full" style="background: linear-gradient(90deg, transparent, #00F0FF, transparent); opacity: 0.5;"></div>
+          <div class="h-1 w-full" style="background: linear-gradient(90deg, transparent, #00F0FF, transparent); opacity: 0.4;"></div>
         </div>
       </div>
 
@@ -901,7 +987,7 @@
     <div class="min-h-full flex flex-col items-center justify-center" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
 
       <!-- 위젯 제목 -->
-      <p class="pixel-font text-text-muted mb-4" style="font-size: 8px; letter-spacing: 3px;">ANDROID WIDGET</p>
+      <p class="pixel-font text-text-muted mb-4" style="font-size: 8px; letter-spacing: 3px;">WIDGET DESIGN</p>
 
       <!-- 위젯 프레임 (4x2 홈스크린 크기) -->
       <div class="rounded-3xl overflow-hidden" style="width: 340px; background: rgba(10, 10, 26, 0.85); border: 1px solid rgba(0, 240, 255, 0.15); box-shadow: 0 0 40px rgba(0, 240, 255, 0.08), 0 8px 32px rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px);">
@@ -1383,12 +1469,37 @@
         </div>
       </div>
 
+      <!-- ====== ALL DONE 상태 (TODO 비어있을 때) ====== -->
+      <p class="pixel-font text-text-muted mt-8 mb-4" style="font-size: 8px; letter-spacing: 3px;">ALL DONE STATE</p>
+
+      <div class="rounded-2xl overflow-hidden p-3" style="width: 120px; background: rgba(10, 10, 26, 0.85); border: 1px solid rgba(0, 240, 255, 0.1);">
+        <div class="flex flex-col gap-1.5">
+          <div class="rounded-lg p-1.5 text-center" style="background: rgba(26, 26, 53, 0.8); border: 1px solid rgba(0, 240, 255, 0.1);">
+            <p class="pixel-font text-neon-cyan/50" style="font-size: 10px; letter-spacing: 1px;">NEXT</p>
+          </div>
+          <div class="rounded-lg p-1.5 text-center" style="background: rgba(26, 26, 53, 0.8); border: 1px solid rgba(255, 229, 0, 0.1);">
+            <p class="pixel-font text-neon-yellow/50" style="font-size: 10px; letter-spacing: 1px;">SCORE</p>
+          </div>
+          <div class="rounded-lg p-3 text-center flex-1" style="background: rgba(26, 26, 53, 0.5); border: 1px solid rgba(255, 0, 229, 0.15);">
+            <p class="pixel-font mb-1" style="font-size: 10px; letter-spacing: 1px; color: rgba(255, 0, 229, 0.3);">TODO</p>
+            <p class="pixel-font" style="font-size: 8px; color: rgba(85, 85, 119, 0.5);">ALL DONE!</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 px-8 text-center">
+        <p class="main-font text-text-muted text-xs leading-5">
+          오늘 할 일 0개일 때 TODO 영역에 ALL DONE! 표시
+        </p>
+      </div>
+
     </div>
   </div>
 
 
-  <!-- ========== WITH TODO LIST 위젯 ========== -->
-  <div class="phone-frame">
+  <!-- WITH TODO LIST 위젯 — 첫번째 위젯에 통합됨, 이 섹션 삭제 -->
+  <!-- 아래 phone-frame은 삭제 대상이었으나 안전하게 숨김 처리 -->
+  <div class="phone-frame" style="display: none;">
     <div class="min-h-full flex flex-col items-center justify-center" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
 
       <!-- 위젯 제목 -->
