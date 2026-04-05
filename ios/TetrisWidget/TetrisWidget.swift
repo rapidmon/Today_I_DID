@@ -244,21 +244,30 @@ struct TetrisWidgetView: View {
                 .foregroundColor(NeonColors.neonMagenta.opacity(0.5))
                 .frame(maxWidth: .infinity)
 
-            ForEach(0..<4, id: \.self) { i in
-                if i < tasks.count {
-                    HStack(spacing: 4) {
-                        Circle()
-                            .fill(NeonColors.neonMagenta.opacity(0.6))
-                            .frame(width: 4, height: 4)
-                        Text(tasks[i])
-                            .font(.system(size: 11, weight: .regular))
-                            .foregroundColor(NeonColors.textSecondary)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
+            if tasks.isEmpty {
+                Spacer()
+                Text("ALL DONE!")
+                    .font(NeonColors.pixelFont(9))
+                    .foregroundColor(NeonColors.textMuted.opacity(0.4))
+                    .frame(maxWidth: .infinity)
+                Spacer()
+            } else {
+                ForEach(0..<4, id: \.self) { i in
+                    if i < tasks.count {
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(NeonColors.neonMagenta.opacity(0.6))
+                                .frame(width: 4, height: 4)
+                            Text(tasks[i])
+                                .font(.system(size: 11, weight: .regular))
+                                .foregroundColor(NeonColors.textSecondary)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                        }
+                        .frame(height: 18)
+                    } else {
+                        Spacer().frame(height: 18)
                     }
-                    .frame(height: 18)
-                } else {
-                    Spacer().frame(height: 18)
                 }
             }
         }

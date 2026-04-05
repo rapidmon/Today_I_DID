@@ -235,6 +235,19 @@ class TetrisWidgetProvider : AppWidgetProvider() {
 
         val pendingTasks = getPendingTasks(context)
 
+        if (pendingTasks.isEmpty()) {
+            // ALL DONE 표시: 1행에 ALL DONE 텍스트, 나머지 숨김
+            views.setViewVisibility(todoRowIds[0], View.VISIBLE)
+            views.setImageViewBitmap(
+                todoTextIds[0],
+                WidgetRenderer.renderText(context, "ALL DONE!", dpToPx(context, 11f), 0x66555577)
+            )
+            for (i in 1 until todoRowIds.size) {
+                views.setViewVisibility(todoRowIds[i], View.GONE)
+            }
+            return
+        }
+
         for (i in todoRowIds.indices) {
             if (i < pendingTasks.size) {
                 views.setViewVisibility(todoRowIds[i], View.VISIBLE)
