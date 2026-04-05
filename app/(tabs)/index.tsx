@@ -226,7 +226,12 @@ export default function HomeScreen() {
 
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active') {
-        setTodayStr(today())
+        const newToday = today()
+        setTodayStr(newToday)
+        // 날짜가 바뀌었으면 날짜 선택기도 오늘로 리셋
+        const [, m, d] = newToday.split('-').map(Number)
+        setSelectedMonth(m)
+        setSelectedDay(d)
         checkWidgetState()
       }
     })
