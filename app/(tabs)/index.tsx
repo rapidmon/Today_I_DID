@@ -43,6 +43,7 @@ export default function HomeScreen() {
   const routines = useTaskStore((s) => s.routines)
   const addTask = useTaskStore((s) => s.addTask)
   const updateTask = useTaskStore((s) => s.updateTask)
+  const deleteTask = useTaskStore((s) => s.deleteTask)
   const setTasks = useTaskStore((s) => s.setTasks)
   const addRoutine = useTaskStore((s) => s.addRoutine)
   const removeRoutine = useTaskStore((s) => s.removeRoutine)
@@ -59,6 +60,11 @@ export default function HomeScreen() {
   const [popupVisible, setPopupVisible] = useState(false)
   const [expandedAchId, setExpandedAchId] = useState<string | null>(null)
   const [isGameOver, setIsGameOver] = useState(false)
+  // 수정 모드
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
+  const [editText, setEditText] = useState('')
+  const [editMonth, setEditMonth] = useState(1)
+  const [editDay, setEditDay] = useState(1)
   const [recentlyCompleted, setRecentlyCompleted] = useState<Set<string>>(new Set())
   const historySavedRef = useRef(false)
   const addBlock = useGameStore((s) => s.addBlock)
@@ -388,6 +394,96 @@ export default function HomeScreen() {
     ])
   }, [removeRoutine])
 
+  // 수정 모드 시작
+  const startEditing = useCallback((task: Task) => {
+    if (task.status === 'failed') return
+    const [, m, d] = task.date.split('-').map(Number)
+    setEditingTaskId(task.id)
+    setEditText(task.content)
+    setEditMonth(m)
+    setEditDay(d)
+  }, [])
+
+  // 수정 저장
+  const saveEdit = useCallback(() => {
+    if (!editingTaskId || !editText.trim()) return
+    const currentYear = new Date().getFullYear()
+    const newDate = `${currentYear}-${String(editMonth).padStart(2, '0')}-${String(editDay).padStart(2, '0')}`
+    updateTask(editingTaskId, { content: editText.trim(), date: newDate })
+    setEditingTaskId(null)
+  }, [editingTaskId, editText, editMonth, editDay, updateTask])
+
+  // 수정 취소
+  const cancelEdit = useCallback(() => {
+    setEditingTaskId(null)
+  }, [])
+
+  // 수정 중 삭제
+  const handleDeleteTask = useCallback(() => {
+    if (!editingTaskId) return
+    Alert.alert('할 일 삭제', '이 할 일을 삭제할까요?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: () => {
+          deleteTask(editingTaskId)
+          setEditingTaskId(null)
+        },
+      },
+    ])
+  }, [editingTaskId, deleteTask])
+
+  // 수정 모드 날짜 변경 (오늘 이전 불가)
+  const changeEditMonth = useCallback((delta: number) => {
+    const [, todayM, todayD] = todayStr.split('-').map(Number)
+    setEditMonth(prev => {
+      const next = prev + delta
+      if (next < 1 || next > 12 || next < todayM) return prev
+      return next
+    })
+    setEditDay(prev => {
+      const currentYear = new Date().getFullYear()
+      const newMonth = (() => {
+        const next = editMonth + delta
+        if (next < 1 || next > 12 || next < todayM) return editMonth
+        return next
+      })()
+      if (newMonth === todayM) return Math.max(prev, todayD)
+      return 1
+    })
+  }, [editMonth, todayStr])
+
+  const changeEditDay = useCallback((delta: number) => {
+    const [, todayM, todayD] = todayStr.split('-').map(Number)
+    const currentYear = new Date().getFullYear()
+    const maxDay = new Date(currentYear, editMonth, 0).getDate()
+    const minDay = editMonth === todayM ? todayD : 1
+    setEditDay(prev => {
+      const next = prev + delta
+      if (next < minDay || next > maxDay) return prev
+      return next
+    })
+  }, [editMonth, todayStr])
+
+  // 자정 체크: 날짜가 바뀌면 수정 모드 자동 종료
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const nowStr = today()
+      if (nowStr !== todayStr) {
+        setTodayStr(nowStr)
+        const [, m, d] = nowStr.split('-').map(Number)
+        setSelectedMonth(m)
+        setSelectedDay(d)
+        // 수정 모드 강제 종료
+        if (editingTaskId) {
+          setEditingTaskId(null)
+        }
+      }
+    }, 10000) // 10초마다 체크
+    return () => clearInterval(interval)
+  }, [todayStr, editingTaskId])
+
   // archived 제외한 모든 할 일을 날짜별로 그룹핑 (최신 날짜 먼저)
   const activeTasks = useMemo(() => tasks.filter(t => t.status !== 'archived'), [tasks])
   const groupedByDate = useMemo(() => {
@@ -620,12 +716,92 @@ export default function HomeScreen() {
               {/* 해당 날짜의 할 일들 */}
               {dateTasks.map((item, index) => {
                 const canComplete = item.status === 'pending' && item.date === todayStr
+                const isEditing = editingTaskId === item.id
+                const canEdit = item.status !== 'failed' && item.status !== 'archived' && item.status !== 'completed'
+
+                // 수정 모드 UI
+                if (isEditing) {
+                  return (
+                    <View key={item.id} style={styles.editContainer}>
+                      <Text style={styles.editLabel}>EDIT</Text>
+                      <TextInput
+                        style={styles.editInput}
+                        value={editText}
+                        onChangeText={setEditText}
+                        autoFocus
+                        returnKeyType="done"
+                        onSubmitEditing={saveEdit}
+                      />
+                      {/* 날짜 선택 */}
+                      <View style={styles.editDateRow}>
+                        <View style={styles.editDateGroup}>
+                          <View style={styles.datePickerBlock}>
+                            <Pressable
+                              style={[styles.datePickerArrow, styles.datePickerArrowLeft]}
+                              onPress={() => changeEditMonth(-1)}
+                            >
+                              <ChevronLeftIcon size={10} color="#8888AA" />
+                            </Pressable>
+                            <View style={styles.datePickerValue}>
+                              <Text style={styles.datePickerValueText}>
+                                {String(editMonth).padStart(2, '0')}
+                              </Text>
+                            </View>
+                            <Pressable
+                              style={[styles.datePickerArrow, styles.datePickerArrowRight]}
+                              onPress={() => changeEditMonth(1)}
+                            >
+                              <ChevronRightIcon size={10} color="#8888AA" />
+                            </Pressable>
+                          </View>
+                          <Text style={styles.datePickerLabel}>월</Text>
+                        </View>
+                        <View style={styles.editDateGroup}>
+                          <View style={styles.datePickerBlock}>
+                            <Pressable
+                              style={[styles.datePickerArrow, styles.datePickerArrowLeft]}
+                              onPress={() => changeEditDay(-1)}
+                            >
+                              <ChevronLeftIcon size={10} color="#8888AA" />
+                            </Pressable>
+                            <View style={styles.datePickerValue}>
+                              <Text style={styles.datePickerValueText}>
+                                {String(editDay).padStart(2, '0')}
+                              </Text>
+                            </View>
+                            <Pressable
+                              style={[styles.datePickerArrow, styles.datePickerArrowRight]}
+                              onPress={() => changeEditDay(1)}
+                            >
+                              <ChevronRightIcon size={10} color="#8888AA" />
+                            </Pressable>
+                          </View>
+                          <Text style={styles.datePickerLabel}>일</Text>
+                        </View>
+                      </View>
+                      {/* 버튼 */}
+                      <View style={styles.editButtonRow}>
+                        <Pressable style={styles.editSaveButton} onPress={saveEdit}>
+                          <Text style={styles.editSaveText}>SAVE</Text>
+                        </Pressable>
+                        <Pressable style={styles.editCancelButton} onPress={cancelEdit}>
+                          <Text style={styles.editCancelText}>CANCEL</Text>
+                        </Pressable>
+                        <Pressable style={styles.editDeleteButton} onPress={handleDeleteTask}>
+                          <SkullIcon size={14} color="#FF3355" />
+                        </Pressable>
+                      </View>
+                    </View>
+                  )
+                }
+
                 return (
                 <Pressable
                   key={item.id}
                   style={styles.recordItem}
                   onPress={() => canComplete ? handleComplete(item.id) : null}
-                  disabled={!canComplete}
+                  onLongPress={() => canEdit ? startEditing(item) : null}
+                  disabled={!canComplete && !canEdit}
                   accessibilityLabel={canComplete ? `완료: ${item.content}` : item.content}
                 >
                   <Text style={[styles.numberText, item.status === 'completed' && styles.numberTextCompleted]}>
