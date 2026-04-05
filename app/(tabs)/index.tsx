@@ -68,50 +68,59 @@ export default function HomeScreen() {
   const syncScore = useGameStore((s) => s.syncScore)
   const gameScore = useGameStore((s) => s.gameState.score)
 
-  // 날짜 선택기: 현재 년도 기준 선택된 날짜 문자열
-  const selectedYear = new Date().getFullYear()
+  // 날짜 선택기: 현재 년도 고정, 과거 날짜 선택 불가
+  const currentYear = new Date().getFullYear()
+  const [todayMonth, todayDay] = useMemo(() => {
+    const [, m, d] = todayStr.split('-').map(Number)
+    return [m, d]
+  }, [todayStr])
+
   const selectedDateStr = useMemo(() => {
-    return `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`
-  }, [selectedYear, selectedMonth, selectedDay])
+    return `${currentYear}-${String(selectedMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`
+  }, [currentYear, selectedMonth, selectedDay])
 
   const isSelectedToday = selectedDateStr === todayStr
 
-  // 해당 월의 최대 일수
-  const daysInMonth = useCallback((month: number) => {
-    return new Date(selectedYear, month, 0).getDate()
-  }, [selectedYear])
+  // 과거 날짜 체크: 선택된 날짜가 오늘 이전인지
+  const isPastDate = useCallback((month: number, day: number) => {
+    return month < todayMonth || (month === todayMonth && day < todayDay)
+  }, [todayMonth, todayDay])
 
   const changeMonth = useCallback((delta: number) => {
     setSelectedMonth(prev => {
       const next = prev + delta
-      if (next < 1) return 12
-      if (next > 12) return 1
+      if (next < 1 || next > 12) return prev
+      // 과거 월로 이동 불가
+      if (next < todayMonth) return prev
       return next
     })
-    // 월 변경 시 일수 보정
-    setSelectedDay(prev => {
-      const newMonth = selectedMonth + delta
-      const correctedMonth = newMonth < 1 ? 12 : newMonth > 12 ? 1 : newMonth
-      const maxDay = new Date(selectedYear, correctedMonth, 0).getDate()
-      return Math.min(prev, maxDay)
+    // 월 변경 시 1일로 초기화 (과거면 오늘 일자로)
+    setSelectedDay(() => {
+      // 새 월을 직접 계산 (stale closure 방지)
+      const newMonth = (() => {
+        const next = selectedMonth + delta
+        if (next < 1 || next > 12 || next < todayMonth) return selectedMonth
+        return next
+      })()
+      if (newMonth === todayMonth) return todayDay
+      return 1
     })
-  }, [selectedMonth, selectedYear])
+  }, [selectedMonth, todayMonth, todayDay])
 
   const changeDay = useCallback((delta: number) => {
     setSelectedDay(prev => {
-      const maxDay = daysInMonth(selectedMonth)
+      const maxDay = new Date(currentYear, selectedMonth, 0).getDate()
+      const minDay = selectedMonth === todayMonth ? todayDay : 1
       const next = prev + delta
-      if (next < 1) return maxDay
-      if (next > maxDay) return 1
+      if (next < minDay || next > maxDay) return prev
       return next
     })
-  }, [selectedMonth, daysInMonth])
+  }, [selectedMonth, currentYear, todayMonth, todayDay])
 
   const resetToToday = useCallback(() => {
-    const now = new Date()
-    setSelectedMonth(now.getMonth() + 1)
-    setSelectedDay(now.getDate())
-  }, [])
+    setSelectedMonth(todayMonth)
+    setSelectedDay(todayDay)
+  }, [todayMonth, todayDay])
 
   // 모달 fade 애니메이션
   const fadeAnim = useRef(new Animated.Value(0)).current
@@ -327,6 +336,8 @@ export default function HomeScreen() {
     if (isGameOver) return
     const task = tasks.find(t => t.id === taskId)
     if (!task) return
+    // 오늘 날짜의 할 일만 완료 가능
+    if (task.date !== todayStr) return
 
     const randomBlock = BLOCK_TYPES[Math.floor(Math.random() * BLOCK_TYPES.length)]
     const colorId = getRandomColorId()
@@ -602,13 +613,15 @@ export default function HomeScreen() {
               </View>
 
               {/* 해당 날짜의 할 일들 */}
-              {dateTasks.map((item, index) => (
+              {dateTasks.map((item, index) => {
+                const canComplete = item.status === 'pending' && item.date === todayStr
+                return (
                 <Pressable
                   key={item.id}
                   style={styles.recordItem}
-                  onPress={() => item.status === 'pending' ? handleComplete(item.id) : null}
-                  disabled={item.status !== 'pending'}
-                  accessibilityLabel={item.status === 'pending' ? `완료: ${item.content}` : item.content}
+                  onPress={() => canComplete ? handleComplete(item.id) : null}
+                  disabled={!canComplete}
+                  accessibilityLabel={canComplete ? `완료: ${item.content}` : item.content}
                 >
                   <Text style={[styles.numberText, item.status === 'completed' && styles.numberTextCompleted]}>
                     {index + 1}
@@ -644,7 +657,8 @@ export default function HomeScreen() {
                     <View style={styles.pendingCheckbox} />
                   )}
                 </Pressable>
-              ))}
+                )
+              })}
             </View>
           )}
         />

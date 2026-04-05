@@ -57,8 +57,10 @@ export const useTaskStore = create<TaskStore>()(
 if (Platform.OS === 'android' || Platform.OS === 'ios') {
   let prevPendingJson = ''
   useTaskStore.subscribe((state) => {
+    const now = new Date()
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
     const pending = state.tasks
-      .filter((t) => t.status === 'pending')
+      .filter((t) => t.status === 'pending' && t.date === todayStr)
       .map((t) => ({ content: t.content, status: t.status }))
     const json = JSON.stringify(pending)
     if (json !== prevPendingJson) {
