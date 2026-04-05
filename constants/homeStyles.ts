@@ -378,7 +378,12 @@ export const homeStyles = StyleSheet.create({
   },
   crtScreen: {
     backgroundColor: '#050515', borderRadius: 6, borderWidth: 2, borderColor: '#1A1A2A',
-    padding: 14, overflow: 'hidden' as const,
+    padding: 14, overflow: 'hidden' as const, position: 'relative' as const,
+  },
+  crtVignette: {
+    position: 'absolute' as const, top: 0, left: 0, right: 0, bottom: 0,
+    borderRadius: 4, zIndex: 10,
+    borderWidth: 8, borderColor: 'rgba(0, 0, 0, 0.15)',
   },
   crtScreenTitle: {
     fontFamily: 'PressStart2P', fontSize: 9, color: COLORS.neonCyan, letterSpacing: 2,

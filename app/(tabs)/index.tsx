@@ -147,6 +147,23 @@ export default function HomeScreen() {
     setSelectedDay(todayDay)
   }, [todayMonth, todayDay])
 
+  // TODAY 버튼 펄스 애니메이션
+  const todayPulseAnim = useRef(new Animated.Value(0.3)).current
+  useEffect(() => {
+    if (isSelectedToday) {
+      todayPulseAnim.setValue(0.3)
+      return
+    }
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(todayPulseAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.timing(todayPulseAnim, { toValue: 0.5, duration: 1000, useNativeDriver: true }),
+      ])
+    )
+    pulse.start()
+    return () => pulse.stop()
+  }, [isSelectedToday, todayPulseAnim])
+
   // 날짜 선택기 경계 상태 (버튼 비활성화용)
   const canMonthLeft = selectedMonth > todayMonth
   const canMonthRight = selectedMonth < 12
@@ -696,16 +713,18 @@ export default function HomeScreen() {
             <Text style={styles.datePickerLabel}>일</Text>
           </View>
 
-          {/* 오늘 복귀 버튼 */}
-          <Pressable
-            style={[styles.datePickerTodayButton, isSelectedToday && { opacity: 0.3 }]}
-            onPress={resetToToday}
-            disabled={isSelectedToday}
-            accessibilityLabel="오늘 날짜로 복귀"
-          >
-            <RefreshIcon size={12} color="#00F0FF" />
-            <Text style={styles.datePickerTodayText}>TODAY</Text>
-          </Pressable>
+          {/* 오늘 복귀 버튼 + 펄스 애니메이션 */}
+          <Animated.View style={{ opacity: todayPulseAnim }}>
+            <Pressable
+              style={styles.datePickerTodayButton}
+              onPress={resetToToday}
+              disabled={isSelectedToday}
+              accessibilityLabel="오늘 날짜로 복귀"
+            >
+              <RefreshIcon size={12} color="#00F0FF" />
+              <Text style={styles.datePickerTodayText}>TODAY</Text>
+            </Pressable>
+          </Animated.View>
         </View>
       )}
 
@@ -822,8 +841,10 @@ export default function HomeScreen() {
           data={groupedByDate}
           keyExtractor={([date]) => date}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item: [date, dateTasks] }) => (
-            <View>
+          renderItem={({ item: [date, dateTasks] }) => {
+            const isPast = date < todayStr
+            return (
+            <View style={isPast ? { opacity: 0.6 } : undefined}>
               {/* 날짜 헤더 */}
               <View style={styles.dateHeader}>
                 <View style={styles.dateLine} />
@@ -966,7 +987,8 @@ export default function HomeScreen() {
                 )
               })}
             </View>
-          )}
+            )
+          }}
         />
       )}
 
@@ -998,6 +1020,8 @@ export default function HomeScreen() {
 
             {/* CRT 스크린 */}
             <View style={styles.crtScreen}>
+              {/* 비네트 효과 (가장자리 어두워짐) */}
+              <View style={styles.crtVignette} pointerEvents="none" />
               <Text style={styles.crtScreenTitle}>COMPLETED LINES</Text>
 
               {achievements.length === 0 ? (
