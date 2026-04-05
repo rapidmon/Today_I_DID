@@ -256,14 +256,43 @@ export default function HomeScreen() {
           AccessibilityInfo.announceForAccessibility('게임 오버. 기록이 저장되었습니다.')
         }
 
-        // 위젯 리셋 감지 → 앱 게임 리셋 + 성취 초기화
-        if (!gameOver && historySavedRef.current) {
-          resetGame()
-          historySavedRef.current = false
-          setIsGameOver(false)
-          syncScore(0)
-          setAchievements([])
-          return
+        // 위젯 리셋 감지 → 히스토리 저장 + 앱 게임 리셋
+        if (!gameOver) {
+          const currentTasks = useTaskStore.getState().tasks
+          const completedTasks = currentTasks.filter(
+            t => t.status === 'completed' && t.blockType && t.colorId !== null
+          )
+
+          // 아직 아카이브 안 된 완료 태스크가 있으면 히스토리 저장
+          if (completedTasks.length > 0) {
+            const history: GameHistory = {
+              id: useTaskStore.getState().genId('history'),
+              endedAt: Date.now(),
+              finalScore: widgetScore || gameScore,
+              totalLineClears: parsed.reduce((sum, a) => sum + a.lineCount, 0),
+              completedTasks: completedTasks.map(t => ({
+                content: t.content,
+                blockType: t.blockType!,
+                colorId: t.colorId!,
+                completedAt: t.completedAt ?? Date.now(),
+              })),
+              achievements: parsed,
+            }
+            useHistoryStore.getState().addHistory(history)
+
+            useTaskStore.getState().setTasks(prev => prev.map(t =>
+              t.status === 'completed' ? { ...t, status: 'archived' as const } : t
+            ))
+          }
+
+          if (historySavedRef.current || completedTasks.length > 0) {
+            resetGame()
+            historySavedRef.current = false
+            setIsGameOver(false)
+            syncScore(0)
+            setAchievements([])
+            return
+          }
         }
 
         setIsGameOver(gameOver)

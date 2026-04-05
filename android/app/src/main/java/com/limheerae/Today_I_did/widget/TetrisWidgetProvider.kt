@@ -243,34 +243,29 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         val pendingTasks = getPendingTasks(context)
 
         if (isGameOver) {
-            // GAME OVER: T_T 표시 (중앙 배치: 1,4 빈칸 + 2에 텍스트 + 3 빈칸)
-            views.setViewVisibility(todoRowIds[0], View.VISIBLE)
-            views.setImageViewBitmap(todoTextIds[0], null)
-            views.setViewVisibility(todoRowIds[1], View.VISIBLE)
+            // GAME OVER: T_T — 정중앙 (todo_center_text 사용)
+            for (id in todoRowIds) views.setViewVisibility(id, View.GONE)
+            views.setViewVisibility(R.id.todo_center_text, View.VISIBLE)
             views.setImageViewBitmap(
-                todoTextIds[1],
+                R.id.todo_center_text,
                 WidgetRenderer.renderText(context, "T_T", dpToPx(context, 14f), 0x4DFF00E5)
             )
-            views.setViewVisibility(todoRowIds[2], View.VISIBLE)
-            views.setImageViewBitmap(todoTextIds[2], null)
-            views.setViewVisibility(todoRowIds[3], View.GONE)
             return
         }
 
         if (pendingTasks.isEmpty()) {
-            // ALL DONE 표시 (중앙 배치)
-            views.setViewVisibility(todoRowIds[0], View.VISIBLE)
-            views.setImageViewBitmap(todoTextIds[0], null)
-            views.setViewVisibility(todoRowIds[1], View.VISIBLE)
+            // ALL DONE — 정중앙
+            for (id in todoRowIds) views.setViewVisibility(id, View.GONE)
+            views.setViewVisibility(R.id.todo_center_text, View.VISIBLE)
             views.setImageViewBitmap(
-                todoTextIds[1],
+                R.id.todo_center_text,
                 WidgetRenderer.renderText(context, "ALL DONE!", dpToPx(context, 11f), 0x66555577)
             )
-            views.setViewVisibility(todoRowIds[2], View.VISIBLE)
-            views.setImageViewBitmap(todoTextIds[2], null)
-            views.setViewVisibility(todoRowIds[3], View.GONE)
             return
         }
+
+        // 할 일이 있으면 중앙 텍스트 숨김
+        views.setViewVisibility(R.id.todo_center_text, View.GONE)
 
         for (i in todoRowIds.indices) {
             if (i < pendingTasks.size) {
