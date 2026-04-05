@@ -287,11 +287,24 @@ export const homeStyles = StyleSheet.create({
   recordTextCompleted: { color: COLORS.textMuted, textDecorationLine: 'line-through' },
   routineIcon: { fontSize: 12, color: COLORS.neonGreen },
 
-  // 스와이프 삭제
+  // 스와이프 액션
+  swipeActionsRow: {
+    flexDirection: 'row' as const,
+  },
+  swipeEditAction: {
+    backgroundColor: 'rgba(0, 240, 255, 0.12)',
+    justifyContent: 'center' as const, alignItems: 'center' as const,
+    width: 56,
+  },
+  swipeEditText: {
+    fontFamily: 'PressStart2P', color: COLORS.neonCyan, fontSize: 7,
+    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
   swipeDeleteAction: {
     backgroundColor: 'rgba(255, 51, 85, 0.15)',
     justifyContent: 'center' as const, alignItems: 'center' as const,
-    width: 60, borderRadius: 0,
+    width: 56,
   },
 
   // 날짜 헤더

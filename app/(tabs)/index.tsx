@@ -473,12 +473,23 @@ export default function HomeScreen() {
     ])
   }, [deleteTask])
 
-  // 스와이프 삭제 렌더
-  const renderSwipeDelete = useCallback(() => (
-    <View style={styles.swipeDeleteAction}>
-      <TrashIcon size={18} color="#FF3355" />
+  // 스와이프 액션 렌더 (수정 + 삭제)
+  const renderSwipeActions = useCallback((taskId: string, task: Task) => () => (
+    <View style={styles.swipeActionsRow}>
+      <Pressable
+        style={styles.swipeEditAction}
+        onPress={() => startEditing(task)}
+      >
+        <Text style={styles.swipeEditText}>EDIT</Text>
+      </Pressable>
+      <Pressable
+        style={styles.swipeDeleteAction}
+        onPress={() => handleSwipeDelete(taskId)}
+      >
+        <TrashIcon size={18} color="#FF3355" />
+      </Pressable>
     </View>
-  ), [])
+  ), [startEditing, handleSwipeDelete])
 
   // 루틴 삭제
   const handleDeleteRoutine = useCallback((routineId: string) => {
@@ -1001,8 +1012,7 @@ export default function HomeScreen() {
                 <Pressable
                   style={styles.recordItem}
                   onPress={() => canComplete ? handleComplete(item.id) : null}
-                  onLongPress={() => canEdit ? startEditing(item) : null}
-                  disabled={!canComplete && !canEdit}
+                  disabled={!canComplete}
                   accessibilityLabel={canComplete ? `완료: ${item.content}` : item.content}
                 >
                   <Text style={[styles.numberText, item.status === 'completed' && styles.numberTextCompleted]}>
@@ -1045,11 +1055,8 @@ export default function HomeScreen() {
                   return (
                     <Swipeable
                       key={item.id}
-                      renderRightActions={renderSwipeDelete}
-                      onSwipeableOpen={() => handleSwipeDelete(item.id)}
+                      renderRightActions={renderSwipeActions(item.id, item)}
                       overshootRight={false}
-                      friction={2}
-                      rightThreshold={40}
                     >
                       {taskRow}
                     </Swipeable>
