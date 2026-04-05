@@ -473,15 +473,17 @@ export default function HomeScreen() {
     ])
   }, [deleteTask])
 
-  // 스와이프 액션 렌더 (수정 + 삭제)
+  // 스와이프 액션 렌더 (수정 + 삭제 / 루틴은 삭제만)
   const renderSwipeActions = useCallback((taskId: string, task: Task) => () => (
     <View style={styles.swipeActionsRow}>
-      <Pressable
-        style={styles.swipeEditAction}
-        onPress={() => startEditing(task)}
-      >
-        <Text style={styles.swipeEditText}>EDIT</Text>
-      </Pressable>
+      {!task.isRoutine && (
+        <Pressable
+          style={styles.swipeEditAction}
+          onPress={() => startEditing(task)}
+        >
+          <Text style={styles.swipeEditText}>EDIT</Text>
+        </Pressable>
+      )}
       <Pressable
         style={styles.swipeDeleteAction}
         onPress={() => handleSwipeDelete(taskId)}
@@ -1005,7 +1007,8 @@ export default function HomeScreen() {
                   )
                 }
 
-                const canSwipeDelete = item.status === 'pending' && !item.isRoutine
+                // 일반 할 일: 스와이프로 수정+삭제 / 루틴 할 일: 당일만 삭제
+                const canSwipe = item.status === 'pending' && (!item.isRoutine || item.date === todayStr)
 
                 const taskRow = (
                 <Pressable
@@ -1050,7 +1053,7 @@ export default function HomeScreen() {
                 </Pressable>
                 )
 
-                if (canSwipeDelete) {
+                if (canSwipe) {
                   return (
                     <Swipeable
                       key={item.id}
