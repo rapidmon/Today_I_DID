@@ -22,7 +22,7 @@ import widgetBridge from '@/lib/widgetBridge'
 import type { Task, Routine, DayOfWeek } from '@/types/record'
 import type { QueuedBlock, GameHistory, GameHistoryAchievement } from '@/types/game'
 import { useHistoryStore } from '@/stores/historyStore'
-import { homeStyles as styles } from '@/constants/homeStyles'
+import { homeStyles as styles, COLORS } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
 import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/Icons'
 
@@ -980,74 +980,114 @@ export default function HomeScreen() {
         <StarIcon size={24} color="#00F0FF" />
       </Pressable>
 
-      {/* 완성 라인 팝업 — 두루마리 스타일 */}
+      {/* 완성 라인 팝업 — CRT 모니터 스타일 */}
       <Modal visible={popupVisible} animationType="none" transparent accessibilityViewIsModal>
         <Animated.View style={[styles.modalOverlay, { opacity: fadeAnim }]}>
           <Pressable style={styles.modalOverlayTouchable} onPress={closeModal} />
-          <Animated.View style={[styles.modalContent, { transform: [{ scale: scaleAnim }] }]}>
-            {/* 두루마리 상단 손잡이 */}
-            <View style={styles.scrollHandle} />
-
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>COMPLETED LINES</Text>
-              <Pressable onPress={closeModal} accessibilityLabel="닫기">
-                <Text style={styles.modalClose}>✕</Text>
+          <Animated.View style={[styles.crtHousing, { transform: [{ scale: scaleAnim }] }]}>
+            {/* CRT 상단: LED + 브랜드 + 닫기 */}
+            <View style={styles.crtHeader}>
+              <View style={styles.crtHeaderLeft}>
+                <View style={styles.crtLed} />
+                <Text style={styles.crtBrand}>TETRIS-OS v1.0</Text>
+              </View>
+              <Pressable onPress={closeModal} accessibilityLabel="닫기" style={styles.crtCloseButton}>
+                <Text style={styles.crtCloseText}>✕</Text>
               </Pressable>
             </View>
-            {achievements.length === 0 ? (
-              <View style={styles.modalEmpty}>
-                <Text style={styles.emptyTextScroll}>아직 완성된 라인이 없어요</Text>
-                <Text style={styles.emptySubTextScroll}>위젯에서 테트리스 줄을 완성해보세요!</Text>
-              </View>
-            ) : (
-              <FlatList
-                data={achievements}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item, index }) => {
-                  const isExpanded = expandedAchId === item.id
-                  return (
-                    <Pressable
-                      style={styles.achievementItem}
-                      onPress={() => setExpandedAchId(isExpanded ? null : item.id)}
-                      accessibilityLabel={`라인 ${index + 1} 상세보기`}
-                    >
-                      <View style={styles.achievementHeader}>
-                        <View style={styles.achievementLeft}>
-                          <Text style={styles.achievementTitle}>
-                            LINE #{index + 1}
-                          </Text>
-                          <Text style={styles.achievementMeta}>
-                            {item.lineCount}줄 · +{item.score} · {new Date(item.clearedAt).toLocaleDateString('ko-KR')}
-                          </Text>
-                        </View>
-                        <Text style={styles.achievementArrow}>
-                          {isExpanded ? '▲' : '▼'}
-                        </Text>
-                      </View>
-                      {isExpanded && (
-                        <View style={styles.achievementBody}>
-                          {(item.records ?? []).length > 0 ? (
-                            item.records.map((rec) => (
-                              <View key={rec.id} style={styles.achievementRecordRow}>
-                                <View style={[styles.blockColorDot, { backgroundColor: BLOCK_TYPE_COLORS[rec.blockType] || '#666688' }]} />
-                                <Text style={styles.achievementRecord}>
-                                  {rec.content || `기록`}
-                                </Text>
-                              </View>
-                            ))
-                          ) : (
-                            <Text style={styles.achievementRecord}>기록 {item.recordIds.length}개</Text>
-                          )}
-                        </View>
-                      )}
-                    </Pressable>
-                  )
-                }}
-              />
-            )}
 
-            {/* 두루마리 하단 손잡이 */}
-            <View style={styles.scrollHandleBottom} />
+            {/* CRT 스크린 */}
+            <View style={styles.crtScreen}>
+              <Text style={styles.crtScreenTitle}>COMPLETED LINES</Text>
+
+              {achievements.length === 0 ? (
+                <View style={styles.modalEmpty}>
+                  <Text style={styles.emptyTextScroll}>아직 완성된 라인이 없어요</Text>
+                  <Text style={styles.emptySubTextScroll}>위젯에서 테트리스 줄을 완성해보세요!</Text>
+                </View>
+              ) : (
+                <FlatList
+                  data={achievements}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item, index }) => {
+                    const isExpanded = expandedAchId === item.id
+                    const lineLabel = item.lineCount >= 4 ? 'TETRIS' : item.lineCount >= 3 ? 'TRIPLE' : item.lineCount >= 2 ? 'DOUBLE' : 'SINGLE'
+                    const isMagenta = item.lineCount >= 2
+                    const borderColor = isMagenta ? 'rgba(255, 0, 229, 0.2)' : 'rgba(0, 240, 255, 0.12)'
+                    return (
+                      <Pressable
+                        style={[styles.crtLineCard, { borderColor }]}
+                        onPress={() => setExpandedAchId(isExpanded ? null : item.id)}
+                        accessibilityLabel={`라인 ${index + 1} 상세보기`}
+                      >
+                        <View style={styles.crtLineHeader}>
+                          <View style={styles.crtLineLeft}>
+                            <Text style={[styles.crtLineNumber, isMagenta && { color: COLORS.neonMagenta }]}>
+                              #{index + 1}
+                            </Text>
+                            <View>
+                              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                <Text style={styles.crtLineLabel}>{lineLabel}</Text>
+                                {item.lineCount >= 2 && (
+                                  <Text style={styles.crtLineMulti}>x{item.lineCount}</Text>
+                                )}
+                              </View>
+                              <Text style={styles.crtLineMeta}>
+                                {new Date(item.clearedAt).toLocaleDateString('ko-KR')}
+                              </Text>
+                            </View>
+                          </View>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Text style={[styles.crtLineScore, !isMagenta && { opacity: 0.6 }]}>+{item.score}</Text>
+                            <Text style={{ color: isMagenta ? COLORS.neonMagenta : COLORS.textMuted, fontSize: 10 }}>
+                              {isExpanded ? '▲' : '▼'}
+                            </Text>
+                          </View>
+                        </View>
+                        {isExpanded && (
+                          <View style={styles.crtLineBody}>
+                            {(item.records ?? []).length > 0 ? (
+                              item.records.map((rec) => (
+                                <View key={rec.id} style={styles.achievementRecordRow}>
+                                  <View style={[styles.blockColorDot, { backgroundColor: BLOCK_TYPE_COLORS[rec.blockType] || '#666688' }]} />
+                                  <Text style={styles.achievementRecord}>{rec.content || '기록'}</Text>
+                                </View>
+                              ))
+                            ) : (
+                              <Text style={styles.achievementRecord}>기록 {item.recordIds.length}개</Text>
+                            )}
+                          </View>
+                        )}
+                      </Pressable>
+                    )
+                  }}
+                />
+              )}
+            </View>
+
+            {/* 하단 스코어 바 */}
+            <View style={styles.crtScoreBar}>
+              <View style={styles.crtScoreStat}>
+                <Text style={[styles.crtScoreValue, { color: '#00FF88' }]}>
+                  {achievements.reduce((sum, a) => sum + a.lineCount, 0)}
+                </Text>
+                <Text style={styles.crtScoreLabel}>LINES</Text>
+              </View>
+              <View style={styles.crtScoreDivider} />
+              <View style={styles.crtScoreStat}>
+                <Text style={[styles.crtScoreValue, { color: COLORS.neonYellow }]}>
+                  {achievements.reduce((sum, a) => sum + a.score, 0)}
+                </Text>
+                <Text style={styles.crtScoreLabel}>SCORE</Text>
+              </View>
+              <View style={styles.crtScoreDivider} />
+              <View style={styles.crtScoreStat}>
+                <Text style={[styles.crtScoreValue, { color: COLORS.neonCyan }]}>
+                  {achievements.reduce((sum, a) => sum + (a.records?.length ?? a.recordIds.length), 0)}
+                </Text>
+                <Text style={styles.crtScoreLabel}>TASKS</Text>
+              </View>
+            </View>
           </Animated.View>
         </Animated.View>
       </Modal>

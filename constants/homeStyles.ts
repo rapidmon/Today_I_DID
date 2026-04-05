@@ -337,7 +337,7 @@ export const homeStyles = StyleSheet.create({
     textShadowRadius: 8,
   },
 
-  // 모달
+  // 모달 (공통)
   modalOverlay: {
     flex: 1, justifyContent: 'center', alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -345,56 +345,98 @@ export const homeStyles = StyleSheet.create({
   modalOverlayTouchable: {
     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
   },
-  modalContent: {
-    backgroundColor: COLORS.bgCard, borderRadius: 16, width: '85%', maxHeight: '70%',
-    borderWidth: 1, borderColor: 'rgba(0, 240, 255, 0.2)',
-    shadowColor: '#00F0FF', shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.1, shadowRadius: 40, elevation: 10,
-    overflow: 'hidden',
-  },
-  scrollHandle: {
-    height: 4,
-    backgroundColor: COLORS.neonCyan,
-    opacity: 0.8,
-  },
-  scrollHandleBottom: {
-    height: 4,
-    backgroundColor: COLORS.neonCyan,
-    opacity: 0.4,
-  },
-  modalHeader: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: 'rgba(42, 42, 80, 0.5)',
-  },
-  modalTitle: {
-    fontFamily: 'PressStart2P', fontSize: 9, color: COLORS.textPrimary, letterSpacing: 1,
-    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
-  },
-  modalClose: {
-    color: COLORS.textMuted, fontSize: 18, fontWeight: 'bold',
-    width: 32, height: 32, textAlign: 'center' as const, lineHeight: 32,
-    backgroundColor: COLORS.bgElevated, borderRadius: 8, overflow: 'hidden',
-  },
   modalEmpty: { alignItems: 'center', paddingVertical: 40 },
   emptyTextScroll: { fontFamily: 'InterBold', color: COLORS.textSecondary, fontSize: 16 },
   emptySubTextScroll: { fontFamily: 'Inter', color: COLORS.textMuted, fontSize: 13, marginTop: 4 },
 
-  // 성취 아이템
-  achievementItem: {
-    paddingHorizontal: 20, paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: 'rgba(42, 42, 80, 0.5)',
+  // CRT 모니터 스타일 모달
+  crtHousing: {
+    backgroundColor: '#2A2A3A', borderRadius: 12, width: '85%', maxHeight: '75%',
+    padding: 8,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.6, shadowRadius: 32, elevation: 10,
   },
-  achievementHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  achievementLeft: { flex: 1 },
-  achievementTitle: {
-    fontFamily: 'PressStart2P', color: COLORS.neonCyan, fontSize: 9, letterSpacing: 1,
+  crtHeader: {
+    flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'space-between' as const,
+    paddingHorizontal: 10, paddingVertical: 8,
+  },
+  crtHeaderLeft: {
+    flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6,
+  },
+  crtLed: {
+    width: 6, height: 6, borderRadius: 3, backgroundColor: '#00FF88',
+  },
+  crtBrand: {
+    fontFamily: 'InterBold', color: COLORS.textMuted, fontSize: 10,
+  },
+  crtCloseButton: {
+    width: 24, height: 24, borderRadius: 4, backgroundColor: '#3A3A4A',
+    alignItems: 'center' as const, justifyContent: 'center' as const,
+  },
+  crtCloseText: {
+    color: COLORS.textMuted, fontSize: 10, fontWeight: 'bold' as const, marginTop: -1,
+  },
+  crtScreen: {
+    backgroundColor: '#050515', borderRadius: 6, borderWidth: 2, borderColor: '#1A1A2A',
+    padding: 14, overflow: 'hidden' as const,
+  },
+  crtScreenTitle: {
+    fontFamily: 'PressStart2P', fontSize: 9, color: COLORS.neonCyan, letterSpacing: 2,
+    textAlign: 'center' as const, marginBottom: 12,
     textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
   },
-  achievementMeta: { fontFamily: 'Inter', color: COLORS.textMuted, fontSize: 11, marginTop: 4 },
-  achievementArrow: { color: COLORS.neonCyan, fontSize: 12, marginLeft: 8 },
+  crtLineCard: {
+    backgroundColor: 'rgba(26, 26, 53, 0.6)', borderRadius: 8,
+    borderWidth: 1, marginBottom: 8, padding: 10,
+  },
+  crtLineHeader: {
+    flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'space-between' as const,
+  },
+  crtLineLeft: {
+    flexDirection: 'row' as const, alignItems: 'center' as const, gap: 8,
+  },
+  crtLineNumber: {
+    fontFamily: 'PressStart2P', fontSize: 14, color: 'rgba(0, 240, 255, 0.5)',
+    textShadowColor: 'rgba(0, 240, 255, 0.4)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
+  },
+  crtLineLabel: {
+    fontFamily: 'InterBold', color: COLORS.textPrimary, fontSize: 12,
+  },
+  crtLineMulti: {
+    fontFamily: 'InterBold', fontSize: 8, color: COLORS.neonMagenta,
+    backgroundColor: 'rgba(255, 0, 229, 0.1)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4,
+  },
+  crtLineMeta: {
+    fontFamily: 'Inter', color: COLORS.textMuted, fontSize: 10, marginTop: 2,
+  },
+  crtLineScore: {
+    fontFamily: 'PressStart2P', fontSize: 10, color: COLORS.neonYellow,
+    textShadowColor: 'rgba(255, 229, 0, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  crtLineBody: {
+    marginTop: 8, paddingTop: 8,
+    borderTopWidth: 1, borderTopColor: 'rgba(255, 0, 229, 0.1)',
+  },
+  crtScoreBar: {
+    flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'space-around' as const,
+    paddingVertical: 8, paddingHorizontal: 12,
+  },
+  crtScoreStat: { alignItems: 'center' as const },
+  crtScoreValue: {
+    fontFamily: 'PressStart2P', fontSize: 12,
+    textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 8,
+  },
+  crtScoreLabel: {
+    fontFamily: 'InterBold', color: COLORS.textMuted, fontSize: 8, letterSpacing: 1,
+  },
+  crtScoreDivider: {
+    width: 1, height: 20, backgroundColor: 'rgba(42, 42, 80, 0.5)',
+  },
+
+  // 성취 아이템 (공통 재활용)
   achievementBody: {
     marginTop: 10, paddingLeft: 12,
     borderLeftWidth: 2, borderLeftColor: 'rgba(0, 240, 255, 0.2)', marginLeft: 2,

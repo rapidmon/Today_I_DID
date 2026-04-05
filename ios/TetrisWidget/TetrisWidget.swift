@@ -181,7 +181,13 @@ struct TetrisWidgetView: View {
                     .font(NeonColors.pixelFont(16))
                     .foregroundColor(NeonColors.neonCyan.opacity(0.5))
 
-                if entry.state.blockQueue.isEmpty {
+                if entry.state.gameOver {
+                    // GAME OVER: 비활성 표시
+                    Text("-")
+                        .font(NeonColors.pixelFont(14))
+                        .foregroundColor(NeonColors.textMuted.opacity(0.2))
+                        .frame(maxWidth: .infinity, minHeight: 40)
+                } else if entry.state.blockQueue.isEmpty {
                     // 얇은 + 아이콘
                     ZStack {
                         Rectangle()
@@ -244,7 +250,14 @@ struct TetrisWidgetView: View {
                 .foregroundColor(NeonColors.neonMagenta.opacity(0.5))
                 .frame(maxWidth: .infinity)
 
-            if tasks.isEmpty {
+            if entry.state.gameOver {
+                Spacer()
+                Text("T_T")
+                    .font(NeonColors.pixelFont(14))
+                    .foregroundColor(NeonColors.neonMagenta.opacity(0.3))
+                    .frame(maxWidth: .infinity)
+                Spacer()
+            } else if tasks.isEmpty {
                 Spacer()
                 Text("ALL DONE!")
                     .font(NeonColors.pixelFont(9))

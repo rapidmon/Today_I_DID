@@ -170,7 +170,7 @@ class TetrisWidgetProvider : AppWidgetProvider() {
 
         // === TODO 영역 ===
         views.setImageViewBitmap(R.id.todo_label, WidgetRenderer.renderText(context, "TODO", textSize, 0x77FF00E5))
-        renderTodoItems(context, views)
+        renderTodoItems(context, views, state.gameOver)
 
         // NEXT 블록 렌더링
         val nextBlock = if (state.blockQueue.isNotEmpty()) state.blockQueue[0] else null
@@ -178,7 +178,11 @@ class TetrisWidgetProvider : AppWidgetProvider() {
             nextBlock?.type, nextBlock?.colorId ?: 0, NEXT_BLOCK_SIZE, bgAlpha
         )
         views.setImageViewBitmap(R.id.next_block, nextBitmap)
-        views.setOnClickPendingIntent(R.id.next_block, createOpenAppPendingIntent(context))
+        if (state.gameOver) {
+            views.setOnClickPendingIntent(R.id.next_block, createPendingIntent(context, "NOOP"))
+        } else {
+            views.setOnClickPendingIntent(R.id.next_block, createOpenAppPendingIntent(context))
+        }
 
         // === 조작 버튼 (삼각형 아이콘) ===
         val iconSize = dpToPx(context, 18f).toInt()
@@ -225,7 +229,7 @@ class TetrisWidgetProvider : AppWidgetProvider() {
         }, 300)
     }
 
-    private fun renderTodoItems(context: Context, views: RemoteViews) {
+    private fun renderTodoItems(context: Context, views: RemoteViews, isGameOver: Boolean = false) {
         val todoTextSize = dpToPx(context, 14f)
         val todoColor = 0xE6888899.toInt()
         val maxWidth = dpToPx(context, 55f).toInt()
@@ -235,8 +239,21 @@ class TetrisWidgetProvider : AppWidgetProvider() {
 
         val pendingTasks = getPendingTasks(context)
 
+        if (isGameOver) {
+            // GAME OVER: T_T 표시
+            views.setViewVisibility(todoRowIds[0], View.VISIBLE)
+            views.setImageViewBitmap(
+                todoTextIds[0],
+                WidgetRenderer.renderText(context, "T_T", dpToPx(context, 11f), 0x4DFF00E5)
+            )
+            for (i in 1 until todoRowIds.size) {
+                views.setViewVisibility(todoRowIds[i], View.GONE)
+            }
+            return
+        }
+
         if (pendingTasks.isEmpty()) {
-            // ALL DONE 표시: 1행에 ALL DONE 텍스트, 나머지 숨김
+            // ALL DONE 표시
             views.setViewVisibility(todoRowIds[0], View.VISIBLE)
             views.setImageViewBitmap(
                 todoTextIds[0],
