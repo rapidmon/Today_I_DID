@@ -97,7 +97,7 @@ object WidgetRenderer {
 
             // GAME OVER 텍스트 (PressStart2P 폰트)
             paint.typeface = cachedTypeface ?: Typeface.MONOSPACE
-            paint.textSize = cellSize * 0.85f
+            paint.textSize = cellSize * 0.9f
             paint.color = Color.parseColor("#FF3355")
             paint.textAlign = Paint.Align.CENTER
             paint.style = Paint.Style.FILL

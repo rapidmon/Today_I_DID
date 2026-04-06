@@ -1110,7 +1110,7 @@ export default function HomeScreen() {
             <View style={styles.crtScreen}>
               {/* 비네트 효과 (가장자리 어두워짐) */}
               <View style={styles.crtVignette} pointerEvents="none" />
-              <Text style={styles.crtScreenTitle}>COMPLETED LINES</Text>
+              <Text style={styles.crtScreenTitle}>★ COMPLETED LINES ★</Text>
 
               {achievements.length === 0 ? (
                 <View style={styles.modalEmpty}>

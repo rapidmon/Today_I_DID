@@ -73,38 +73,19 @@ export default function HistoryScreen() {
                     <Text style={s.statValue}>{item.totalLineClears}</Text>
                     <Text style={s.statLabel}>줄 클리어</Text>
                   </View>
-                  <View style={s.stat}>
-                    <Text style={s.statValue}>{item.completedTasks.length}</Text>
-                    <Text style={s.statLabel}>완료한 일</Text>
-                  </View>
-                  <Text style={s.expandArrow}>{isExpanded ? '▲' : '▼'}</Text>
+                  {item.achievements.length > 0 && (
+                    <Text style={s.expandArrow}>{isExpanded ? '▲' : '▼'}</Text>
+                  )}
                 </View>
 
-                {/* 펼침 — 완료한 할 일 + 줄 클리어 성취 */}
-                {isExpanded && (
+                {/* 펼침 — 줄 클리어 성취 */}
+                {isExpanded && item.achievements.length > 0 && (
                   <View style={s.expandedBody}>
-                    <Text style={s.sectionTitle}>완료한 할 일</Text>
-                    {item.completedTasks.length === 0 ? (
-                      <Text style={s.noData}>기록 없음</Text>
-                    ) : (
-                      item.completedTasks.map((task, i) => (
-                        <View key={`${task.completedAt}_${i}`} style={s.taskRow}>
-                          <View style={[s.blockDot, { backgroundColor: BLOCK_TYPE_COLORS[task.blockType] || '#888899' }]} />
-                          <Text style={s.taskText} numberOfLines={1}>{task.content}</Text>
-                        </View>
-                      ))
-                    )}
-
-                    {item.achievements.length > 0 && (
-                      <>
-                        <Text style={[s.sectionTitle, { marginTop: 12 }]}>줄 클리어 성취</Text>
-                        {item.achievements.map((ach) => (
-                          <View key={ach.id} style={s.achRow}>
-                            <Text style={s.achText}>LINE — {ach.lineCount}줄 · +{ach.score}</Text>
-                          </View>
-                        ))}
-                      </>
-                    )}
+                    {item.achievements.map((ach) => (
+                      <View key={ach.id} style={s.achRow}>
+                        <Text style={s.achText}>LINE — {ach.lineCount}줄 · +{ach.score}</Text>
+                      </View>
+                    ))}
                   </View>
                 )}
               </Pressable>
@@ -145,60 +126,53 @@ const s = StyleSheet.create({
     borderBottomWidth: 1, borderBottomColor: 'rgba(255, 51, 85, 0.15)',
   },
   gameOverBannerText: {
-    fontFamily: 'PressStart2P', fontSize: 11, color: '#FF3355', letterSpacing: 4,
+    fontFamily: 'PressStart2P', fontSize: 12, color: '#FF3355', letterSpacing: 4,
     textShadowColor: 'rgba(255, 51, 85, 0.6)', textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
+    textShadowRadius: 10,
   },
   cardHeader: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8,
+    paddingHorizontal: 16, paddingTop: 14, paddingBottom: 10,
   },
   cardLeft: {},
   gameNumRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   gameNum: {
-    fontFamily: 'PressStart2P', fontSize: 10, color: '#00F0FF', letterSpacing: 1,
+    fontFamily: 'PressStart2P', fontSize: 12, color: '#00F0FF', letterSpacing: 1,
     textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
+    textShadowRadius: 10,
   },
-  // gameOverBadge/gameOverText는 배너로 대체됨 — 미사용
-  gameDate: { fontFamily: 'Inter', fontSize: 12, color: '#555577', marginTop: 4 },
-  cardRight: { alignItems: 'flex-end' },
+  gameDate: { fontFamily: 'InterBold', fontSize: 13, color: '#8888AA', marginTop: 6 },
+  cardRight: { alignItems: 'flex-end' as const },
   scoreLabel: {
-    fontFamily: 'PressStart2P', fontSize: 7, color: '#8888AA', letterSpacing: 2,
-    textShadowColor: 'rgba(255, 229, 0, 0.4)', textShadowOffset: { width: 0, height: 0 },
+    fontFamily: 'PressStart2P', fontSize: 9, color: '#8888AA', letterSpacing: 2, marginBottom: 4,
+    textShadowColor: 'rgba(255, 229, 0, 0.3)', textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
   },
   scoreValue: {
-    fontFamily: 'PressStart2P', fontSize: 18, color: '#FFE500',
+    fontFamily: 'PressStart2P', fontSize: 22, color: '#FFE500',
     textShadowColor: 'rgba(255, 229, 0, 0.6)', textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
+    textShadowRadius: 12,
   },
   statsRow: {
     flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 16, paddingBottom: 12, gap: 16,
+    paddingHorizontal: 16, paddingBottom: 14, gap: 20,
   },
   stat: { alignItems: 'center' },
-  statValue: { fontFamily: 'InterBold', fontSize: 16, color: '#E8E8FF' },
-  statLabel: { fontFamily: 'Inter', fontSize: 10, color: '#555577', marginTop: 2 },
-  expandArrow: { color: '#555577', fontSize: 12, marginLeft: 'auto' },
+  statValue: {
+    fontFamily: 'InterBold', fontSize: 18, color: '#E8E8FF',
+    textShadowColor: 'rgba(0, 240, 255, 0.3)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
+  },
+  statLabel: { fontFamily: 'InterBold', fontSize: 11, color: '#8888AA', marginTop: 2 },
+  expandArrow: { color: '#00F0FF', fontSize: 14, marginLeft: 'auto' },
   expandedBody: {
     borderTopWidth: 1, borderTopColor: 'rgba(42, 42, 80, 0.5)',
     paddingHorizontal: 16, paddingVertical: 12,
   },
-  sectionTitle: {
-    fontFamily: 'PressStart2P', fontSize: 7, color: '#555577',
-    letterSpacing: 3, marginBottom: 8,
+  achRow: { marginBottom: 6 },
+  achText: {
+    fontFamily: 'InterBold', color: '#E8E8FF', fontSize: 14,
+    textShadowColor: 'rgba(0, 240, 255, 0.3)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 4,
   },
-  noData: { fontFamily: 'Inter', color: '#555577', fontSize: 13 },
-  taskRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
-  blockDot: {
-    width: 12, height: 12, marginRight: 8, borderRadius: 2,
-    borderTopWidth: 2, borderLeftWidth: 2,
-    borderTopColor: 'rgba(255,255,255,0.55)', borderLeftColor: 'rgba(255,255,255,0.45)',
-    borderBottomWidth: 2, borderRightWidth: 2,
-    borderBottomColor: 'rgba(0,0,0,0.55)', borderRightColor: 'rgba(0,0,0,0.5)',
-  },
-  taskText: { fontFamily: 'Inter', color: '#8888AA', fontSize: 13, flex: 1 },
-  achRow: { marginBottom: 4 },
-  achText: { fontFamily: 'Inter', color: '#8888AA', fontSize: 12 },
 })
