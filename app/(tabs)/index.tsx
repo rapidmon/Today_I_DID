@@ -1009,9 +1009,6 @@ export default function HomeScreen() {
                         <Pressable style={styles.editCancelButton} onPress={cancelEdit}>
                           <Text style={styles.editCancelText}>CANCEL</Text>
                         </Pressable>
-                        <Pressable style={styles.editDeleteButton} onPress={handleDeleteTask}>
-                          <TrashIcon size={14} color="#FF3355" />
-                        </Pressable>
                       </View>
                     </View>
                   )
