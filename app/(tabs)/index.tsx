@@ -26,6 +26,7 @@ import { useHistoryStore } from '@/stores/historyStore'
 import { homeStyles as styles, COLORS } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
 import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/Icons'
+import { CrtOverlay } from '@/components/ui/CrtOverlay'
 
 const today = () => {
   const now = new Date()
@@ -70,6 +71,8 @@ export default function HomeScreen() {
   // 루틴 수정 모드
   const [editingRoutineId, setEditingRoutineId] = useState<string | null>(null)
   const [editRoutineDays, setEditRoutineDays] = useState<DayOfWeek[]>([])
+  // CRT 스크린 크기
+  const [crtSize, setCrtSize] = useState({ width: 0, height: 0 })
   const [recentlyCompleted, setRecentlyCompleted] = useState<Set<string>>(new Set())
   const historySavedRef = useRef(false)
   const addBlock = useGameStore((s) => s.addBlock)
@@ -1107,9 +1110,15 @@ export default function HomeScreen() {
             </View>
 
             {/* CRT 스크린 */}
-            <View style={styles.crtScreen}>
-              {/* 비네트 효과 (가장자리 어두워짐) */}
-              <View style={styles.crtVignette} pointerEvents="none" />
+            <View
+              style={styles.crtScreen}
+              onLayout={(e) => {
+                const { width, height } = e.nativeEvent.layout
+                setCrtSize({ width, height })
+              }}
+            >
+              {/* CRT 스캔라인 + 비네트 효과 */}
+              {crtSize.width > 0 && <CrtOverlay width={crtSize.width} height={crtSize.height} />}
               <Text style={styles.crtScreenTitle}>★ COMPLETED LINES ★</Text>
 
               {achievements.length === 0 ? (

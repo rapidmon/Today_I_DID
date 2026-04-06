@@ -43,7 +43,16 @@
       "Bash(grep -r \"addBlockToQueue\\\\|TetrisWidgetBridge\\\\|widgetBridge\" /c/Users/Foryoucom/Desktop/coding/Today_I_did/src --include=*.js --include=*.ts --include=*.tsx)",
       "Bash(xargs grep:*)",
       "Bash(git checkout:*)",
-      "Bash(./gradlew.bat app:assembleDebug -x lint -x test --configure-on-demand --build-cache)"
+      "Bash(./gradlew.bat app:assembleDebug -x lint -x test --configure-on-demand --build-cache)",
+      "WebFetch(domain:codepen.io)",
+      "WebFetch(domain:css-tricks.com)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:aleclownes.com)",
+      "WebFetch(domain:www.google.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(curl -sL \"https://api.github.com/repos/HauntedCrusader/afterglow-crt/contents/\")",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/HauntedCrusader/afterglow-crt/main/crt.css\")"
     ]
   }
 }
