@@ -362,38 +362,36 @@ object WidgetRenderer {
             intArrayOf(1,0,0,0,1),
         )
 
-        val line1 = arrayOf(G, A, M, E)
-        val line2 = arrayOf(O, V, E, R)
+        // 한 줄: G A M E [space] O V E R
+        val allLetters = arrayOf(G, A, M, E, O, V, E, R)
 
         val charW = 5
         val charH = 7
         val gap = 1
-        val totalCharsW = charW * 4 + gap * 3 // 23 pixels wide
-        val totalCharsH = charH * 2 + 2 // 16 pixels tall (2 lines + gap)
+        val spaceGap = 3 // GAME과 OVER 사이 간격
+        val totalCharsW = charW * 8 + gap * 6 + spaceGap // 8글자 + 7갭 + 추가 공백
+        val totalCharsH = charH // 한 줄
 
-        val pixelSize = minOf(totalW.toFloat() / (totalCharsW + 4), totalH.toFloat() / (totalCharsH + 4)) * 0.22f
+        val pixelSize = minOf(totalW.toFloat() / (totalCharsW + 4), totalH.toFloat() / (totalCharsH + 4)) * 0.55f
         val startX = (totalW - totalCharsW * pixelSize) / 2f
         val startY = (totalH - totalCharsH * pixelSize) / 2f
 
         // 글자 그리기 (네온 레드)
         paint.color = Color.parseColor("#FF3355")
-        fun drawLine(letters: Array<Array<IntArray>>, offsetY: Float) {
-            for ((li, letter) in letters.withIndex()) {
-                val ox = startX + li * (charW + gap) * pixelSize
-                for (row in 0 until charH) {
-                    for (col in 0 until charW) {
-                        if (letter[row][col] == 1) {
-                            val px = ox + col * pixelSize
-                            val py = offsetY + row * pixelSize
-                            canvas.drawRect(RectF(px, py, px + pixelSize, py + pixelSize), paint)
-                        }
+        for ((li, letter) in allLetters.withIndex()) {
+            // GAME(0-3)과 OVER(4-7) 사이에 추가 간격
+            val extraSpace = if (li >= 4) spaceGap else 0
+            val ox = startX + (li * (charW + gap) + extraSpace) * pixelSize
+            for (row in 0 until charH) {
+                for (col in 0 until charW) {
+                    if (letter[row][col] == 1) {
+                        val px = ox + col * pixelSize
+                        val py = startY + row * pixelSize
+                        canvas.drawRect(RectF(px, py, px + pixelSize, py + pixelSize), paint)
                     }
                 }
             }
         }
-
-        drawLine(line1, startY)
-        drawLine(line2, startY + (charH + 2) * pixelSize)
     }
 
     // TODO 항목용 텍스트 렌더링 (Inter 폰트, 좌측 정렬, 말줄임)
