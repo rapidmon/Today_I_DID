@@ -365,9 +365,8 @@ object TetrisGameEngine {
 
         prefs.edit().clear().apply()
 
-        // 마지막 게임 데이터 + 성취/recordMap 복원
+        // 마지막 게임 데이터만 복원 (성취는 초기화)
         prefs.edit()
-            .putString("achievements", achievements)
             .putString("recordMap", recordMap)
             .putInt("lastGame_score", score)
             .putString("lastGame_achievements", achievements ?: "[]")

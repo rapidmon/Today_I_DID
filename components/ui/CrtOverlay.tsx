@@ -20,9 +20,9 @@ export const CrtOverlay = ({ width, height }: CrtOverlayProps) => (
         {/* 비네트: 중앙 투명 → 가장자리 어두움 */}
         <RadialGradient id="vignette" cx="50%" cy="50%" r="50%">
           <Stop offset="0%" stopColor="black" stopOpacity={0} />
-          <Stop offset="55%" stopColor="black" stopOpacity={0} />
-          <Stop offset="85%" stopColor="black" stopOpacity={0.3} />
-          <Stop offset="100%" stopColor="black" stopOpacity={0.7} />
+          <Stop offset="70%" stopColor="black" stopOpacity={0} />
+          <Stop offset="90%" stopColor="black" stopOpacity={0.15} />
+          <Stop offset="100%" stopColor="black" stopOpacity={0.35} />
         </RadialGradient>
       </Defs>
 
