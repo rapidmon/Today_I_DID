@@ -80,7 +80,7 @@ export default function HistoryScreen() {
                   <Text style={s.expandArrow}>{isExpanded ? '▲' : '▼'}</Text>
                 </View>
 
-                {/* 펼침 — 완료한 할 일 목록 */}
+                {/* 펼침 — 완료한 할 일 + 줄 클리어 성취 */}
                 {isExpanded && (
                   <View style={s.expandedBody}>
                     <Text style={s.sectionTitle}>완료한 할 일</Text>
@@ -93,6 +93,17 @@ export default function HistoryScreen() {
                           <Text style={s.taskText} numberOfLines={1}>{task.content}</Text>
                         </View>
                       ))
+                    )}
+
+                    {item.achievements.length > 0 && (
+                      <>
+                        <Text style={[s.sectionTitle, { marginTop: 12 }]}>줄 클리어 성취</Text>
+                        {item.achievements.map((ach) => (
+                          <View key={ach.id} style={s.achRow}>
+                            <Text style={s.achText}>LINE — {ach.lineCount}줄 · +{ach.score}</Text>
+                          </View>
+                        ))}
+                      </>
                     )}
                   </View>
                 )}
