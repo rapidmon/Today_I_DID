@@ -1082,7 +1082,7 @@ export default function HomeScreen() {
 
       {/* 완성 라인 플로팅 버튼 */}
       <Pressable
-        style={[styles.fab, { bottom: 8 }]}
+        style={[styles.fab, { bottom: 16 }]}
         onPress={openModal}
         accessibilityLabel="완성된 라인 보기"
         accessibilityRole="button"

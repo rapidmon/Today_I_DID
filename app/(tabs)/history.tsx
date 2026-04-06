@@ -55,7 +55,7 @@ export default function HistoryScreen() {
                 <View style={s.cardHeader}>
                   <View style={s.cardLeft}>
                     <View style={s.gameNumRow}>
-                      <Text style={[s.gameNum, index === 0 && { color: '#00F0FF', textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 }, textShadowRadius: 8 }]}>
+                      <Text style={s.gameNum}>
                         GAME #{gameNum}
                       </Text>
                     </View>
@@ -77,10 +77,6 @@ export default function HistoryScreen() {
                     <Text style={s.statValue}>{item.completedTasks.length}</Text>
                     <Text style={s.statLabel}>완료한 일</Text>
                   </View>
-                  <View style={s.stat}>
-                    <Text style={s.statValue}>{item.achievements.length}</Text>
-                    <Text style={s.statLabel}>성취</Text>
-                  </View>
                   <Text style={s.expandArrow}>{isExpanded ? '▲' : '▼'}</Text>
                 </View>
 
@@ -97,17 +93,6 @@ export default function HistoryScreen() {
                           <Text style={s.taskText} numberOfLines={1}>{task.content}</Text>
                         </View>
                       ))
-                    )}
-
-                    {item.achievements.length > 0 && (
-                      <>
-                        <Text style={[s.sectionTitle, { marginTop: 12 }]}>줄 클리어 성취</Text>
-                        {item.achievements.map((ach) => (
-                          <View key={ach.id} style={s.achRow}>
-                            <Text style={s.achText}>LINE — {ach.lineCount}줄 · +{ach.score}</Text>
-                          </View>
-                        ))}
-                      </>
                     )}
                   </View>
                 )}
@@ -139,8 +124,10 @@ const s = StyleSheet.create({
   listContent: { paddingHorizontal: 16, paddingBottom: 100 },
   card: {
     borderRadius: 16, marginBottom: 12, overflow: 'hidden',
-    borderWidth: 1, borderColor: '#2A2A50',
+    borderWidth: 1, borderColor: 'rgba(0, 240, 255, 0.15)',
     backgroundColor: '#1A1A35',
+    shadowColor: '#00F0FF', shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1, shadowRadius: 12, elevation: 3,
   },
   gameOverBanner: {
     alignItems: 'center', justifyContent: 'center', paddingVertical: 10,
@@ -158,12 +145,18 @@ const s = StyleSheet.create({
   cardLeft: {},
   gameNumRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   gameNum: {
-    fontFamily: 'PressStart2P', fontSize: 10, color: '#8888AA', letterSpacing: 1,
+    fontFamily: 'PressStart2P', fontSize: 10, color: '#00F0FF', letterSpacing: 1,
+    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
   },
   // gameOverBadge/gameOverText는 배너로 대체됨 — 미사용
   gameDate: { fontFamily: 'Inter', fontSize: 12, color: '#555577', marginTop: 4 },
   cardRight: { alignItems: 'flex-end' },
-  scoreLabel: { fontFamily: 'PressStart2P', fontSize: 7, color: '#555577', letterSpacing: 2 },
+  scoreLabel: {
+    fontFamily: 'PressStart2P', fontSize: 7, color: '#8888AA', letterSpacing: 2,
+    textShadowColor: 'rgba(255, 229, 0, 0.4)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
+  },
   scoreValue: {
     fontFamily: 'PressStart2P', fontSize: 18, color: '#FFE500',
     textShadowColor: 'rgba(255, 229, 0, 0.6)', textShadowOffset: { width: 0, height: 0 },
