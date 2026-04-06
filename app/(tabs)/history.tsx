@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChartIcon } from '@/components/ui/Icons'
-import { NeonText } from '@/components/ui/NeonText'
 import { useHistoryStore } from '@/stores/historyStore'
 import { BLOCK_TYPE_COLORS } from '@/constants/tetris'
 
@@ -18,7 +17,7 @@ export default function HistoryScreen() {
   return (
     <View style={[s.container, { paddingTop: insets.top }]}>
       <View style={s.header}>
-        <NeonText text="HISTORY" color="#00F0FF" fontSize={11} letterSpacing={2} />
+        <Text style={s.title}>HISTORY</Text>
         <Text style={s.subtitle}>{histories.length}판 플레이</Text>
       </View>
 
@@ -64,7 +63,7 @@ export default function HistoryScreen() {
                   </View>
                   <View style={s.cardRight}>
                     <Text style={s.scoreLabel}>SCORE</Text>
-                    <NeonText text={`${item.finalScore}`} color="#FFE500" fontSize={20} />
+                    <Text style={s.scoreValue}>{item.finalScore}</Text>
                   </View>
                 </View>
 
@@ -73,6 +72,10 @@ export default function HistoryScreen() {
                   <View style={s.stat}>
                     <Text style={s.statValue}>{item.totalLineClears}</Text>
                     <Text style={s.statLabel}>줄 클리어</Text>
+                  </View>
+                  <View style={s.stat}>
+                    <Text style={s.statValue}>{item.completedTasks.length}</Text>
+                    <Text style={s.statLabel}>완료한 일</Text>
                   </View>
                   {item.achievements.length > 0 && (
                     <Text style={s.expandArrow}>{isExpanded ? '▲' : '▼'}</Text>
@@ -105,9 +108,9 @@ const s = StyleSheet.create({
     paddingHorizontal: 20, paddingVertical: 12,
   },
   title: {
-    fontFamily: 'PressStart2P', fontSize: 11, color: '#E8E8FF', letterSpacing: 2,
-    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
+    fontFamily: 'PressStart2P', fontSize: 11, color: '#FFFFFF', letterSpacing: 2,
+    textShadowColor: '#00F0FF', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 16,
   },
   subtitle: { fontFamily: 'InterBold', color: '#8888AA', fontSize: 13 },
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center' },

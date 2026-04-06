@@ -27,7 +27,6 @@ import { homeStyles as styles, COLORS } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
 import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/Icons'
 import { CrtOverlay } from '@/components/ui/CrtOverlay'
-import { NeonText } from '@/components/ui/NeonText'
 
 const today = () => {
   const now = new Date()
@@ -670,7 +669,7 @@ export default function HomeScreen() {
             <View style={[styles.headerBlock, { backgroundColor: '#00F0FF' }]} />
             <View style={[styles.headerBlock, { backgroundColor: '#FF00E5' }]} />
           </View>
-          <NeonText text="TODAY I DID" color="#00F0FF" fontSize={11} letterSpacing={2} />
+          <Text style={styles.title}>TODAY I DID</Text>
         </View>
         <View style={styles.headerRight}>
           {isGameOver && (
@@ -679,7 +678,7 @@ export default function HomeScreen() {
             </View>
           )}
           <View style={styles.scoreBadge}>
-            <NeonText text={`SCORE ${gameScore}`} color="#FFE500" fontSize={8} />
+            <Text style={styles.scoreText}>SCORE {gameScore}</Text>
           </View>
         </View>
       </View>
@@ -1122,10 +1121,10 @@ export default function HomeScreen() {
               {crtSize.width > 0 && <CrtOverlay width={crtSize.width} height={crtSize.height} />}
               <Text style={styles.crtScreenTitle}>★ COMPLETED LINES ★</Text>
 
-              {achievements.length === 0 ? (
+              {achievements.length === 0 || isGameOver ? (
                 <View style={styles.modalEmpty}>
-                  <Text style={styles.emptyTextScroll}>아직 완성된 라인이 없어요</Text>
-                  <Text style={styles.emptySubTextScroll}>위젯에서 테트리스 줄을 완성해보세요!</Text>
+                  <Text style={styles.emptyTextScroll}>{isGameOver ? 'GAME OVER' : '아직 완성된 라인이 없어요'}</Text>
+                  <Text style={styles.emptySubTextScroll}>{isGameOver ? '새 게임을 시작해보세요!' : '위젯에서 테트리스 줄을 완성해보세요!'}</Text>
                 </View>
               ) : (
                 <FlatList

@@ -36,9 +36,9 @@ export const homeStyles = StyleSheet.create({
     borderBottomColor: 'rgba(0,0,0,0.55)', borderRightColor: 'rgba(0,0,0,0.5)',
   },
   title: {
-    fontFamily: 'PressStart2P', fontSize: 11, color: COLORS.textPrimary, letterSpacing: 2,
-    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
+    fontFamily: 'PressStart2P', fontSize: 11, color: '#FFFFFF', letterSpacing: 2,
+    textShadowColor: '#00F0FF', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 16,
   },
   headerRight: { flexDirection: 'row' as const, gap: 8, alignItems: 'center' as const },
   scoreBadge: {
@@ -48,10 +48,10 @@ export const homeStyles = StyleSheet.create({
     paddingTop: 8, paddingBottom: 5,
   },
   scoreText: {
-    fontFamily: 'PressStart2P', color: COLORS.neonYellow, fontSize: 8, letterSpacing: 1,
+    fontFamily: 'PressStart2P', color: '#FFFFFF', fontSize: 8, letterSpacing: 1,
     textAlignVertical: 'center' as const,
-    textShadowColor: 'rgba(255, 229, 0, 0.6)', textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 8,
+    textShadowColor: '#FFE500', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 14,
   },
   gameOverBadge: {
     backgroundColor: 'rgba(255, 51, 85, 0.1)',
@@ -400,7 +400,7 @@ export const homeStyles = StyleSheet.create({
     color: COLORS.textMuted, fontSize: 10, fontWeight: 'bold' as const, marginTop: -1,
   },
   crtScreen: {
-    backgroundColor: '#050515', borderRadius: 6, borderWidth: 2, borderColor: '#1A1A2A',
+    backgroundColor: '#0D0D22', borderRadius: 6, borderWidth: 2, borderColor: '#2A2A50',
     padding: 14, overflow: 'hidden' as const, position: 'relative' as const,
   },
   crtScreenTitle: {
