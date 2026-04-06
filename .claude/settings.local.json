@@ -52,7 +52,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "Bash(curl -sL \"https://api.github.com/repos/HauntedCrusader/afterglow-crt/contents/\")",
-      "Bash(curl -sL \"https://raw.githubusercontent.com/HauntedCrusader/afterglow-crt/main/crt.css\")"
+      "Bash(curl -sL \"https://raw.githubusercontent.com/HauntedCrusader/afterglow-crt/main/crt.css\")",
+      "WebFetch(domain:stackoverflow.com)"
     ]
   }
 }

@@ -27,6 +27,7 @@ import { homeStyles as styles, COLORS } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
 import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/Icons'
 import { CrtOverlay } from '@/components/ui/CrtOverlay'
+import { NeonText } from '@/components/ui/NeonText'
 
 const today = () => {
   const now = new Date()
@@ -669,7 +670,7 @@ export default function HomeScreen() {
             <View style={[styles.headerBlock, { backgroundColor: '#00F0FF' }]} />
             <View style={[styles.headerBlock, { backgroundColor: '#FF00E5' }]} />
           </View>
-          <Text style={styles.title}>TODAY I DID</Text>
+          <NeonText text="TODAY I DID" color="#00F0FF" fontSize={11} letterSpacing={2} />
         </View>
         <View style={styles.headerRight}>
           {isGameOver && (
@@ -678,7 +679,7 @@ export default function HomeScreen() {
             </View>
           )}
           <View style={styles.scoreBadge}>
-            <Text style={styles.scoreText}>SCORE {gameScore}</Text>
+            <NeonText text={`SCORE ${gameScore}`} color="#FFE500" fontSize={8} />
           </View>
         </View>
       </View>

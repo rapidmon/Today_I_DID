@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ChartIcon } from '@/components/ui/Icons'
+import { NeonText } from '@/components/ui/NeonText'
 import { useHistoryStore } from '@/stores/historyStore'
 import { BLOCK_TYPE_COLORS } from '@/constants/tetris'
 
@@ -17,7 +18,7 @@ export default function HistoryScreen() {
   return (
     <View style={[s.container, { paddingTop: insets.top }]}>
       <View style={s.header}>
-        <Text style={s.title}>HISTORY</Text>
+        <NeonText text="HISTORY" color="#00F0FF" fontSize={11} letterSpacing={2} />
         <Text style={s.subtitle}>{histories.length}판 플레이</Text>
       </View>
 
@@ -63,7 +64,7 @@ export default function HistoryScreen() {
                   </View>
                   <View style={s.cardRight}>
                     <Text style={s.scoreLabel}>SCORE</Text>
-                    <Text style={s.scoreValue}>{item.finalScore}</Text>
+                    <NeonText text={`${item.finalScore}`} color="#FFE500" fontSize={20} />
                   </View>
                 </View>
 
