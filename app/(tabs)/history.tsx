@@ -87,7 +87,10 @@ export default function HistoryScreen() {
                   <View style={s.expandedBody}>
                     {item.achievements.map((ach) => (
                       <View key={ach.id} style={s.achRow}>
-                        <Text style={s.achText}>LINE — {ach.lineCount}줄 · +{ach.score}</Text>
+                        <Text style={s.achText}>
+                          <Text style={s.achStar}>★ </Text>
+                          LINE — {ach.lineCount}줄 · +{ach.score}
+                        </Text>
                       </View>
                     ))}
                   </View>
@@ -174,6 +177,11 @@ const s = StyleSheet.create({
     paddingHorizontal: 16, paddingVertical: 12,
   },
   achRow: { marginBottom: 6 },
+  achStar: {
+    color: '#FFE500', fontSize: 14,
+    textShadowColor: 'rgba(255, 229, 0, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
   achText: {
     fontFamily: 'InterBold', color: '#E8E8FF', fontSize: 14,
     textShadowColor: 'rgba(0, 240, 255, 0.3)', textShadowOffset: { width: 0, height: 0 },
