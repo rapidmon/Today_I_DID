@@ -12,6 +12,9 @@ interface WidgetBridge {
   isGameOver: () => Promise<boolean>
   getAchievements: () => Promise<string>
   syncTasks: (tasksJson: string) => Promise<boolean>
+  getLastGameScore: () => Promise<number>
+  getLastGameAchievements: () => Promise<string>
+  clearLastGameData: () => Promise<boolean>
 }
 
 const noop = async () => true
@@ -38,6 +41,12 @@ const bridge: WidgetBridge = (Platform.OS === 'android' || Platform.OS === 'ios'
         TetrisWidgetBridge.getAchievements(),
       syncTasks: (tasksJson: string) =>
         TetrisWidgetBridge.syncTasks(tasksJson),
+      getLastGameScore: () =>
+        TetrisWidgetBridge.getLastGameScore(),
+      getLastGameAchievements: () =>
+        TetrisWidgetBridge.getLastGameAchievements(),
+      clearLastGameData: () =>
+        TetrisWidgetBridge.clearLastGameData(),
     }
   : {
       addBlockToQueue: noop,
@@ -49,6 +58,9 @@ const bridge: WidgetBridge = (Platform.OS === 'android' || Platform.OS === 'ios'
       isGameOver: async () => false,
       getAchievements: noopString,
       syncTasks: noop,
+      getLastGameScore: async () => 0,
+      getLastGameAchievements: noopString,
+      clearLastGameData: noop,
     }
 
 export default bridge

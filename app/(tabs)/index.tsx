@@ -268,30 +268,37 @@ export default function HomeScreen() {
         }
 
         // 앱이 게임오버를 놓친 채 위젯에서 리셋된 경우
-        // (widgetScore=0 + 아카이브 안 된 completed 태스크 존재)
-        if (!gameOver && !historySavedRef.current && widgetScore === 0) {
-          const currentTasks = useTaskStore.getState().tasks
-          const completedTasks = currentTasks.filter(
-            t => t.status === 'completed' && t.blockType && t.colorId !== null
-          )
-          if (completedTasks.length > 0) {
+        // lastGame 데이터로 점수/성취 복구
+        if (!gameOver && !historySavedRef.current) {
+          const lastScore = await widgetBridge.getLastGameScore()
+          if (lastScore > 0) {
+            const lastAchJson = await widgetBridge.getLastGameAchievements()
+            const lastAchRaw = JSON.parse(lastAchJson)
+            const lastAch: GameHistoryAchievement[] = Array.isArray(lastAchRaw) ? lastAchRaw : []
+
+            const currentTasks = useTaskStore.getState().tasks
+            const completedTasks = currentTasks.filter(
+              t => t.status === 'completed' && t.blockType && t.colorId !== null
+            )
+
             const history: GameHistory = {
               id: useTaskStore.getState().genId('history'),
               endedAt: Date.now(),
-              finalScore: 0,
-              totalLineClears: 0,
+              finalScore: lastScore,
+              totalLineClears: lastAch.reduce((sum, a) => sum + a.lineCount, 0),
               completedTasks: completedTasks.map(t => ({
                 content: t.content,
                 blockType: t.blockType!,
                 colorId: t.colorId!,
                 completedAt: t.completedAt ?? Date.now(),
               })),
-              achievements: [],
+              achievements: lastAch,
             }
             useHistoryStore.getState().addHistory(history)
             useTaskStore.getState().setTasks(prev => prev.map(t =>
               t.status === 'completed' ? { ...t, status: 'archived' as const } : t
             ))
+            await widgetBridge.clearLastGameData()
             resetGame()
             syncScore(0)
             setAchievements([])

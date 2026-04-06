@@ -355,13 +355,22 @@ object TetrisGameEngine {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val achievements = prefs.getString("achievements", "[]")
         val recordMap = prefs.getString("recordMap", "{}")
+        val score = prefs.getInt("score", 0)
+
+        // 마지막 게임 데이터 보존 (앱에서 히스토리 저장용)
+        prefs.edit()
+            .putInt("lastGame_score", score)
+            .putString("lastGame_achievements", achievements)
+            .apply()
 
         prefs.edit().clear().apply()
 
-        // 성취 기록과 recordMap 복원
+        // 마지막 게임 데이터 + 성취/recordMap 복원
         prefs.edit()
             .putString("achievements", achievements)
             .putString("recordMap", recordMap)
+            .putInt("lastGame_score", score)
+            .putString("lastGame_achievements", achievements ?: "[]")
             .apply()
     }
 

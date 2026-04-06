@@ -158,6 +158,48 @@ class TetrisWidgetBridge(reactContext: ReactApplicationContext) :
         }
     }
 
+    // 마지막 게임 점수 조회
+    @ReactMethod
+    fun getLastGameScore(promise: Promise) {
+        try {
+            val context = reactApplicationContext
+            val prefs = context.getSharedPreferences("tetris_widget", Context.MODE_PRIVATE)
+            val score = prefs.getInt("lastGame_score", 0)
+            promise.resolve(score)
+        } catch (e: Exception) {
+            promise.reject("ERROR", e.message)
+        }
+    }
+
+    // 마지막 게임 성취 조회
+    @ReactMethod
+    fun getLastGameAchievements(promise: Promise) {
+        try {
+            val context = reactApplicationContext
+            val prefs = context.getSharedPreferences("tetris_widget", Context.MODE_PRIVATE)
+            val json = prefs.getString("lastGame_achievements", "[]") ?: "[]"
+            promise.resolve(json)
+        } catch (e: Exception) {
+            promise.reject("ERROR", e.message)
+        }
+    }
+
+    // 마지막 게임 데이터 삭제
+    @ReactMethod
+    fun clearLastGameData(promise: Promise) {
+        try {
+            val context = reactApplicationContext
+            val prefs = context.getSharedPreferences("tetris_widget", Context.MODE_PRIVATE)
+            prefs.edit()
+                .remove("lastGame_score")
+                .remove("lastGame_achievements")
+                .apply()
+            promise.resolve(true)
+        } catch (e: Exception) {
+            promise.reject("ERROR", e.message)
+        }
+    }
+
     // 위젯 강제 갱신
     @ReactMethod
     fun refreshWidget(promise: Promise) {
