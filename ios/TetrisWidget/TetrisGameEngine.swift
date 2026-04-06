@@ -503,14 +503,20 @@ class TetrisGameEngine {
 
     static func resetGame() {
         guard let defaults = UserDefaults(suiteName: suiteName) else { return }
-        let achievements = defaults.string(forKey: "achievements")
+        let achievements = defaults.string(forKey: "achievements") ?? "[]"
         let recordMap = defaults.string(forKey: "recordMap")
+        let score = defaults.integer(forKey: "score")
+
+        // 마지막 게임 데이터 보존 (앱에서 히스토리 저장용)
+        defaults.set(score, forKey: "lastGame_score")
+        defaults.set(achievements, forKey: "lastGame_achievements")
 
         let keys = ["grid", "gridRecordIds", "activePiece", "blockQueue", "score",
-                     "gameOver", "totalLineClears", "animationState", "clearingRows", "pendingPenalties"]
+                     "gameOver", "totalLineClears", "animationState", "clearingRows",
+                     "pendingPenalties", "achievements"]
         for key in keys { defaults.removeObject(forKey: key) }
 
-        if let ach = achievements { defaults.set(ach, forKey: "achievements") }
+        // recordMap만 복원 (achievements는 초기화)
         if let rm = recordMap { defaults.set(rm, forKey: "recordMap") }
     }
 

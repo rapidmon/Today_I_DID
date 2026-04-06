@@ -144,6 +144,34 @@ class TetrisWidgetBridge: NSObject {
         resolve(true)
     }
 
+    // 마지막 게임 점수 조회
+    @objc func getLastGameScore(
+        _ resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        let score = defaults?.integer(forKey: "lastGame_score") ?? 0
+        resolve(score)
+    }
+
+    // 마지막 게임 성취 조회
+    @objc func getLastGameAchievements(
+        _ resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        let json = defaults?.string(forKey: "lastGame_achievements") ?? "[]"
+        resolve(json)
+    }
+
+    // 마지막 게임 데이터 삭제
+    @objc func clearLastGameData(
+        _ resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        defaults?.removeObject(forKey: "lastGame_score")
+        defaults?.removeObject(forKey: "lastGame_achievements")
+        resolve(true)
+    }
+
     // React Native 모듈 설정
     @objc static func requiresMainQueueSetup() -> Bool { false }
 }
