@@ -95,8 +95,13 @@ object WidgetRenderer {
             paint.style = Paint.Style.FILL
             canvas.drawRect(RectF(0f, 0f, totalW.toFloat(), totalH.toFloat()), paint)
 
-            // GAME OVER 텍스트
-            drawPixelGameOver(canvas, paint, totalW, totalH, cellSize)
+            // GAME OVER 텍스트 (PressStart2P 폰트)
+            paint.typeface = cachedTypeface ?: Typeface.MONOSPACE
+            paint.textSize = cellSize * 1.6f
+            paint.color = Color.parseColor("#FF3355")
+            paint.textAlign = Paint.Align.CENTER
+            paint.style = Paint.Style.FILL
+            canvas.drawText("GAME OVER", totalW / 2f, totalH / 2f + cellSize * 0.4f, paint)
 
             return bitmap
         }
@@ -293,105 +298,6 @@ object WidgetRenderer {
         }
 
         return bitmap
-    }
-
-    // 픽셀아트 GAME OVER (업로드된 이미지 기반 — 빨간색)
-    private fun drawPixelGameOver(canvas: Canvas, paint: Paint, totalW: Int, totalH: Int, cellSize: Float) {
-        // 각 글자를 5x7 픽셀 그리드로 정의 (1=채움, 0=빈칸)
-        val G = arrayOf(
-            intArrayOf(0,1,1,1,0),
-            intArrayOf(1,0,0,0,0),
-            intArrayOf(1,0,0,0,0),
-            intArrayOf(1,0,1,1,0),
-            intArrayOf(1,0,0,1,0),
-            intArrayOf(1,0,0,1,0),
-            intArrayOf(0,1,1,1,0),
-        )
-        val A = arrayOf(
-            intArrayOf(0,1,1,1,0),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,1,1,1,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-        )
-        val M = arrayOf(
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,1,0,1,1),
-            intArrayOf(1,0,1,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-        )
-        val E = arrayOf(
-            intArrayOf(1,1,1,1,1),
-            intArrayOf(1,0,0,0,0),
-            intArrayOf(1,0,0,0,0),
-            intArrayOf(1,1,1,1,0),
-            intArrayOf(1,0,0,0,0),
-            intArrayOf(1,0,0,0,0),
-            intArrayOf(1,1,1,1,1),
-        )
-        val O = arrayOf(
-            intArrayOf(0,1,1,1,0),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(0,1,1,1,0),
-        )
-        val V = arrayOf(
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(0,1,0,1,0),
-            intArrayOf(0,1,0,1,0),
-            intArrayOf(0,0,1,0,0),
-        )
-        val R = arrayOf(
-            intArrayOf(1,1,1,1,0),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,0,0,0,1),
-            intArrayOf(1,1,1,1,0),
-            intArrayOf(1,0,1,0,0),
-            intArrayOf(1,0,0,1,0),
-            intArrayOf(1,0,0,0,1),
-        )
-
-        // 한 줄: G A M E [space] O V E R
-        val allLetters = arrayOf(G, A, M, E, O, V, E, R)
-
-        val charW = 5
-        val charH = 7
-        val gap = 1
-        val spaceGap = 3 // GAME과 OVER 사이 간격
-        val totalCharsW = charW * 8 + gap * 6 + spaceGap // 8글자 + 7갭 + 추가 공백
-        val totalCharsH = charH // 한 줄
-
-        val pixelSize = minOf(totalW.toFloat() / (totalCharsW + 4), totalH.toFloat() / (totalCharsH + 4)) * 0.55f
-        val startX = (totalW - totalCharsW * pixelSize) / 2f
-        val startY = (totalH - totalCharsH * pixelSize) / 2f
-
-        // 글자 그리기 (네온 레드)
-        paint.color = Color.parseColor("#FF3355")
-        for ((li, letter) in allLetters.withIndex()) {
-            // GAME(0-3)과 OVER(4-7) 사이에 추가 간격
-            val extraSpace = if (li >= 4) spaceGap else 0
-            val ox = startX + (li * (charW + gap) + extraSpace) * pixelSize
-            for (row in 0 until charH) {
-                for (col in 0 until charW) {
-                    if (letter[row][col] == 1) {
-                        val px = ox + col * pixelSize
-                        val py = startY + row * pixelSize
-                        canvas.drawRect(RectF(px, py, px + pixelSize, py + pixelSize), paint)
-                    }
-                }
-            }
-        }
     }
 
     // TODO 항목용 텍스트 렌더링 (Inter 폰트, 좌측 정렬, 말줄임)
