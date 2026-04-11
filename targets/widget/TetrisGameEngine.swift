@@ -522,7 +522,9 @@ class TetrisGameEngine {
 
     static func trySpawnPiece() {
         var state = loadState()
-        if state.activePiece == nil && !state.gameOver && !state.blockQueue.isEmpty {
+        // 애니메이션 진행 중에는 스폰 금지 (줄 클리어 도중 큐가 두 번 소모되는 버그 방지)
+        if state.activePiece == nil && !state.gameOver && !state.blockQueue.isEmpty
+           && state.animationState == "none" {
             state = spawnPiece(state: state)
             saveState(state)
         }

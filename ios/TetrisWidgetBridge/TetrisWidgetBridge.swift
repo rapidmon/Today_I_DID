@@ -61,7 +61,9 @@ class TetrisWidgetBridge: NSObject {
         TetrisGameEngine.trySpawnPiece()
 
         // 위젯 갱신
-        WidgetCenter.shared.reloadTimelines(ofKind: "TetrisWidget")
+        DispatchQueue.main.async {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
 
         resolve(true)
     }
@@ -83,7 +85,9 @@ class TetrisWidgetBridge: NSObject {
         rejecter reject: @escaping RCTPromiseRejectBlock
     ) {
         defaults?.set(Int(score), forKey: "score")
-        WidgetCenter.shared.reloadTimelines(ofKind: "TetrisWidget")
+        DispatchQueue.main.async {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         resolve(true)
     }
 
@@ -93,7 +97,9 @@ class TetrisWidgetBridge: NSObject {
         rejecter reject: @escaping RCTPromiseRejectBlock
     ) {
         TetrisGameEngine.resetGame()
-        WidgetCenter.shared.reloadTimelines(ofKind: "TetrisWidget")
+        DispatchQueue.main.async {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         resolve(true)
     }
 
@@ -102,7 +108,9 @@ class TetrisWidgetBridge: NSObject {
         _ resolve: @escaping RCTPromiseResolveBlock,
         rejecter reject: @escaping RCTPromiseRejectBlock
     ) {
-        WidgetCenter.shared.reloadTimelines(ofKind: "TetrisWidget")
+        DispatchQueue.main.async {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         resolve(true)
     }
 
@@ -140,7 +148,9 @@ class TetrisWidgetBridge: NSObject {
         rejecter reject: @escaping RCTPromiseRejectBlock
     ) {
         defaults?.set(tasksJson, forKey: "pendingTasks")
-        WidgetCenter.shared.reloadTimelines(ofKind: "TetrisWidget")
+        DispatchQueue.main.async {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         resolve(true)
     }
 
