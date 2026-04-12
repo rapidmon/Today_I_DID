@@ -20,7 +20,7 @@ import { useTaskStore } from '@/stores/taskStore'
 import { getColorHex, getRandomColorId } from '@/lib/colorMapper'
 import { BLOCK_TYPES, BLOCK_TYPE_COLORS } from '@/constants/tetris'
 import widgetBridge from '@/lib/widgetBridge'
-import type { Task, Routine, DayOfWeek } from '@/types/record'
+import type { Task, TaskStatus, Routine, DayOfWeek } from '@/types/record'
 import type { QueuedBlock, GameHistory, GameHistoryAchievement } from '@/types/game'
 import { useHistoryStore } from '@/stores/historyStore'
 import { homeStyles as styles, COLORS } from '@/constants/homeStyles'
@@ -337,16 +337,14 @@ export default function HomeScreen() {
   // 매일 루틴에서 오늘의 할 일 자동 생성 + 전날 미완료 페널티 체크
   // 하나의 setTasks로 배치 처리하여 리렌더링 1회로 줄임
   useEffect(() => {
-    const todayStr = today()
     const [y, m, d] = todayStr.split('-').map(Number)
-    const yesterday = new Date(y, m - 1, d - 1)
-    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`
 
     setTasks(prev => {
       let result = prev
 
       // 1) 루틴에서 오늘 할 일 생성 (요일 체크)
-      const todayDay = getTodayDayOfWeek()
+      // todayStr에서 직접 요일을 파생 (new Date().getDay()와 todayStr 불일치 방지)
+      const todayDay = new Date(y, m - 1, d).getDay() as DayOfWeek
       const todayRoutineTasks = result.filter(t => t.date === todayStr && t.isRoutine)
       const missingRoutines = routines.filter(
         r => r.active
@@ -369,22 +367,22 @@ export default function HomeScreen() {
         result = [...newTasks, ...result]
       }
 
-      // 2) 전날 미완료 → 페널티
-      const pendingYesterday = result.filter(
-        t => t.date === yesterdayStr && t.status === 'pending'
+      // 2) 오늘 이전의 모든 미완료 → 페널티
+      const pastPending = result.filter(
+        t => t.date < todayStr && t.status === 'pending'
       )
-      if (pendingYesterday.length > 0) {
+      if (pastPending.length > 0) {
         result = result.map(t =>
-          t.date === yesterdayStr && t.status === 'pending'
+          t.date < todayStr && t.status === 'pending'
             ? { ...t, status: 'failed' as const }
             : t
         )
-        addPenalties(pendingYesterday.length)
+        addPenalties(pastPending.length)
       }
 
       return result
     })
-  }, [routines, addPenalties, setTasks, genId])
+  }, [todayStr, routines, addPenalties, setTasks, genId])
 
   // 할 일 추가
   const handleAddTask = useCallback(() => {
@@ -650,6 +648,12 @@ export default function HomeScreen() {
     for (const t of activeTasks) {
       if (!groups[t.date]) groups[t.date] = []
       groups[t.date].push(t)
+    }
+    // 같은 날짜 내에서 완료/실패된 항목을 아래로 정렬
+    const statusOrder = (s: TaskStatus): number =>
+      s === 'pending' ? 0 : s === 'completed' ? 1 : 2
+    for (const date of Object.keys(groups)) {
+      groups[date].sort((a, b) => statusOrder(a.status) - statusOrder(b.status))
     }
     return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
   }, [activeTasks])
