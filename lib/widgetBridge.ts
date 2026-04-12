@@ -35,7 +35,7 @@ if (Platform.OS === 'ios') {
     const AppleTargets = require('@bacons/apple-targets')
     const StorageClass = AppleTargets.ExtensionStorage
     iosStorage = new StorageClass('group.com.limheerae.TodayIdid')
-    reloadWidget = () => StorageClass.reloadWidget('widget')
+    reloadWidget = () => StorageClass.reloadWidget('TetrisWidget')
   } catch {
     // 패키지 사용 불가 시 무시
   }
