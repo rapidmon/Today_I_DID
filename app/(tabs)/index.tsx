@@ -400,24 +400,34 @@ export default function HomeScreen() {
       }
       addRoutine(newRoutine)
       routineId = newRoutine.id
-      setSelectedDays([0, 1, 2, 3, 4, 5, 6])
     }
 
-    const taskDate = inputMode === 'task' ? selectedDateStr : today()
-    const newTask: Task = {
-      id: genId('task'),
-      content: trimmed,
-      date: taskDate,
-      status: 'pending',
-      isRoutine: inputMode === 'routine',
-      routineId,
-      blockType: null,
-      colorId: null,
-      createdAt: Date.now(),
-      completedAt: null,
+    // 루틴 모드: 오늘이 선택된 요일에 포함될 때만 오늘의 태스크 생성
+    const todayDate = today()
+    const [ty, tm, td] = todayDate.split('-').map(Number)
+    const todayDayOfWeek = new Date(ty, tm - 1, td).getDay() as DayOfWeek
+    const shouldCreateTask = inputMode === 'task'
+      || selectedDays.includes(todayDayOfWeek)
+    if (shouldCreateTask) {
+      const taskDate = inputMode === 'task' ? selectedDateStr : todayDate
+      const newTask: Task = {
+        id: genId('task'),
+        content: trimmed,
+        date: taskDate,
+        status: 'pending',
+        isRoutine: inputMode === 'routine',
+        routineId,
+        blockType: null,
+        colorId: null,
+        createdAt: Date.now(),
+        completedAt: null,
+      }
+      addTask(newTask)
     }
-    addTask(newTask)
     setInputText('')
+    if (inputMode === 'routine') {
+      setSelectedDays([0, 1, 2, 3, 4, 5, 6])
+    }
   }, [inputText, inputMode, selectedDays, selectedDateStr, genId, addRoutine, addTask])
 
   // setTimeout cleanup용 ref
