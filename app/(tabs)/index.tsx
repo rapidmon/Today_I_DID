@@ -656,6 +656,20 @@ export default function HomeScreen() {
     return { todayTasks: todayGroup, futureDates: future, pastDates: past }
   }, [activeTasks, todayStr])
 
+  // FlatList data를 컴포넌트 본문에서 계산 (조건부 렌더링 안에 useMemo 금지)
+  type SectionItem =
+    | { key: string; type: 'today' }
+    | { key: string; type: 'upcoming'; date: string; tasks: Task[]; isFirst: boolean }
+    | { key: string; type: 'past' }
+  const sectionListData: SectionItem[] = useMemo(() => {
+    const items: SectionItem[] = [{ key: '__today', type: 'today' }]
+    futureDates.forEach(([date, tasks], i) => {
+      items.push({ key: date, type: 'upcoming', date, tasks, isFirst: i === 0 })
+    })
+    if (pastDates.length > 0) items.push({ key: '__past', type: 'past' })
+    return items
+  }, [futureDates, pastDates])
+
   const formatDateHeader = (dateStr: string) => {
     const [y, m, d] = dateStr.split('-')
     return `${Number(m)}월 ${Number(d)}일`
@@ -1042,18 +1056,7 @@ export default function HomeScreen() {
         </View>
       ) : (
         <FlatList
-          data={useMemo(() => {
-            type SectionItem =
-              | { key: string; type: 'today' }
-              | { key: string; type: 'upcoming'; date: string; tasks: Task[]; isFirst: boolean }
-              | { key: string; type: 'past' }
-            const items: SectionItem[] = [{ key: '__today', type: 'today' }]
-            futureDates.forEach(([date, tasks], i) => {
-              items.push({ key: date, type: 'upcoming', date, tasks, isFirst: i === 0 })
-            })
-            if (pastDates.length > 0) items.push({ key: '__past', type: 'past' })
-            return items
-          }, [futureDates, pastDates])}
+          data={sectionListData}
           keyExtractor={(item) => item.key}
           contentContainerStyle={styles.listContent}
           renderItem={({ item: section }) => {
