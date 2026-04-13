@@ -25,7 +25,7 @@ import type { QueuedBlock, GameHistory, GameHistoryAchievement } from '@/types/g
 import { useHistoryStore } from '@/stores/historyStore'
 import { homeStyles as styles, COLORS } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
-import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/Icons'
+import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from '@/components/ui/Icons'
 import { CrtOverlay } from '@/components/ui/CrtOverlay'
 
 const today = () => {
@@ -74,6 +74,7 @@ export default function HomeScreen() {
   // CRT 스크린 크기
   const [crtSize, setCrtSize] = useState({ width: 0, height: 0 })
   const [recentlyCompleted, setRecentlyCompleted] = useState<Set<string>>(new Set())
+  const [pastExpanded, setPastExpanded] = useState(false)
   const historySavedRef = useRef(false)
   const addBlock = useGameStore((s) => s.addBlock)
   const addPenalties = useGameStore((s) => s.addPenalties)
@@ -101,24 +102,11 @@ export default function HomeScreen() {
   }, [todayMonth, todayDay])
 
   const changeMonth = useCallback((delta: number) => {
-    setSelectedMonth(prev => {
-      const next = prev + delta
-      if (next < 1 || next > 12) return prev
-      // 과거 월로 이동 불가
-      if (next < todayMonth) return prev
-      return next
-    })
-    // 월 변경 시 1일로 초기화 (과거면 오늘 일자로)
-    setSelectedDay(() => {
-      // 새 월을 직접 계산 (stale closure 방지)
-      const newMonth = (() => {
-        const next = selectedMonth + delta
-        if (next < 1 || next > 12 || next < todayMonth) return selectedMonth
-        return next
-      })()
-      if (newMonth === todayMonth) return todayDay
-      return 1
-    })
+    // 월과 일을 한 번에 계산하여 stale closure 방지
+    const next = selectedMonth + delta
+    if (next < 1 || next > 12 || next < todayMonth) return
+    setSelectedMonth(next)
+    setSelectedDay(next === todayMonth ? todayDay : 1)
   }, [selectedMonth, todayMonth, todayDay])
 
   const changeDay = useCallback((delta: number) => {
@@ -491,26 +479,6 @@ export default function HomeScreen() {
     ])
   }, [deleteTask])
 
-  // 스와이프 액션 렌더 (수정 + 삭제 / 루틴은 삭제만)
-  const renderSwipeActions = useCallback((taskId: string, task: Task) => () => (
-    <View style={styles.swipeActionsRow}>
-      {!task.isRoutine && (
-        <Pressable
-          style={styles.swipeEditAction}
-          onPress={() => startEditing(task)}
-        >
-          <Text style={styles.swipeEditText}>EDIT</Text>
-        </Pressable>
-      )}
-      <Pressable
-        style={styles.swipeDeleteAction}
-        onPress={() => handleSwipeDelete(taskId)}
-      >
-        <TrashIcon size={18} color="#FF3355" />
-      </Pressable>
-    </View>
-  ), [startEditing, handleSwipeDelete])
-
   // 루틴 삭제
   const handleDeleteRoutine = useCallback((routineId: string) => {
     Alert.alert('루틴 삭제', '이 루틴을 삭제할까요?', [
@@ -565,6 +533,26 @@ export default function HomeScreen() {
     setEditingTaskId(null)
   }, [])
 
+  // 스와이프 액션 렌더 (수정 + 삭제 / 루틴은 삭제만)
+  const renderSwipeActions = useCallback((taskId: string, task: Task) => () => (
+    <View style={styles.swipeActionsRow}>
+      {!task.isRoutine && (
+        <Pressable
+          style={styles.swipeEditAction}
+          onPress={() => startEditing(task)}
+        >
+          <Text style={styles.swipeEditText}>EDIT</Text>
+        </Pressable>
+      )}
+      <Pressable
+        style={styles.swipeDeleteAction}
+        onPress={() => handleSwipeDelete(taskId)}
+      >
+        <TrashIcon size={18} color="#FF3355" />
+      </Pressable>
+    </View>
+  ), [startEditing, handleSwipeDelete])
+
   // 수정 중 삭제
   const handleDeleteTask = useCallback(() => {
     if (!editingTaskId) return
@@ -584,21 +572,10 @@ export default function HomeScreen() {
   // 수정 모드 날짜 변경 (오늘 이전 불가)
   const changeEditMonth = useCallback((delta: number) => {
     const [, todayM, todayD] = todayStr.split('-').map(Number)
-    setEditMonth(prev => {
-      const next = prev + delta
-      if (next < 1 || next > 12 || next < todayM) return prev
-      return next
-    })
-    setEditDay(prev => {
-      const currentYear = new Date().getFullYear()
-      const newMonth = (() => {
-        const next = editMonth + delta
-        if (next < 1 || next > 12 || next < todayM) return editMonth
-        return next
-      })()
-      if (newMonth === todayM) return Math.max(prev, todayD)
-      return 1
-    })
+    const next = editMonth + delta
+    if (next < 1 || next > 12 || next < todayM) return
+    setEditMonth(next)
+    setEditDay(next === todayM ? todayD : 1)
   }, [editMonth, todayStr])
 
   const changeEditDay = useCallback((delta: number) => {
@@ -651,26 +628,169 @@ export default function HomeScreen() {
     return () => clearInterval(interval)
   }, [todayStr, editingTaskId])
 
-  // archived 제외한 모든 할 일을 날짜별로 그룹핑 (최신 날짜 먼저)
+  // archived 제외한 모든 할 일을 날짜별로 그룹핑
   const activeTasks = useMemo(() => tasks.filter(t => t.status !== 'archived'), [tasks])
-  const groupedByDate = useMemo(() => {
+
+  // TODAY / UPCOMING / PAST 3섹션 분리
+  const { todayTasks, futureDates, pastDates } = useMemo(() => {
     const groups: Record<string, Task[]> = {}
     for (const t of activeTasks) {
       if (!groups[t.date]) groups[t.date] = []
       groups[t.date].push(t)
     }
-    // 같은 날짜 내에서 완료/실패된 항목을 아래로 정렬
     const statusOrder = (s: TaskStatus): number =>
       s === 'pending' ? 0 : s === 'completed' ? 1 : 2
     for (const date of Object.keys(groups)) {
       groups[date].sort((a, b) => statusOrder(a.status) - statusOrder(b.status))
     }
-    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
-  }, [activeTasks])
+
+    const todayGroup = groups[todayStr] ?? []
+    const future: [string, Task[]][] = []
+    const past: [string, Task[]][] = []
+    for (const [date, dateTasks] of Object.entries(groups)) {
+      if (date > todayStr) future.push([date, dateTasks])
+      else if (date < todayStr) past.push([date, dateTasks])
+    }
+    future.sort(([a], [b]) => a.localeCompare(b))
+    past.sort(([a], [b]) => b.localeCompare(a)) // 최근→과거
+    return { todayTasks: todayGroup, futureDates: future, pastDates: past }
+  }, [activeTasks, todayStr])
 
   const formatDateHeader = (dateStr: string) => {
     const [y, m, d] = dateStr.split('-')
     return `${Number(m)}월 ${Number(d)}일`
+  }
+
+  // 태스크 항목 렌더링 (공통)
+  const renderTaskItem = (item: Task, index: number, currentTodayStr: string) => {
+    const canComplete = item.status === 'pending' && item.date === currentTodayStr
+    const isEditing = editingTaskId === item.id
+
+    if (isEditing) {
+      return (
+        <View key={item.id} style={styles.editContainer}>
+          <Text style={styles.editLabel}>EDIT</Text>
+          <TextInput
+            style={styles.editInput}
+            value={editText}
+            onChangeText={setEditText}
+            autoFocus
+            returnKeyType="done"
+            onSubmitEditing={saveEdit}
+          />
+          <View style={styles.editDateRow}>
+            <View style={styles.editDateGroup}>
+              <View style={styles.datePickerBlock}>
+                <Pressable
+                  style={[styles.datePickerArrow, styles.datePickerArrowLeft, !canEditMonthLeft && { opacity: 0.2 }]}
+                  onPress={() => changeEditMonth(-1)}
+                  disabled={!canEditMonthLeft}
+                >
+                  <ChevronLeftIcon size={10} color="#8888AA" />
+                </Pressable>
+                <View style={styles.datePickerValue}>
+                  <Text style={styles.datePickerValueText}>{String(editMonth).padStart(2, '0')}</Text>
+                </View>
+                <Pressable
+                  style={[styles.datePickerArrow, styles.datePickerArrowRight, !canEditMonthRight && { opacity: 0.2 }]}
+                  onPress={() => changeEditMonth(1)}
+                  disabled={!canEditMonthRight}
+                >
+                  <ChevronRightIcon size={10} color="#8888AA" />
+                </Pressable>
+              </View>
+              <Text style={styles.datePickerLabel}>월</Text>
+            </View>
+            <View style={styles.editDateGroup}>
+              <View style={styles.datePickerBlock}>
+                <Pressable
+                  style={[styles.datePickerArrow, styles.datePickerArrowLeft, !canEditDayLeft && { opacity: 0.2 }]}
+                  onPress={() => changeEditDay(-1)}
+                  disabled={!canEditDayLeft}
+                >
+                  <ChevronLeftIcon size={10} color="#8888AA" />
+                </Pressable>
+                <View style={styles.datePickerValue}>
+                  <Text style={styles.datePickerValueText}>{String(editDay).padStart(2, '0')}</Text>
+                </View>
+                <Pressable
+                  style={[styles.datePickerArrow, styles.datePickerArrowRight, !canEditDayRight && { opacity: 0.2 }]}
+                  onPress={() => changeEditDay(1)}
+                  disabled={!canEditDayRight}
+                >
+                  <ChevronRightIcon size={10} color="#8888AA" />
+                </Pressable>
+              </View>
+              <Text style={styles.datePickerLabel}>일</Text>
+            </View>
+          </View>
+          <View style={styles.editButtonRow}>
+            <Pressable style={styles.editSaveButton} onPress={saveEdit}>
+              <Text style={styles.editSaveText}>SAVE</Text>
+            </Pressable>
+            <Pressable style={styles.editCancelButton} onPress={cancelEdit}>
+              <Text style={styles.editCancelText}>CANCEL</Text>
+            </Pressable>
+          </View>
+        </View>
+      )
+    }
+
+    const canSwipe = item.status === 'pending' && (!item.isRoutine || item.date === currentTodayStr)
+
+    const taskRow = (
+      <Pressable
+        style={styles.recordItem}
+        onPress={() => canComplete ? handleComplete(item.id) : null}
+        disabled={!canComplete}
+        accessibilityLabel={canComplete ? `완료: ${item.content}` : item.content}
+      >
+        <Text style={[styles.numberText, item.status === 'completed' && styles.numberTextCompleted]}>
+          {index + 1}
+        </Text>
+        <View style={styles.recordContent}>
+          <View style={styles.recordTextRow}>
+            <Text
+              style={[styles.recordText, item.status === 'completed' && styles.recordTextCompleted]}
+              numberOfLines={1}
+            >
+              {item.content}
+            </Text>
+            {item.isRoutine && <RefreshIcon size={12} color="#00F0FF" />}
+          </View>
+        </View>
+        {item.status === 'completed' && item.blockType && item.colorId ? (
+          recentlyCompleted.has(item.id) ? (
+            <View style={styles.pendingCheckbox}>
+              <Text style={styles.checkOverlay}>✓</Text>
+            </View>
+          ) : (
+            <View style={[styles.blockBadge, { backgroundColor: getColorHex(item.colorId) + '15' }]}>
+              <MiniBlock type={item.blockType} color={getColorHex(item.colorId)} />
+            </View>
+          )
+        ) : item.status === 'failed' ? (
+          <View style={[styles.blockBadge, { backgroundColor: 'rgba(255, 51, 85, 0.1)' }]}>
+            <SkullIcon size={18} color="#FF3355" />
+          </View>
+        ) : (
+          <View style={[styles.pendingCheckbox, !canComplete && styles.pendingCheckboxDisabled]} />
+        )}
+      </Pressable>
+    )
+
+    if (canSwipe) {
+      return (
+        <Swipeable
+          key={item.id}
+          renderRightActions={renderSwipeActions(item.id, item)}
+          overshootRight={false}
+        >
+          {taskRow}
+        </Swipeable>
+      )
+    }
+    return <View key={item.id}>{taskRow}</View>
   }
 
   return (
@@ -913,7 +1033,7 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {/* 할 일 리스트 — 날짜별 그룹핑 */}
+      {/* 할 일 리스트 — TODAY > UPCOMING > PAST */}
       {activeTasks.length === 0 ? (
         <View style={styles.emptyState}>
           <ClipboardIcon size={40} color="#555577" />
@@ -922,167 +1042,94 @@ export default function HomeScreen() {
         </View>
       ) : (
         <FlatList
-          data={groupedByDate}
-          keyExtractor={([date]) => date}
+          data={useMemo(() => {
+            type SectionItem =
+              | { key: string; type: 'today' }
+              | { key: string; type: 'upcoming'; date: string; tasks: Task[]; isFirst: boolean }
+              | { key: string; type: 'past' }
+            const items: SectionItem[] = [{ key: '__today', type: 'today' }]
+            futureDates.forEach(([date, tasks], i) => {
+              items.push({ key: date, type: 'upcoming', date, tasks, isFirst: i === 0 })
+            })
+            if (pastDates.length > 0) items.push({ key: '__past', type: 'past' })
+            return items
+          }, [futureDates, pastDates])}
+          keyExtractor={(item) => item.key}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item: [date, dateTasks] }) => {
-            const isPast = date < todayStr
-            return (
-            <View style={isPast ? { opacity: 0.6 } : undefined}>
-              {/* 날짜 헤더 */}
-              <View style={styles.dateHeader}>
-                <View style={styles.dateLine} />
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text style={styles.dateText}>{formatDateHeader(date)}</Text>
-                  {date === todayStr && <Text style={styles.dateTodayLabel}>&lt;오늘&gt;</Text>}
-                </View>
-                <View style={styles.dateLine} />
-              </View>
-
-              {/* 해당 날짜의 할 일들 */}
-              {dateTasks.map((item, index) => {
-                const canComplete = item.status === 'pending' && item.date === todayStr
-                const isEditing = editingTaskId === item.id
-                const canEdit = item.status !== 'failed' && item.status !== 'archived' && item.status !== 'completed' && !item.isRoutine
-
-                // 수정 모드 UI
-                if (isEditing) {
-                  return (
-                    <View key={item.id} style={styles.editContainer}>
-                      <Text style={styles.editLabel}>EDIT</Text>
-                      <TextInput
-                        style={styles.editInput}
-                        value={editText}
-                        onChangeText={setEditText}
-                        autoFocus
-                        returnKeyType="done"
-                        onSubmitEditing={saveEdit}
-                      />
-                      {/* 날짜 선택 */}
-                      <View style={styles.editDateRow}>
-                        <View style={styles.editDateGroup}>
-                          <View style={styles.datePickerBlock}>
-                            <Pressable
-                              style={[styles.datePickerArrow, styles.datePickerArrowLeft, !canEditMonthLeft && { opacity: 0.2 }]}
-                              onPress={() => changeEditMonth(-1)}
-                              disabled={!canEditMonthLeft}
-                            >
-                              <ChevronLeftIcon size={10} color="#8888AA" />
-                            </Pressable>
-                            <View style={styles.datePickerValue}>
-                              <Text style={styles.datePickerValueText}>
-                                {String(editMonth).padStart(2, '0')}
-                              </Text>
-                            </View>
-                            <Pressable
-                              style={[styles.datePickerArrow, styles.datePickerArrowRight, !canEditMonthRight && { opacity: 0.2 }]}
-                              onPress={() => changeEditMonth(1)}
-                              disabled={!canEditMonthRight}
-                            >
-                              <ChevronRightIcon size={10} color="#8888AA" />
-                            </Pressable>
-                          </View>
-                          <Text style={styles.datePickerLabel}>월</Text>
-                        </View>
-                        <View style={styles.editDateGroup}>
-                          <View style={styles.datePickerBlock}>
-                            <Pressable
-                              style={[styles.datePickerArrow, styles.datePickerArrowLeft, !canEditDayLeft && { opacity: 0.2 }]}
-                              onPress={() => changeEditDay(-1)}
-                              disabled={!canEditDayLeft}
-                            >
-                              <ChevronLeftIcon size={10} color="#8888AA" />
-                            </Pressable>
-                            <View style={styles.datePickerValue}>
-                              <Text style={styles.datePickerValueText}>
-                                {String(editDay).padStart(2, '0')}
-                              </Text>
-                            </View>
-                            <Pressable
-                              style={[styles.datePickerArrow, styles.datePickerArrowRight, !canEditDayRight && { opacity: 0.2 }]}
-                              onPress={() => changeEditDay(1)}
-                              disabled={!canEditDayRight}
-                            >
-                              <ChevronRightIcon size={10} color="#8888AA" />
-                            </Pressable>
-                          </View>
-                          <Text style={styles.datePickerLabel}>일</Text>
-                        </View>
-                      </View>
-                      {/* 버튼 */}
-                      <View style={styles.editButtonRow}>
-                        <Pressable style={styles.editSaveButton} onPress={saveEdit}>
-                          <Text style={styles.editSaveText}>SAVE</Text>
-                        </Pressable>
-                        <Pressable style={styles.editCancelButton} onPress={cancelEdit}>
-                          <Text style={styles.editCancelText}>CANCEL</Text>
-                        </Pressable>
-                      </View>
+          renderItem={({ item: section }) => {
+            // ===== TODAY 섹션 =====
+            if (section.type === 'today') {
+              return (
+                <View style={styles.sectionTodayWrapper}>
+                  <Text style={[styles.timeSectionLabel, styles.sectionLabelToday]}>&lt;TODAY&gt;</Text>
+                  <View style={styles.dateHeader}>
+                    <View style={styles.dateLine} />
+                    <View style={styles.dateHeaderInner}>
+                      <Text style={styles.dateText}>{formatDateHeader(todayStr)}</Text>
+                      <Text style={styles.dateTodayLabel}>&lt;오늘&gt;</Text>
                     </View>
-                  )
-                }
-
-                // 일반 할 일: 스와이프로 수정+삭제 / 루틴 할 일: 당일만 삭제
-                const canSwipe = item.status === 'pending' && (!item.isRoutine || item.date === todayStr)
-
-                const taskRow = (
-                <Pressable
-                  style={styles.recordItem}
-                  onPress={() => canComplete ? handleComplete(item.id) : null}
-                  disabled={!canComplete}
-                  accessibilityLabel={canComplete ? `완료: ${item.content}` : item.content}
-                >
-                  <Text style={[styles.numberText, item.status === 'completed' && styles.numberTextCompleted]}>
-                    {index + 1}
-                  </Text>
-
-                  <View style={styles.recordContent}>
-                    <View style={styles.recordTextRow}>
-                      <Text
-                        style={[styles.recordText, item.status === 'completed' && styles.recordTextCompleted]}
-                        numberOfLines={1}
-                      >
-                        {item.content}
-                      </Text>
-                      {item.isRoutine && <RefreshIcon size={12} color="#00F0FF" />}
-                    </View>
+                    <View style={styles.dateLine} />
                   </View>
-
-                  {item.status === 'completed' && item.blockType && item.colorId ? (
-                    recentlyCompleted.has(item.id) ? (
-                      <View style={styles.pendingCheckbox}>
-                        <Text style={styles.checkOverlay}>✓</Text>
-                      </View>
-                    ) : (
-                      <View style={[styles.blockBadge, { backgroundColor: getColorHex(item.colorId) + '15' }]}>
-                        <MiniBlock type={item.blockType} color={getColorHex(item.colorId)} />
-                      </View>
-                    )
-                  ) : item.status === 'failed' ? (
-                    <View style={[styles.blockBadge, { backgroundColor: 'rgba(255, 51, 85, 0.1)' }]}>
-                      <SkullIcon size={18} color="#FF3355" />
+                  {todayTasks.length === 0 ? (
+                    <View style={styles.todayEmptyWrapper}>
+                      <Text style={styles.emptySubText}>오늘 할 일을 추가해보세요</Text>
                     </View>
                   ) : (
-                    <View style={[styles.pendingCheckbox, !canComplete && styles.pendingCheckboxDisabled]} />
+                    todayTasks.map((item, index) => renderTaskItem(item, index, todayStr))
                   )}
-                </Pressable>
-                )
+                </View>
+              )
+            }
 
-                if (canSwipe) {
-                  return (
-                    <Swipeable
-                      key={item.id}
-                      renderRightActions={renderSwipeActions(item.id, item)}
-                      overshootRight={false}
-                    >
-                      {taskRow}
-                    </Swipeable>
-                  )
-                }
+            // ===== PAST 섹션 (접이식) =====
+            if (section.type === 'past') {
+              return (
+                <View>
+                  <Pressable
+                    style={styles.pastToggle}
+                    onPress={() => setPastExpanded(!pastExpanded)}
+                    accessibilityLabel={pastExpanded ? '과거 접기' : '과거 펼치기'}
+                    accessibilityRole="button"
+                  >
+                    <View style={styles.pastToggleLeft}>
+                      <Text style={[styles.timeSectionLabel, styles.sectionLabelPast, styles.pastLabelInline]}>&lt;PAST&gt;</Text>
+                      <Text style={styles.pastCount}>{pastDates.length}일</Text>
+                    </View>
+                    <View style={{ transform: [{ rotate: pastExpanded ? '180deg' : '0deg' }] }}>
+                      <ChevronDownIcon size={12} color="#8B5CF6" />
+                    </View>
+                  </Pressable>
+                  {pastExpanded && (
+                    <View style={styles.pastContent}>
+                      {pastDates.map(([date, dateTasks]) => (
+                        <View key={date}>
+                          <View style={styles.dateHeader}>
+                            <View style={styles.dateLine} />
+                            <Text style={styles.pastDateText}>{formatDateHeader(date)}</Text>
+                            <View style={styles.dateLine} />
+                          </View>
+                          {dateTasks.map((item, index) => renderTaskItem(item, index, todayStr))}
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              )
+            }
 
-                return <View key={item.id}>{taskRow}</View>
-              })}
-            </View>
+            // ===== UPCOMING 섹션 =====
+            return (
+              <View style={styles.sectionUpcomingWrapper}>
+                {section.isFirst && (
+                  <Text style={[styles.timeSectionLabel, styles.sectionLabelUpcoming]}>&lt;UPCOMING&gt;</Text>
+                )}
+                <View style={styles.dateHeader}>
+                  <View style={styles.dateLine} />
+                  <Text style={styles.dateText}>{formatDateHeader(section.date)}</Text>
+                  <View style={styles.dateLine} />
+                </View>
+                {section.tasks.map((item, index) => renderTaskItem(item, index, todayStr))}
+              </View>
             )
           }}
         />

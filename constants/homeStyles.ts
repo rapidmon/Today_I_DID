@@ -263,6 +263,76 @@ export const homeStyles = StyleSheet.create({
   },
   routineDeleteText: { color: COLORS.neonRed, fontSize: 11, fontWeight: 'bold' as const },
 
+  // 섹션 라벨 (TODAY / UPCOMING / PAST)
+  timeSectionLabel: {
+    fontFamily: 'PressStart2P', fontSize: 11, letterSpacing: 2,
+    paddingHorizontal: 16, paddingTop: 10, paddingBottom: 2,
+  },
+  sectionLabelToday: {
+    color: COLORS.neonCyan,
+    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  sectionLabelUpcoming: {
+    color: COLORS.neonYellow,
+    textShadowColor: 'rgba(255, 229, 0, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  sectionLabelPast: {
+    color: '#8B5CF6',
+    textShadowColor: 'rgba(139, 92, 246, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+
+  // TODAY 섹션 래퍼 (시안 네온 보더)
+  sectionTodayWrapper: {
+    borderWidth: 1, borderColor: 'rgba(0, 240, 255, 0.25)',
+    borderRadius: 14, marginHorizontal: 12, marginBottom: 12,
+    paddingVertical: 4,
+    backgroundColor: 'rgba(0, 240, 255, 0.02)',
+    shadowColor: '#00F0FF', shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.05, shadowRadius: 16,
+  },
+
+  // UPCOMING 섹션 래퍼
+  sectionUpcomingWrapper: {
+    marginHorizontal: 12, marginBottom: 12, paddingVertical: 4,
+    opacity: 0.85,
+  },
+
+  // PAST 토글 버튼
+  pastToggle: {
+    flexDirection: 'row' as const, alignItems: 'center' as const,
+    justifyContent: 'space-between' as const,
+    marginHorizontal: 12, paddingHorizontal: 16, paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: 'rgba(139, 92, 246, 0.04)',
+    borderWidth: 1, borderColor: 'rgba(139, 92, 246, 0.15)',
+  },
+  pastToggleLeft: {
+    flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10,
+  },
+  pastCount: {
+    fontFamily: 'Inter', color: COLORS.textMuted, fontSize: 12,
+  },
+  pastContent: {
+    marginHorizontal: 12, opacity: 0.6,
+  },
+  pastLabelInline: {
+    paddingHorizontal: 0, paddingTop: 0, paddingBottom: 0,
+  },
+  todayEmptyWrapper: {
+    paddingVertical: 20, alignItems: 'center' as const,
+  },
+  dateHeaderInner: {
+    flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6,
+  },
+  pastDateText: {
+    fontFamily: 'PressStart2P', color: 'rgba(139, 92, 246, 0.6)', fontSize: 10,
+    textShadowColor: 'rgba(139, 92, 246, 0.4)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+
   // 리스트
   listContent: { paddingBottom: 160 },
   recordItem: {

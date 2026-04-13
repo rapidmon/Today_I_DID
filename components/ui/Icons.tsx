@@ -84,6 +84,13 @@ export const TrashIcon = ({ size = 14, color = '#FF3355' }: IconProps) => (
   </Svg>
 )
 
+// 아래 화살표 (Lucide chevron-down)
+export const ChevronDownIcon = ({ size = 10, color = '#8888AA' }: IconProps) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="m6 9 6 6 6-6" />
+  </Svg>
+)
+
 // 빈 상태: 클립보드 (Lucide clipboard-list)
 export const ClipboardIcon = ({ size = 40, color = '#555577' }: IconProps) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
