@@ -77,7 +77,11 @@ if (Platform.OS === 'android' || Platform.OS === 'ios') {
     const json = JSON.stringify(pending)
     if (json !== prevPendingJson) {
       prevPendingJson = json
-      widgetBridge.syncTasks(json).catch(() => {})
+      try {
+        widgetBridge.syncTasks(json).catch(() => {})
+      } catch {
+        // 네이티브 브릿지 동기 throw 방어 (bridgeless 모드)
+      }
     }
   })
 }

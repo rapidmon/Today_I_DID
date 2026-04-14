@@ -8,15 +8,21 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
+import com.facebook.react.module.annotations.ReactModule
 import com.limheerae.Today_I_did.widget.TetrisGameEngine
 import com.limheerae.Today_I_did.widget.TetrisWidgetProvider
 import org.json.JSONArray
 import org.json.JSONObject
 
+@ReactModule(name = TetrisWidgetBridge.NAME)
 class TetrisWidgetBridge(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
 
-    override fun getName(): String = "TetrisWidgetBridge"
+    companion object {
+        const val NAME = "TetrisWidgetBridge"
+    }
+
+    override fun getName(): String = NAME
 
     // 블록을 큐에 추가 + 기록 매핑 저장 + 자동 스폰 + 위젯 갱신
     @ReactMethod

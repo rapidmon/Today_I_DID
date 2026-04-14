@@ -139,31 +139,45 @@ function createIosBridge(): WidgetBridge | null {
 function createAndroidBridge(): WidgetBridge | null {
   if (Platform.OS !== 'android' || !TetrisWidgetBridge) return null
 
+  // 네이티브 메서드가 동기 throw하거나 undefined인 경우에도
+  // .catch()가 동작하도록 항상 Promise로 감싼다 (bridgeless 모드 호환)
+  const safe = <T>(fn: () => unknown, fallback: T): Promise<T> => {
+    try {
+      const result = fn()
+      if (result && typeof (result as Promise<T>).then === 'function') {
+        return (result as Promise<T>).catch(() => fallback)
+      }
+      return Promise.resolve((result as T) ?? fallback)
+    } catch {
+      return Promise.resolve(fallback)
+    }
+  }
+
   return {
-    addBlockToQueue: (type: string, colorId: number, sourceRecordId: string, content: string) =>
-      TetrisWidgetBridge.addBlockToQueue(type, colorId, sourceRecordId, content),
-    addPenalties: (count: number) =>
-      TetrisWidgetBridge.addPenalties(count),
-    updateScore: (score: number) =>
-      TetrisWidgetBridge.updateScore(score),
+    addBlockToQueue: (type, colorId, sourceRecordId, content) =>
+      safe(() => TetrisWidgetBridge.addBlockToQueue(type, colorId, sourceRecordId, content), true),
+    addPenalties: (count) =>
+      safe(() => TetrisWidgetBridge.addPenalties(count), true),
+    updateScore: (score) =>
+      safe(() => TetrisWidgetBridge.updateScore(score), true),
     resetGame: () =>
-      TetrisWidgetBridge.resetGame(),
+      safe(() => TetrisWidgetBridge.resetGame(), true),
     refreshWidget: () =>
-      TetrisWidgetBridge.refreshWidget(),
+      safe(() => TetrisWidgetBridge.refreshWidget(), true),
     getScore: () =>
-      TetrisWidgetBridge.getScore(),
+      safe<number>(() => TetrisWidgetBridge.getScore(), 0),
     isGameOver: () =>
-      TetrisWidgetBridge.isGameOver(),
+      safe<boolean>(() => TetrisWidgetBridge.isGameOver(), false),
     getAchievements: () =>
-      TetrisWidgetBridge.getAchievements(),
-    syncTasks: (tasksJson: string) =>
-      TetrisWidgetBridge.syncTasks(tasksJson),
+      safe<string>(() => TetrisWidgetBridge.getAchievements(), '[]'),
+    syncTasks: (tasksJson) =>
+      safe(() => TetrisWidgetBridge.syncTasks(tasksJson), true),
     getLastGameScore: () =>
-      TetrisWidgetBridge.getLastGameScore(),
+      safe<number>(() => TetrisWidgetBridge.getLastGameScore(), 0),
     getLastGameAchievements: () =>
-      TetrisWidgetBridge.getLastGameAchievements(),
+      safe<string>(() => TetrisWidgetBridge.getLastGameAchievements(), '[]'),
     clearLastGameData: () =>
-      TetrisWidgetBridge.clearLastGameData(),
+      safe(() => TetrisWidgetBridge.clearLastGameData(), true),
   }
 }
 
