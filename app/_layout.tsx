@@ -1,9 +1,11 @@
-import { Stack } from 'expo-router'
+import { useEffect, useState } from 'react'
+import { Stack, useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p'
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter'
 import { View, ActivityIndicator } from 'react-native'
+import { getHasSeenOnboarding } from '@/lib/onboardingStorage'
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -25,7 +27,32 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <StatusBar style="light" />
+      <OnboardingGate />
       <Stack screenOptions={{ headerShown: false }} />
     </SafeAreaProvider>
   )
+}
+
+// Stack이 마운트된 이후에 온보딩 리다이렉트를 수행해야
+// expo-router의 네비게이션이 정상 동작한다
+function OnboardingGate() {
+  const router = useRouter()
+  const [checked, setChecked] = useState(false)
+
+  useEffect(() => {
+    if (checked) return
+    let mounted = true
+    getHasSeenOnboarding().then((seen) => {
+      if (!mounted) return
+      setChecked(true)
+      if (!seen) {
+        router.replace('/onboarding')
+      }
+    })
+    return () => {
+      mounted = false
+    }
+  }, [checked, router])
+
+  return null
 }
