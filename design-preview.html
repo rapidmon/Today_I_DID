@@ -176,41 +176,69 @@
         <span class="main-font text-text-muted font-semibold" style="font-size: 13px;">토</span>
       </div>
 
-      <!-- 루틴 섹션 -->
-      <div class="px-4 mb-3">
-        <p class="text-text-muted main-font font-bold section-label mb-2" style="font-size: 10px;">ROUTINES</p>
-        <div class="flex flex-wrap gap-2">
-          <div class="flex items-center gap-2 bg-bg-card border border-border-subtle rounded-full pl-3 pr-1.5 py-1.5">
-            <span class="text-text-secondary main-font text-xs">운동하기 매일</span>
-            <div class="w-5 h-5 rounded-full bg-bg-elevated flex items-center justify-center">
-              <span class="text-neon-red text-xs font-bold">x</span>
+      <!-- 루틴 섹션 — 가로 스크롤 + STATUS-CODED 칩 (DONE/TODAY/OTHER) -->
+      <div class="mb-3">
+        <!-- 헤더: ROUTINES 라벨 + 범례 (DONE/TODAY 카운트) -->
+        <div class="px-4 flex items-center justify-between mb-2">
+          <p class="text-text-muted main-font font-bold section-label" style="font-size: 10px;">ROUTINES</p>
+          <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-1.5">
+              <div class="w-2 h-2 rounded-full bg-neon-green" style="box-shadow: 0 0 5px rgba(0, 255, 136, 0.8);"></div>
+              <span class="pixel-font text-text-secondary" style="font-size: 9px; letter-spacing: 1px;">2 DONE</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-2 h-2 rounded-full bg-neon-cyan" style="box-shadow: 0 0 5px rgba(0, 240, 255, 0.9);"></div>
+              <span class="pixel-font text-text-secondary" style="font-size: 9px; letter-spacing: 1px;">3 TODAY</span>
             </div>
           </div>
-          <!-- 루틴 수정 모드 (long press 시) -->
-          <div class="w-full rounded-xl px-3 py-2.5 neon-border-cyan box-glow-cyan" style="background: rgba(0, 240, 255, 0.03);">
-            <span class="pixel-font text-neon-yellow glow-yellow" style="font-size: 7px; letter-spacing: 2px;">EDIT</span>
-            <p class="main-font text-text-primary font-bold text-xs mt-1 mb-2">독서 30분</p>
-            <div class="flex justify-around mb-2.5">
-              <span class="main-font text-text-muted font-semibold" style="font-size: 13px;">일</span>
-              <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">월</span>
-              <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">화</span>
-              <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">수</span>
-              <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">목</span>
-              <span class="main-font text-neon-cyan font-semibold glow-cyan" style="font-size: 13px;">금</span>
-              <span class="main-font text-text-muted font-semibold" style="font-size: 13px;">토</span>
+        </div>
+
+        <!-- 가로 스크롤 컨테이너 + 우측 페이드 오버레이 -->
+        <div class="relative">
+          <div class="flex gap-2 overflow-x-auto pl-4 pr-10" style="scrollbar-width: none; -ms-overflow-style: none;">
+            <!-- [DONE] 그린 네온 + 체크 + 취소선 -->
+            <div class="flex items-center gap-1.5 rounded-full pl-2.5 pr-3 py-2 flex-shrink-0" style="background: rgba(0, 255, 136, 0.06); border: 1px solid rgba(0, 255, 136, 0.35); box-shadow: 0 0 8px rgba(0, 255, 136, 0.12);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00FF88" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 2px rgba(0, 255, 136, 0.6));"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="main-font font-semibold whitespace-nowrap" style="font-size: 13px; color: #B8FFDD; text-decoration: line-through; text-decoration-color: rgba(0, 255, 136, 0.5);">운동하기</span>
             </div>
-            <div class="flex gap-2 items-center">
-              <button class="flex-1 py-1.5 rounded-lg bg-neon-cyan/15 neon-border-cyan text-center">
-                <span class="main-font text-neon-cyan font-bold text-xs">SAVE</span>
-              </button>
-              <button class="flex-1 py-1.5 rounded-lg text-center" style="background: rgba(0, 240, 255, 0.06); border: 1px solid rgba(0, 240, 255, 0.15);">
-                <span class="main-font font-bold text-xs" style="color: rgba(0, 240, 255, 0.7);">CANCEL</span>
-              </button>
-              <button class="w-8 h-8 rounded-lg bg-neon-red/10 flex items-center justify-center flex-shrink-0" style="border: 1px solid rgba(255, 51, 85, 0.3);">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF3355" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-              </button>
+            <!-- [DONE] -->
+            <div class="flex items-center gap-1.5 rounded-full pl-2.5 pr-3 py-2 flex-shrink-0" style="background: rgba(0, 255, 136, 0.06); border: 1px solid rgba(0, 255, 136, 0.35); box-shadow: 0 0 8px rgba(0, 255, 136, 0.12);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00FF88" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 2px rgba(0, 255, 136, 0.6));"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="main-font font-semibold whitespace-nowrap" style="font-size: 13px; color: #B8FFDD; text-decoration: line-through; text-decoration-color: rgba(0, 255, 136, 0.5);">독서 30분</span>
+            </div>
+            <!-- [TODAY] 시안 네온 + 펄스 점 + 글로우 -->
+            <div class="flex items-center gap-1.5 rounded-full pl-2.5 pr-3 py-2 flex-shrink-0" style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.6); box-shadow: 0 0 10px rgba(0, 240, 255, 0.3), inset 0 0 8px rgba(0, 240, 255, 0.05);">
+              <div class="w-1.5 h-1.5 rounded-full bg-neon-cyan" style="box-shadow: 0 0 6px rgba(0, 240, 255, 0.9);"></div>
+              <span class="main-font font-semibold text-text-primary whitespace-nowrap glow-cyan" style="font-size: 13px;">영단어 암기</span>
+            </div>
+            <!-- [TODAY] -->
+            <div class="flex items-center gap-1.5 rounded-full pl-2.5 pr-3 py-2 flex-shrink-0" style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.6); box-shadow: 0 0 10px rgba(0, 240, 255, 0.3), inset 0 0 8px rgba(0, 240, 255, 0.05);">
+              <div class="w-1.5 h-1.5 rounded-full bg-neon-cyan" style="box-shadow: 0 0 6px rgba(0, 240, 255, 0.9);"></div>
+              <span class="main-font font-semibold text-text-primary whitespace-nowrap glow-cyan" style="font-size: 13px;">물 2L</span>
+            </div>
+            <!-- [TODAY] -->
+            <div class="flex items-center gap-1.5 rounded-full pl-2.5 pr-3 py-2 flex-shrink-0" style="background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.6); box-shadow: 0 0 10px rgba(0, 240, 255, 0.3), inset 0 0 8px rgba(0, 240, 255, 0.05);">
+              <div class="w-1.5 h-1.5 rounded-full bg-neon-cyan" style="box-shadow: 0 0 6px rgba(0, 240, 255, 0.9);"></div>
+              <span class="main-font font-semibold text-text-primary whitespace-nowrap glow-cyan" style="font-size: 13px;">명상 10분</span>
+            </div>
+            <!-- [OTHER] 오늘 요일 아님: 머트 -->
+            <div class="flex items-center gap-1.5 rounded-full pl-3 pr-3 py-2 flex-shrink-0" style="background: rgba(26, 26, 53, 0.4); border: 1px solid rgba(85, 85, 119, 0.4);">
+              <span class="main-font font-medium whitespace-nowrap" style="font-size: 13px; color: #8888AA;">일기 쓰기</span>
+            </div>
+            <!-- [OTHER] -->
+            <div class="flex items-center gap-1.5 rounded-full pl-3 pr-3 py-2 flex-shrink-0" style="background: rgba(26, 26, 53, 0.4); border: 1px solid rgba(85, 85, 119, 0.4);">
+              <span class="main-font font-medium whitespace-nowrap" style="font-size: 13px; color: #8888AA;">스트레칭</span>
             </div>
           </div>
+          <!-- 우측 페이드 그라데이션 (스크롤 힌트) -->
+          <div class="absolute top-0 right-0 h-full w-12 pointer-events-none" style="background: linear-gradient(90deg, rgba(10, 10, 26, 0) 0%, rgba(10, 10, 26, 0.9) 50%, rgba(10, 10, 26, 1) 100%);"></div>
+        </div>
+
+        <!-- 하단 스크롤 위치 점 (칩 총 너비 기반 페이지 수, 스크롤 가능 시만) -->
+        <div class="flex items-center justify-center gap-1 mt-2">
+          <div class="w-1 h-1 rounded-full bg-neon-cyan" style="box-shadow: 0 0 4px rgba(0, 240, 255, 0.6);"></div>
+          <div class="w-1 h-1 rounded-full bg-border-subtle"></div>
+          <div class="w-1 h-1 rounded-full bg-border-subtle"></div>
         </div>
       </div>
 
