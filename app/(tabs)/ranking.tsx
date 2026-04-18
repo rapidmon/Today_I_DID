@@ -1,8 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { TrophyIcon } from '@/components/ui/Icons'
 
 export default function RankingScreen() {
+  const { t } = useTranslation()
   const insets = useSafeAreaInsets()
   return (
     <View style={[s.container, { paddingTop: insets.top }]}>
@@ -13,8 +15,8 @@ export default function RankingScreen() {
         <View style={s.trophyBox}>
           <TrophyIcon size={40} color="#FFE500" />
         </View>
-        <Text style={s.emptyText}>랭킹 개발 예정</Text>
-        <Text style={s.emptySubText}>다른 유저들과 점수를 겨루는{'\n'}랭킹 시스템이 준비 중입니다</Text>
+        <Text style={s.emptyText}>{t('ranking.comingSoon')}</Text>
+        <Text style={s.emptySubText}>{t('ranking.comingSoonSub')}</Text>
         <View style={s.comingSoonBadge}>
           <Text style={s.comingSoonText}>COMING SOON</Text>
         </View>

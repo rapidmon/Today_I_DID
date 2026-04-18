@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { ChartIcon } from '@/components/ui/Icons'
 import { useHistoryStore } from '@/stores/historyStore'
 import { BLOCK_TYPE_COLORS } from '@/constants/tetris'
 
 export default function HistoryScreen() {
+  const { t, i18n } = useTranslation()
   const histories = useHistoryStore((s) => s.histories)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const formatDate = (timestamp: number) =>
-    new Date(timestamp).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
+    new Date(timestamp).toLocaleDateString(i18n.language === 'ko' ? 'ko-KR' : 'en-US', { month: 'short', day: 'numeric' })
 
   const insets = useSafeAreaInsets()
 
@@ -18,14 +20,14 @@ export default function HistoryScreen() {
     <View style={[s.container, { paddingTop: insets.top }]}>
       <View style={s.header}>
         <Text style={s.title}>HISTORY</Text>
-        <Text style={s.subtitle}>{histories.length}판 플레이</Text>
+        <Text style={s.subtitle}>{t('history.subtitle', { count: histories.length })}</Text>
       </View>
 
       {histories.length === 0 ? (
         <View style={s.emptyState}>
           <ChartIcon size={40} color="#555577" />
-          <Text style={s.emptyText}>아직 기록이 없어요</Text>
-          <Text style={s.emptySubText}>게임이 끝나면 여기에 기록이 쌓입니다</Text>
+          <Text style={s.emptyText}>{t('history.emptyTitle')}</Text>
+          <Text style={s.emptySubText}>{t('history.emptySubtitle')}</Text>
         </View>
       ) : (
         <FlatList
@@ -44,7 +46,7 @@ export default function HistoryScreen() {
                     : {},
                 ]}
                 onPress={() => setExpandedId(isExpanded ? null : item.id)}
-                accessibilityLabel={`게임 ${gameNum} 상세보기`}
+                accessibilityLabel={t('history.gameDetail', { num: gameNum })}
                 accessibilityRole="button"
               >
                 {/* GAME OVER 배너 */}
@@ -71,11 +73,11 @@ export default function HistoryScreen() {
                 <View style={s.statsRow}>
                   <View style={s.stat}>
                     <Text style={s.statValue}>{item.totalLineClears}</Text>
-                    <Text style={s.statLabel}>줄 클리어</Text>
+                    <Text style={s.statLabel}>{t('history.lineClear')}</Text>
                   </View>
                   <View style={s.stat}>
                     <Text style={s.statValue}>{item.completedTasks.length}</Text>
-                    <Text style={s.statLabel}>완료한 일</Text>
+                    <Text style={s.statLabel}>{t('history.tasksCompleted')}</Text>
                   </View>
                   {item.achievements.length > 0 && (
                     <Text style={s.expandArrow}>{isExpanded ? '▲' : '▼'}</Text>
@@ -89,7 +91,7 @@ export default function HistoryScreen() {
                       <View key={ach.id} style={s.achRow}>
                         <Text style={s.achText}>
                           <Text style={s.achStar}>★ </Text>
-                          LINE — {ach.lineCount}줄 · +{ach.score}
+                          {t('history.lineInfo', { count: ach.lineCount, score: ach.score })}
                         </Text>
                       </View>
                     ))}
