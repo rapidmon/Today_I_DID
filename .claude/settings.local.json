@@ -61,7 +61,11 @@
       "Bash(cp /tmp/design-preview-original.html \"C:\\\\Users\\\\Foryoucom\\\\Desktop\\\\coding\\\\Today_I_did\\\\design-preview.html\")",
       "Bash(npx sharp-cli:*)",
       "Bash(ls:*)",
-      "Bash(npx eas:*)"
+      "Bash(npx eas:*)",
+      "Bash(curl -s http://localhost:8081/status)",
+      "Bash(grep -v \"^\\\\s*//\")",
+      "Bash(grep -v \"//\")",
+      "Bash(python *)"
     ]
   }
 }
