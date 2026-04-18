@@ -41,7 +41,8 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "@bacons/apple-targets"
+      "@bacons/apple-targets",
+      "expo-localization"
     ],
     "extra": {
       "router": {},

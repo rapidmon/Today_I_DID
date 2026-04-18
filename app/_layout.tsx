@@ -1,3 +1,4 @@
+import '@/lib/i18n'
 import { useEffect, useState } from 'react'
 import { Stack, useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
@@ -52,7 +53,8 @@ function OnboardingGate() {
     return () => {
       mounted = false
     }
-  }, [checked, router])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checked])
 
   return null
 }
