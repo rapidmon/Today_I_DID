@@ -13,6 +13,7 @@ import {
   Animated,
   AccessibilityInfo,
 } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Swipeable } from 'react-native-gesture-handler'
 import { useGameStore } from '@/stores/gameStore'
@@ -26,6 +27,7 @@ import { useHistoryStore } from '@/stores/historyStore'
 import { homeStyles as styles, COLORS } from '@/constants/homeStyles'
 import { MiniBlock } from '@/components/ui/MiniBlock'
 import { RefreshIcon, StarIcon, ClipboardIcon, SkullIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from '@/components/ui/Icons'
+import { RoutineStrip } from '@/components/ui/RoutineStrip'
 import { CrtOverlay } from '@/components/ui/CrtOverlay'
 
 const today = () => {
@@ -33,13 +35,13 @@ const today = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 }
 
-const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const
-
 const getTodayDayOfWeek = (): DayOfWeek => {
   return new Date().getDay() as DayOfWeek
 }
 
 export default function HomeScreen() {
+  const { t, i18n } = useTranslation()
+  const dayLabels = t('days', { returnObjects: true }) as string[]
   const insets = useSafeAreaInsets()
   const tasks = useTaskStore((s) => s.tasks)
   const routines = useTaskStore((s) => s.routines)
@@ -245,7 +247,7 @@ export default function HomeScreen() {
           ))
 
           historySavedRef.current = true
-          AccessibilityInfo.announceForAccessibility('게임 오버. 기록이 저장되었습니다.')
+          AccessibilityInfo.announceForAccessibility(t('home.gameOverAnnounce'))
         }
 
         // 위젯 리셋 감지 (히스토리 이미 저장된 후 리셋)
@@ -469,27 +471,27 @@ export default function HomeScreen() {
 
   // 할 일 스와이프 삭제
   const handleSwipeDelete = useCallback((taskId: string) => {
-    Alert.alert('할 일 삭제', '이 할 일을 삭제할까요?', [
-      { text: '취소', style: 'cancel' },
+    Alert.alert(t('home.deleteTaskTitle'), t('home.deleteTaskMessage'), [
+      { text: t('home.cancel'), style: 'cancel' },
       {
-        text: '삭제',
+        text: t('home.delete'),
         style: 'destructive',
         onPress: () => deleteTask(taskId),
       },
     ])
-  }, [deleteTask])
+  }, [deleteTask, t])
 
   // 루틴 삭제
   const handleDeleteRoutine = useCallback((routineId: string) => {
-    Alert.alert('루틴 삭제', '이 루틴을 삭제할까요?', [
-      { text: '취소', style: 'cancel' },
+    Alert.alert(t('home.deleteRoutineTitle'), t('home.deleteRoutineMessage'), [
+      { text: t('home.cancel'), style: 'cancel' },
       {
-        text: '삭제',
+        text: t('home.delete'),
         style: 'destructive',
         onPress: () => removeRoutine(routineId),
       },
     ])
-  }, [removeRoutine])
+  }, [removeRoutine, t])
 
   // 루틴 수정 시작
   const startEditingRoutine = useCallback((routine: Routine) => {
@@ -556,10 +558,10 @@ export default function HomeScreen() {
   // 수정 중 삭제
   const handleDeleteTask = useCallback(() => {
     if (!editingTaskId) return
-    Alert.alert('할 일 삭제', '이 할 일을 삭제할까요?', [
-      { text: '취소', style: 'cancel' },
+    Alert.alert(t('home.deleteTaskTitle'), t('home.deleteTaskMessage'), [
+      { text: t('home.cancel'), style: 'cancel' },
       {
-        text: '삭제',
+        text: t('home.delete'),
         style: 'destructive',
         onPress: () => {
           deleteTask(editingTaskId)
@@ -567,7 +569,7 @@ export default function HomeScreen() {
         },
       },
     ])
-  }, [editingTaskId, deleteTask])
+  }, [editingTaskId, deleteTask, t])
 
   // 수정 모드 날짜 변경 (오늘 이전 불가)
   const changeEditMonth = useCallback((delta: number) => {
@@ -672,7 +674,7 @@ export default function HomeScreen() {
 
   const formatDateHeader = (dateStr: string) => {
     const [y, m, d] = dateStr.split('-')
-    return `${Number(m)}월 ${Number(d)}일`
+    return i18n.language === 'ko' ? `${Number(m)}월 ${Number(d)}일` : `${Number(m)}/${Number(d)}`
   }
 
   // 태스크 항목 렌더링 (공통)
@@ -713,7 +715,7 @@ export default function HomeScreen() {
                   <ChevronRightIcon size={10} color="#8888AA" />
                 </Pressable>
               </View>
-              <Text style={styles.datePickerLabel}>월</Text>
+              <Text style={styles.datePickerLabel}>{t('home.month')}</Text>
             </View>
             <View style={styles.editDateGroup}>
               <View style={styles.datePickerBlock}>
@@ -735,7 +737,7 @@ export default function HomeScreen() {
                   <ChevronRightIcon size={10} color="#8888AA" />
                 </Pressable>
               </View>
-              <Text style={styles.datePickerLabel}>일</Text>
+              <Text style={styles.datePickerLabel}>{t('home.day')}</Text>
             </View>
           </View>
           <View style={styles.editButtonRow}>
@@ -757,7 +759,7 @@ export default function HomeScreen() {
         style={styles.recordItem}
         onPress={() => canComplete ? handleComplete(item.id) : null}
         disabled={!canComplete}
-        accessibilityLabel={canComplete ? `완료: ${item.content}` : item.content}
+        accessibilityLabel={canComplete ? t('home.complete', { content: item.content }) : item.content}
       >
         <Text style={[styles.numberText, item.status === 'completed' && styles.numberTextCompleted]}>
           {index + 1}
@@ -836,18 +838,18 @@ export default function HomeScreen() {
         <Pressable
           style={[styles.modeButton, inputMode === 'task' && styles.modeButtonActive]}
           onPress={() => setInputMode('task')}
-          accessibilityLabel="할 일 모드"
+          accessibilityLabel={t('home.task')}
           accessibilityRole="button"
         >
-          <Text style={[styles.modeText, inputMode === 'task' && styles.modeTextActive]}>할 일</Text>
+          <Text style={[styles.modeText, inputMode === 'task' && styles.modeTextActive]}>{t('home.task')}</Text>
         </Pressable>
         <Pressable
           style={[styles.modeButton, inputMode === 'routine' && styles.modeButtonActive]}
           onPress={() => setInputMode('routine')}
-          accessibilityLabel="루틴 모드"
+          accessibilityLabel={t('home.routine')}
           accessibilityRole="button"
         >
-          <Text style={[styles.modeText, inputMode === 'routine' && styles.modeTextActive]}>루틴</Text>
+          <Text style={[styles.modeText, inputMode === 'routine' && styles.modeTextActive]}>{t('home.routine')}</Text>
         </Pressable>
       </View>
 
@@ -859,8 +861,8 @@ export default function HomeScreen() {
             value={inputText}
             onChangeText={setInputText}
             placeholder={inputMode === 'task'
-              ? (isSelectedToday ? '오늘 할 일을 적어주세요...' : `${selectedMonth}월 ${selectedDay}일 할 일을 적어주세요...`)
-              : '매일 반복할 일을 적어주세요...'}
+              ? (isSelectedToday ? t('home.placeholderToday') : t('home.placeholderDate', { month: selectedMonth, day: selectedDay }))
+              : t('home.placeholderRoutine')}
             placeholderTextColor="#555577"
             onSubmitEditing={handleAddTask}
             returnKeyType="done"
@@ -869,7 +871,7 @@ export default function HomeScreen() {
             style={[styles.addButton, (!inputText.trim() || isGameOver) && styles.addButtonDisabled]}
             onPress={handleAddTask}
             disabled={!inputText.trim() || isGameOver}
-            accessibilityLabel="추가"
+            accessibilityLabel={t('home.add')}
             accessibilityRole="button"
           >
             <Text style={styles.addButtonText}>{isGameOver ? 'OVER' : 'ADD'}</Text>
@@ -887,7 +889,7 @@ export default function HomeScreen() {
                 style={[styles.datePickerArrow, styles.datePickerArrowLeft, !canMonthLeft && { opacity: 0.2 }]}
                 onPress={() => changeMonth(-1)}
                 disabled={!canMonthLeft}
-                accessibilityLabel="이전 월"
+                accessibilityLabel={t('home.prevMonth')}
               >
                 <ChevronLeftIcon size={10} color="#8888AA" />
               </Pressable>
@@ -900,12 +902,12 @@ export default function HomeScreen() {
                 style={[styles.datePickerArrow, styles.datePickerArrowRight, !canMonthRight && { opacity: 0.2 }]}
                 onPress={() => changeMonth(1)}
                 disabled={!canMonthRight}
-                accessibilityLabel="다음 월"
+                accessibilityLabel={t('home.nextMonth')}
               >
                 <ChevronRightIcon size={10} color="#8888AA" />
               </Pressable>
             </View>
-            <Text style={styles.datePickerLabel}>월</Text>
+            <Text style={styles.datePickerLabel}>{t('home.month')}</Text>
           </View>
 
           {/* 일 선택 */}
@@ -915,7 +917,7 @@ export default function HomeScreen() {
                 style={[styles.datePickerArrow, styles.datePickerArrowLeft, !canDayLeft && { opacity: 0.2 }]}
                 onPress={() => changeDay(-1)}
                 disabled={!canDayLeft}
-                accessibilityLabel="이전 일"
+                accessibilityLabel={t('home.prevDay')}
               >
                 <ChevronLeftIcon size={10} color="#8888AA" />
               </Pressable>
@@ -928,12 +930,12 @@ export default function HomeScreen() {
                 style={[styles.datePickerArrow, styles.datePickerArrowRight, !canDayRight && { opacity: 0.2 }]}
                 onPress={() => changeDay(1)}
                 disabled={!canDayRight}
-                accessibilityLabel="다음 일"
+                accessibilityLabel={t('home.nextDay')}
               >
                 <ChevronRightIcon size={10} color="#8888AA" />
               </Pressable>
             </View>
-            <Text style={styles.datePickerLabel}>일</Text>
+            <Text style={styles.datePickerLabel}>{t('home.day')}</Text>
           </View>
 
           {/* 오늘 복귀 버튼 + 펄스 애니메이션 */}
@@ -942,7 +944,7 @@ export default function HomeScreen() {
               style={styles.datePickerTodayButton}
               onPress={resetToToday}
               disabled={isSelectedToday}
-              accessibilityLabel="오늘 날짜로 복귀"
+              accessibilityLabel={t('home.goToToday')}
             >
               <RefreshIcon size={12} color="#00F0FF" />
               <Text style={styles.datePickerTodayText}>TODAY</Text>
@@ -954,7 +956,7 @@ export default function HomeScreen() {
       {/* 요일 선택 (루틴 모드일 때만) */}
       {inputMode === 'routine' && (
         <View style={styles.dayRow}>
-          {DAY_LABELS.map((label, i) => {
+          {dayLabels.map((label, i) => {
             const day = i as DayOfWeek
             const isSelected = selectedDays.includes(day)
             return (
@@ -968,7 +970,7 @@ export default function HomeScreen() {
                       : [...prev, day].sort()
                   )
                 }}
-                accessibilityLabel={`${label}요일 ${isSelected ? '해제' : '선택'}`}
+                accessibilityLabel={t('home.dayLabel', { label, action: isSelected ? t('home.dayDeselect') : t('home.daySelect') })}
               >
                 <Text style={[styles.dayText, isSelected && styles.dayTextActive]}>{label}</Text>
               </Pressable>
@@ -977,82 +979,28 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {/* 루틴 목록 (있을 때만) */}
-      {routines.length > 0 && (
-        <View style={styles.routineSection}>
-          <Text style={styles.sectionLabel}>ROUTINES</Text>
-          <View style={styles.routineList}>
-            {routines.map(r => {
-              const isEditingThis = editingRoutineId === r.id
-              if (isEditingThis) {
-                return (
-                  <View key={r.id} style={styles.routineEditContainer}>
-                    <Text style={styles.editLabel}>EDIT</Text>
-                    <Text style={styles.routineEditName}>{r.content}</Text>
-                    <View style={styles.dayRow}>
-                      {DAY_LABELS.map((label, i) => {
-                        const day = i as DayOfWeek
-                        const isSelected = editRoutineDays.includes(day)
-                        return (
-                          <Pressable
-                            key={day}
-                            style={[styles.dayButton, isSelected && styles.dayButtonActive]}
-                            onPress={() => {
-                              setEditRoutineDays(prev =>
-                                prev.includes(day)
-                                  ? prev.filter(d => d !== day)
-                                  : [...prev, day].sort()
-                              )
-                            }}
-                          >
-                            <Text style={[styles.dayText, isSelected && styles.dayTextActive]}>{label}</Text>
-                          </Pressable>
-                        )
-                      })}
-                    </View>
-                    <View style={styles.editButtonRow}>
-                      <Pressable style={styles.editSaveButton} onPress={saveRoutineEdit}>
-                        <Text style={styles.editSaveText}>SAVE</Text>
-                      </Pressable>
-                      <Pressable style={styles.editCancelButton} onPress={cancelRoutineEdit}>
-                        <Text style={styles.editCancelText}>CANCEL</Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                )
-              }
-              return (
-                <View key={r.id} style={styles.routineChip}>
-                  <Pressable
-                    onPress={() => startEditingRoutine(r)}
-                    accessibilityLabel={`루틴 수정: ${r.content}`}
-                  >
-                    <Text style={styles.routineChipText}>
-                      {r.content} {(r.days ?? [0,1,2,3,4,5,6]).length === 7
-                        ? '매일'
-                        : (r.days ?? []).map(d => DAY_LABELS[d]).join('·')}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => handleDeleteRoutine(r.id)}
-                    accessibilityLabel={`루틴 삭제: ${r.content}`}
-                    style={styles.routineDeleteButton}
-                  >
-                    <Text style={styles.routineDeleteText}>✕</Text>
-                  </Pressable>
-                </View>
-              )
-            })}
-          </View>
-        </View>
-      )}
+      {/* 루틴 목록 — 가로 스크롤 + STATUS-CODED 칩 (내부에서 active 필터 및 empty 처리) */}
+      <RoutineStrip
+        routines={routines}
+        todayTasks={todayTasks}
+        todayStr={todayStr}
+        dayLabels={dayLabels}
+        t={t}
+        editingRoutineId={editingRoutineId}
+        editRoutineDays={editRoutineDays}
+        setEditRoutineDays={setEditRoutineDays}
+        onStartEditing={startEditingRoutine}
+        onSaveEdit={saveRoutineEdit}
+        onCancelEdit={cancelRoutineEdit}
+        onDelete={handleDeleteRoutine}
+      />
 
       {/* 할 일 리스트 — TODAY > UPCOMING > PAST */}
       {activeTasks.length === 0 ? (
         <View style={styles.emptyState}>
           <ClipboardIcon size={40} color="#555577" />
-          <Text style={styles.emptyText}>오늘 할 일이 없어요</Text>
-          <Text style={styles.emptySubText}>할 일을 추가하고 완료하면 블록이 생성돼요!</Text>
+          <Text style={styles.emptyText}>{t('home.emptyTitle')}</Text>
+          <Text style={styles.emptySubText}>{t('home.emptySubtitle')}</Text>
         </View>
       ) : (
         <FlatList
@@ -1069,13 +1017,13 @@ export default function HomeScreen() {
                     <View style={styles.dateLine} />
                     <View style={styles.dateHeaderInner}>
                       <Text style={styles.dateText}>{formatDateHeader(todayStr)}</Text>
-                      <Text style={styles.dateTodayLabel}>&lt;오늘&gt;</Text>
+                      <Text style={styles.dateTodayLabel}>{t('home.today')}</Text>
                     </View>
                     <View style={styles.dateLine} />
                   </View>
                   {todayTasks.length === 0 ? (
                     <View style={styles.todayEmptyWrapper}>
-                      <Text style={styles.emptySubText}>오늘 할 일을 추가해보세요</Text>
+                      <Text style={styles.emptySubText}>{t('home.emptyToday')}</Text>
                     </View>
                   ) : (
                     todayTasks.map((item, index) => renderTaskItem(item, index, todayStr))
@@ -1091,12 +1039,12 @@ export default function HomeScreen() {
                   <Pressable
                     style={styles.pastToggle}
                     onPress={() => setPastExpanded(!pastExpanded)}
-                    accessibilityLabel={pastExpanded ? '과거 접기' : '과거 펼치기'}
+                    accessibilityLabel={pastExpanded ? t('home.pastCollapse') : t('home.pastExpand')}
                     accessibilityRole="button"
                   >
                     <View style={styles.pastToggleLeft}>
                       <Text style={[styles.timeSectionLabel, styles.sectionLabelPast, styles.pastLabelInline]}>&lt;PAST&gt;</Text>
-                      <Text style={styles.pastCount}>{pastDates.length}일</Text>
+                      <Text style={styles.pastCount}>{t('home.pastDays', { count: pastDates.length })}</Text>
                     </View>
                     <View style={{ transform: [{ rotate: pastExpanded ? '180deg' : '0deg' }] }}>
                       <ChevronDownIcon size={12} color="#8B5CF6" />
@@ -1142,7 +1090,7 @@ export default function HomeScreen() {
       <Pressable
         style={[styles.fab, { bottom: 16 }]}
         onPress={openModal}
-        accessibilityLabel="완성된 라인 보기"
+        accessibilityLabel={t('home.viewLines')}
         accessibilityRole="button"
       >
         <StarIcon size={24} color="#00F0FF" />
@@ -1159,7 +1107,7 @@ export default function HomeScreen() {
                 <View style={styles.crtLed} />
                 <Text style={styles.crtBrand}>TETRIS-OS v1.0</Text>
               </View>
-              <Pressable onPress={closeModal} accessibilityLabel="닫기" style={styles.crtCloseButton}>
+              <Pressable onPress={closeModal} accessibilityLabel={t('home.close')} style={styles.crtCloseButton}>
                 <Text style={styles.crtCloseText}>✕</Text>
               </Pressable>
             </View>
@@ -1178,8 +1126,8 @@ export default function HomeScreen() {
 
               {achievements.length === 0 || isGameOver ? (
                 <View style={styles.modalEmpty}>
-                  <Text style={styles.emptyTextScroll}>{isGameOver ? 'GAME OVER' : '아직 완성된 라인이 없어요'}</Text>
-                  <Text style={styles.emptySubTextScroll}>{isGameOver ? '새 게임을 시작해보세요!' : '위젯에서 테트리스 줄을 완성해보세요!'}</Text>
+                  <Text style={styles.emptyTextScroll}>{isGameOver ? 'GAME OVER' : t('home.noLinesYet')}</Text>
+                  <Text style={styles.emptySubTextScroll}>{isGameOver ? t('home.newGame') : t('home.tryWidget')}</Text>
                 </View>
               ) : (
                 <FlatList
@@ -1194,7 +1142,7 @@ export default function HomeScreen() {
                       <Pressable
                         style={[styles.crtLineCard, { borderColor }]}
                         onPress={() => setExpandedAchId(isExpanded ? null : item.id)}
-                        accessibilityLabel={`라인 ${index + 1} 상세보기`}
+                        accessibilityLabel={t('home.lineDetail', { index: index + 1 })}
                       >
                         <View style={styles.crtLineHeader}>
                           <View style={styles.crtLineLeft}>
@@ -1209,7 +1157,7 @@ export default function HomeScreen() {
                                 )}
                               </View>
                               <Text style={styles.crtLineMeta}>
-                                {new Date(item.clearedAt).toLocaleDateString('ko-KR')}
+                                {new Date(item.clearedAt).toLocaleDateString(i18n.language === 'ko' ? 'ko-KR' : 'en-US')}
                               </Text>
                             </View>
                           </View>
@@ -1226,11 +1174,11 @@ export default function HomeScreen() {
                               item.records.map((rec) => (
                                 <View key={rec.id} style={styles.achievementRecordRow}>
                                   <View style={[styles.blockColorDot, { backgroundColor: BLOCK_TYPE_COLORS[rec.blockType] || '#666688' }]} />
-                                  <Text style={styles.achievementRecord}>{rec.content || '기록'}</Text>
+                                  <Text style={styles.achievementRecord}>{rec.content || t('home.record')}</Text>
                                 </View>
                               ))
                             ) : (
-                              <Text style={styles.achievementRecord}>기록 {item.recordIds.length}개</Text>
+                              <Text style={styles.achievementRecord}>{t('home.recordCount', { count: item.recordIds.length })}</Text>
                             )}
                           </View>
                         )}

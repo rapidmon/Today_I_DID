@@ -75,6 +75,13 @@ export const ChevronRightIcon = ({ size = 10, color = '#8888AA' }: IconProps) =>
   </Svg>
 )
 
+// 체크 (Lucide check)
+export const CheckIcon = ({ size = 12, color = '#00FF88' }: IconProps) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+    <Path d="M20 6 9 17l-5-5" />
+  </Svg>
+)
+
 // 삭제: 휴지통 (Lucide trash-2)
 export const TrashIcon = ({ size = 14, color = '#FF3355' }: IconProps) => (
   <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">

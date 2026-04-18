@@ -230,38 +230,125 @@ export const homeStyles = StyleSheet.create({
     alignItems: 'center' as const, justifyContent: 'center' as const,
   },
 
-  // 루틴 수정 모드
+  // 루틴 수정 모드 (가로 스크롤 아래 전개)
   routineEditContainer: {
-    width: '100%' as unknown as number, borderRadius: 12,
+    borderRadius: 12,
     paddingHorizontal: 12, paddingVertical: 10,
+    marginHorizontal: 16, marginTop: 8, marginBottom: 4,
     backgroundColor: 'rgba(0, 240, 255, 0.03)',
     borderWidth: 1, borderColor: 'rgba(0, 240, 255, 0.3)',
     shadowColor: '#00F0FF', shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.2, shadowRadius: 12, marginBottom: 4,
+    shadowOpacity: 0.2, shadowRadius: 12,
   },
   routineEditName: {
     fontFamily: 'InterBold', color: COLORS.textPrimary, fontSize: 13, marginBottom: 6,
   },
 
-  // 루틴
-  routineSection: { paddingHorizontal: 16, marginBottom: 8 },
+  // 루틴 (STATUS-CODED: DONE / TODAY / OTHER)
+  routineSection: { marginBottom: 8 },
   sectionLabel: {
     fontFamily: 'PressStart2P', color: COLORS.textMuted, fontSize: 9,
-    letterSpacing: 3, marginBottom: 6,
+    letterSpacing: 3,
   },
-  routineList: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  routineChip: {
+  // 헤더 행: ROUTINES 라벨 + 오른쪽 범례
+  routineHeader: {
+    flexDirection: 'row' as const, alignItems: 'center' as const,
+    justifyContent: 'space-between' as const,
+    paddingHorizontal: 16, marginBottom: 8,
+  },
+  routineLegend: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10 },
+  routineLegendItem: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: 5 },
+  routineLegendDot: { width: 8, height: 8, borderRadius: 4 },
+  routineLegendDotDone: {
+    backgroundColor: COLORS.neonGreen,
+    shadowColor: COLORS.neonGreen, shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8, shadowRadius: 5,
+  },
+  routineLegendDotToday: {
+    backgroundColor: COLORS.neonCyan,
+    shadowColor: COLORS.neonCyan, shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9, shadowRadius: 5,
+  },
+  routineLegendText: {
+    fontFamily: 'PressStart2P', color: COLORS.textSecondary, fontSize: 11, letterSpacing: 1,
+  },
+
+  // 가로 스크롤 컨테이너 (상대 배치 — 우측 페이드 오버레이 얹기 위함)
+  routineScrollWrapper: { position: 'relative' as const },
+  routineScrollContent: { paddingLeft: 16, paddingRight: 40, gap: 8 },
+
+  // 상태별 칩 공통
+  routineChipBase: {
     flexDirection: 'row' as const, alignItems: 'center' as const, gap: 6,
-    backgroundColor: COLORS.bgCard, borderWidth: 1, borderColor: COLORS.borderSubtle,
-    borderRadius: 20, paddingLeft: 12, paddingRight: 4, paddingVertical: 6,
+    borderRadius: 999, paddingVertical: 8,
   },
-  routineChipText: { fontFamily: 'Inter', color: COLORS.textSecondary, fontSize: 12 },
-  routineDeleteButton: {
-    width: 20, height: 20, borderRadius: 10,
-    backgroundColor: COLORS.bgElevated,
-    alignItems: 'center' as const, justifyContent: 'center' as const,
+  routineChipTextBase: {
+    fontFamily: 'InterSemiBold', fontSize: 13,
   },
-  routineDeleteText: { color: COLORS.neonRed, fontSize: 11, fontWeight: 'bold' as const },
+
+  // DONE: 그린 네온 + 반투명 배경 + 체크 아이콘
+  routineChipDone: {
+    backgroundColor: 'rgba(0, 255, 136, 0.06)',
+    borderWidth: 1, borderColor: 'rgba(0, 255, 136, 0.35)',
+    shadowColor: COLORS.neonGreen, shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25, shadowRadius: 8,
+    paddingLeft: 10, paddingRight: 12,
+  },
+  routineChipTextDone: {
+    color: '#B8FFDD', textDecorationLine: 'line-through' as const,
+    textDecorationColor: 'rgba(0, 255, 136, 0.5)',
+  },
+
+  // TODAY: 시안 네온 + 강한 글로우 + 펄스 점
+  routineChipToday: {
+    backgroundColor: 'rgba(0, 240, 255, 0.08)',
+    borderWidth: 1, borderColor: 'rgba(0, 240, 255, 0.6)',
+    shadowColor: COLORS.neonCyan, shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5, shadowRadius: 10,
+    paddingLeft: 10, paddingRight: 12,
+  },
+  routineChipTextToday: {
+    color: COLORS.textPrimary,
+    textShadowColor: 'rgba(0, 240, 255, 0.6)', textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 8,
+  },
+  routineChipDotToday: {
+    width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.neonCyan,
+    shadowColor: COLORS.neonCyan, shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9, shadowRadius: 6,
+  },
+
+  // OTHER: 머트 보더 + 회색 텍스트 (오늘 요일 아닌 루틴)
+  routineChipOther: {
+    backgroundColor: 'rgba(26, 26, 53, 0.4)',
+    borderWidth: 1, borderColor: 'rgba(85, 85, 119, 0.4)',
+    paddingLeft: 12, paddingRight: 12,
+  },
+  routineChipTextOther: {
+    color: COLORS.textSecondary, fontFamily: 'Inter',
+  },
+
+  // 우측 페이드 오버레이 (SVG 그라데이션 — pointerEvents는 JSX에서 prop로 지정)
+  routineFadeOverlay: {
+    position: 'absolute' as const, top: 0, right: 0, bottom: 0, width: 48,
+  },
+  routineFadeGradient: {
+    position: 'absolute' as const, top: 0, right: 0, bottom: 0, left: 0,
+  },
+
+  // 하단 스크롤 위치 인디케이터 (3점)
+  routineDots: {
+    flexDirection: 'row' as const, justifyContent: 'center' as const,
+    alignItems: 'center' as const, gap: 4, marginTop: 8,
+  },
+  routineDot: {
+    width: 4, height: 4, borderRadius: 2, backgroundColor: COLORS.borderSubtle,
+  },
+  routineDotActive: {
+    backgroundColor: COLORS.neonCyan,
+    shadowColor: COLORS.neonCyan, shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.7, shadowRadius: 4,
+  },
 
   // 섹션 라벨 (TODAY / UPCOMING / PAST)
   timeSectionLabel: {
