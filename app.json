@@ -18,11 +18,15 @@
       "appleTeamId": "L993PK7S6Q",
       "entitlements": {
         "com.apple.security.application-groups": [
+          "group.com.limheerae.TodayIdid",
           "group.com.limheerae.TodayIdid"
         ]
       },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
+      },
+      "runtimeVersion": {
+        "policy": "appVersion"
       }
     },
     "android": {
@@ -33,7 +37,8 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.limheerae.Today_I_did"
+      "package": "com.limheerae.Today_I_did",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -47,8 +52,28 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "f3048785-2af4-404e-9821-f4031a421207"
+        "projectId": "f3048785-2af4-404e-9821-f4031a421207",
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "bundleIdentifier": "com.limheerae.TodayIdid.widget",
+                  "targetName": "TetrisWidget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.limheerae.TodayIdid"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/f3048785-2af4-404e-9821-f4031a421207"
     }
   }
 }
