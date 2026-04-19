@@ -1,0 +1,23 @@
+Today I Did — Font Attributions
+================================
+
+This app uses the following fonts, both licensed under the
+SIL Open Font License, Version 1.1.
+
+- Press Start 2P
+  Copyright (c) CodeMan38 (cody@zone38.net)
+  Source: https://fonts.google.com/specimen/Press+Start+2P
+
+- Inter
+  Copyright (c) The Inter Project Authors
+  Source: https://fonts.google.com/specimen/Inter
+
+SIL Open Font License 1.1
+-------------------------
+Full text: https://scripts.sil.org/OFL
+Summary:
+- Free to use, study, modify, and redistribute (including bundled
+  in commercial software such as this app).
+- Must be distributed under the same OFL license.
+- The font files themselves cannot be sold on their own.
+- Modified versions cannot reuse the reserved font names.
