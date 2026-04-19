@@ -63,6 +63,7 @@
     "gameDetail": "게임 {{num}} 상세보기",
     "lineClear": "줄 클리어",
     "tasksCompleted": "완료한 일",
+    "tasksIncomplete": "미완료",
     "lineInfo": "LINE — {{count}}줄 · +{{score}}"
   },
 

@@ -45,6 +45,12 @@ export interface CompletedTask {
   completedAt: number
 }
 
+export interface IncompleteTask {
+  content: string
+  blockType: BlockType
+  colorId: number
+}
+
 export interface AchievementRecord {
   id: string
   content: string
@@ -66,5 +72,6 @@ export interface GameHistory {
   finalScore: number
   totalLineClears: number
   completedTasks: CompletedTask[]
+  incompleteTasks: IncompleteTask[]
   achievements: GameHistoryAchievement[]
 }

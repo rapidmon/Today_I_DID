@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 import { ChartIcon } from '@/components/ui/Icons'
 import { useHistoryStore } from '@/stores/historyStore'
-import { BLOCK_TYPE_COLORS } from '@/constants/tetris'
+import { getColorHex } from '@/lib/colorMapper'
 
 export default function HistoryScreen() {
   const { t, i18n } = useTranslation()
@@ -79,13 +79,21 @@ export default function HistoryScreen() {
                     <Text style={s.statValue}>{item.completedTasks.length}</Text>
                     <Text style={s.statLabel}>{t('history.tasksCompleted')}</Text>
                   </View>
-                  {item.achievements.length > 0 && (
+                  <View style={s.stat}>
+                    <Text style={[s.statValue, s.statValueMuted]}>
+                      {(item.incompleteTasks ?? []).length}
+                    </Text>
+                    <Text style={s.statLabel}>{t('history.tasksIncomplete')}</Text>
+                  </View>
+                  {(item.achievements.length > 0 ||
+                    item.completedTasks.length > 0 ||
+                    (item.incompleteTasks ?? []).length > 0) && (
                     <Text style={s.expandArrow}>{isExpanded ? '▲' : '▼'}</Text>
                   )}
                 </View>
 
-                {/* 펼침 — 줄 클리어 성취 */}
-                {isExpanded && item.achievements.length > 0 && (
+                {/* 펼침 — 줄 클리어 성취 + 태스크 목록 */}
+                {isExpanded && (
                   <View style={s.expandedBody}>
                     {item.achievements.map((ach) => (
                       <View key={ach.id} style={s.achRow}>
@@ -95,6 +103,34 @@ export default function HistoryScreen() {
                         </Text>
                       </View>
                     ))}
+
+                    {item.completedTasks.length > 0 && (
+                      <View style={s.taskSection}>
+                        <Text style={s.taskSectionLabel}>{t('history.tasksCompleted')}</Text>
+                        {item.completedTasks.map((task, i) => (
+                          <View key={`c-${i}`} style={s.taskRow}>
+                            <View style={[s.taskDot, { backgroundColor: getColorHex(task.colorId) }]} />
+                            <Text style={s.taskText} numberOfLines={1}>{task.content}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+
+                    {(item.incompleteTasks ?? []).length > 0 && (
+                      <View style={s.taskSection}>
+                        <Text style={[s.taskSectionLabel, s.taskSectionLabelMuted]}>
+                          {t('history.tasksIncomplete')}
+                        </Text>
+                        {(item.incompleteTasks ?? []).map((task, i) => (
+                          <View key={`i-${i}`} style={s.taskRow}>
+                            <View style={[s.taskDot, s.taskDotMuted]} />
+                            <Text style={[s.taskText, s.taskTextMuted]} numberOfLines={1}>
+                              {task.content}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
                   </View>
                 )}
               </Pressable>
@@ -172,7 +208,39 @@ const s = StyleSheet.create({
     textShadowColor: 'rgba(0, 240, 255, 0.3)', textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 6,
   },
+  statValueMuted: {
+    color: '#8888AA',
+    textShadowColor: 'transparent',
+  },
   statLabel: { fontFamily: 'InterBold', fontSize: 11, color: '#8888AA', marginTop: 2 },
+  taskSection: {
+    marginTop: 10, paddingTop: 10,
+    borderTopWidth: 1, borderTopColor: 'rgba(42, 42, 80, 0.5)',
+  },
+  taskSectionLabel: {
+    fontFamily: 'PressStart2P', fontSize: 9, letterSpacing: 1.2,
+    color: '#00F0FF', marginBottom: 6,
+  },
+  taskSectionLabelMuted: {
+    color: '#8888AA',
+  },
+  taskRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4,
+  },
+  taskDot: {
+    width: 8, height: 8, borderRadius: 2,
+  },
+  taskDotMuted: {
+    backgroundColor: '#5A5A72',
+  },
+  taskText: {
+    fontFamily: 'Inter', fontSize: 13, color: '#E8E8FF', flex: 1,
+  },
+  taskTextMuted: {
+    color: '#8888AA',
+    textDecorationLine: 'line-through',
+    textDecorationColor: 'rgba(136, 136, 170, 0.6)',
+  },
   expandArrow: { color: '#00F0FF', fontSize: 14, marginLeft: 'auto' },
   expandedBody: {
     borderTopWidth: 1, borderTopColor: 'rgba(42, 42, 80, 0.5)',

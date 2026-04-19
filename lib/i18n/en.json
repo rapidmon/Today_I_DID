@@ -63,6 +63,7 @@
     "gameDetail": "Game {{num}} details",
     "lineClear": "Lines cleared",
     "tasksCompleted": "Tasks done",
+    "tasksIncomplete": "Missed",
     "lineInfo": "LINE — {{count}} lines · +{{score}}"
   },
 
