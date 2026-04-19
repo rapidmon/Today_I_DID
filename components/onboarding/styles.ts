@@ -43,6 +43,12 @@ export const sharedStyles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 12,
   },
+  accentRed: {
+    color: COLORS.neonRed,
+    textShadowColor: 'rgba(255, 51, 85, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 12,
+  },
   hintText: {
     fontFamily: 'Inter',
     fontSize: 16,
