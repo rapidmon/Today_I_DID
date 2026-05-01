@@ -229,7 +229,7 @@ export default function HomeScreen() {
               completedAt: t.completedAt ?? Date.now(),
             }))
           const incompleteTasks = currentTasks
-            .filter(t => t.status === 'pending' && t.blockType && t.colorId !== null)
+            .filter(t => (t.status === 'pending' || t.status === 'failed') && t.blockType && t.colorId !== null)
             .map(t => ({
               content: t.content,
               blockType: t.blockType!,
@@ -249,9 +249,9 @@ export default function HomeScreen() {
           useHistoryStore.getState().addHistory(history)
           if (__DEV__) console.log('[히스토리 저장 완료] 전체 개수:', useHistoryStore.getState().histories.length)
 
-          // 게임에 올라간 태스크(완료·미완료)를 archived로 변경
+          // 게임에 올라간 태스크(완료·미완료·실패)를 archived로 변경
           useTaskStore.getState().setTasks(prev => prev.map(t =>
-            (t.status === 'completed' || t.status === 'pending') && t.blockType && t.colorId !== null
+            (t.status === 'completed' || t.status === 'pending' || t.status === 'failed') && t.blockType && t.colorId !== null
               ? { ...t, status: 'archived' as const }
               : t
           ))
@@ -284,7 +284,7 @@ export default function HomeScreen() {
               t => t.status === 'completed' && t.blockType && t.colorId !== null
             )
             const incompleteTasks = currentTasks.filter(
-              t => t.status === 'pending' && t.blockType && t.colorId !== null
+              t => (t.status === 'pending' || t.status === 'failed') && t.blockType && t.colorId !== null
             )
 
             const history: GameHistory = {
@@ -307,7 +307,7 @@ export default function HomeScreen() {
             }
             useHistoryStore.getState().addHistory(history)
             useTaskStore.getState().setTasks(prev => prev.map(t =>
-              (t.status === 'completed' || t.status === 'pending') && t.blockType && t.colorId !== null
+              (t.status === 'completed' || t.status === 'pending' || t.status === 'failed') && t.blockType && t.colorId !== null
                 ? { ...t, status: 'archived' as const }
                 : t
             ))
