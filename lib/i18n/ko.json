@@ -33,7 +33,6 @@
     "dayDeselect": "해제",
     "pastCollapse": "과거 접기",
     "pastExpand": "과거 펼치기",
-    "pastDays": "{{count}}일",
     "deleteTaskTitle": "할 일 삭제",
     "deleteTaskMessage": "이 할 일을 삭제할까요?",
     "deleteRoutineTitle": "루틴 삭제",

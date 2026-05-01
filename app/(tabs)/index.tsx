@@ -1064,7 +1064,6 @@ export default function HomeScreen() {
                   >
                     <View style={styles.pastToggleLeft}>
                       <Text style={[styles.timeSectionLabel, styles.sectionLabelPast, styles.pastLabelInline]}>&lt;PAST&gt;</Text>
-                      <Text style={styles.pastCount}>{t('home.pastDays', { count: pastDates.length })}</Text>
                     </View>
                     <View style={{ transform: [{ rotate: pastExpanded ? '180deg' : '0deg' }] }}>
                       <ChevronDownIcon size={12} color="#8B5CF6" />

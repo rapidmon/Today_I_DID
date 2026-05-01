@@ -33,7 +33,6 @@
     "dayDeselect": "deselect",
     "pastCollapse": "Collapse past",
     "pastExpand": "Expand past",
-    "pastDays": "{{count}} days",
     "deleteTaskTitle": "Delete Task",
     "deleteTaskMessage": "Delete this task?",
     "deleteRoutineTitle": "Delete Routine",

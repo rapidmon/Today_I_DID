@@ -399,9 +399,6 @@ export const homeStyles = StyleSheet.create({
   pastToggleLeft: {
     flexDirection: 'row' as const, alignItems: 'center' as const, gap: 10,
   },
-  pastCount: {
-    fontFamily: 'Inter', color: COLORS.textMuted, fontSize: 12,
-  },
   pastContent: {
     marginHorizontal: 12, opacity: 0.6,
   },
